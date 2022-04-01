@@ -1,0 +1,33 @@
+package ${BaseConstraintsCrudNativeRepositoriesTestPackage};
+
+import java.sql.SQLException;
+
+
+public class MySQLConstraints extends AbstractConstraints
+{
+    private static final MySQLConstraints instance = new MySQLConstraints();
+
+
+    private MySQLConstraints() {}
+
+
+    public static MySQLConstraints getInstance()
+    {
+        return instance;
+    }
+
+
+    @Override
+    protected StringBuilder getQueryConstraints(String tableName, String constraintName, boolean enable)
+                                                throws SQLException
+    {
+        StringBuilder query = new StringBuilder();
+
+        query.append("SET FOREIGN_KEY_CHECKS = ");
+        query.append((enable) ? "1" : "0");
+
+        return query;
+    }
+
+}
+

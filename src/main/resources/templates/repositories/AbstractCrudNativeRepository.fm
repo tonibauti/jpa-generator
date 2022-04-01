@@ -1,0 +1,899 @@
+package ${BaseCrudNativeRepositoriesPackage};
+
+import ${ConfigPackage}.${JpaConfig};
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
+import javax.annotation.PostConstruct;
+import javax.persistence.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+
+@SuppressWarnings("unchecked")
+public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeRepository<T, ID>
+{
+    protected final List<T> EMPTY_LIST = new ArrayList<>();
+
+    private Class<T> entityClass;
+    private Class<ID> keyClass;
+
+    @Autowired
+    @PersistenceContext(unitName = ${JpaConfig}.UNIT_NAME)
+    private EntityManager entityManager;
+
+
+    protected AbstractCrudNativeRepository() {}
+
+
+    @PostConstruct
+    private void init()
+    {
+        try
+        {
+            // class
+            entityClass = ((Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
+            keyClass    = (Class<ID>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
+        }
+        catch (ClassCastException e)
+        {
+            // proxied class
+            entityClass = ((Class<T>) ((ParameterizedType) (((Class<T>) getClass()
+                                                                        .getAnnotatedSuperclass()
+                                                                        .getType())
+                                                                        .getGenericSuperclass()))
+                                                                        .getActualTypeArguments()[0]);
+
+            keyClass = ((Class<ID>) ((ParameterizedType) (((Class<ID>) getClass()
+                                                                        .getAnnotatedSuperclass()
+                                                                        .getType())
+                                                                        .getGenericSuperclass()))
+                                                                        .getActualTypeArguments()[1]);
+        }
+
+        CrudNativeEntityData.addEntityData(entityClass, keyClass);
+    }
+
+
+    protected EntityManager getEntityManager()
+    {
+        return entityManager;
+    }
+
+
+    protected Class<T> getEntityClass()
+    {
+        return entityClass;
+    }
+
+
+    protected Class<ID> getKeyClass()
+    {
+        return keyClass;
+    }
+
+
+    protected CrudNativeEntityData getEntityData(Class<?> entityClass)
+    {
+        CrudNativeEntityData entityData = CrudNativeEntityData.getEntityData( entityClass );
+
+        if (isNullOrEmpty(entityData))
+            throw new PersistenceException( entityClass.getName() +
+                                            ": entity data by class '" + entityClass.getSimpleName() + "' not found" );
+
+        return entityData;
+    }
+
+
+    protected CrudNativeEntityData getEntityData()
+    {
+        return getEntityData( getEntityClass() );
+    }
+
+
+    protected CrudNativeEntityData.JoinData getJoinData(Class<?> referencedClass)
+    {
+        return getEntityData().getJoinData( referencedClass );
+    }
+
+
+    protected CrudNativeEntityData.JoinData getJoinData(String propertyName)
+    {
+        return getEntityData().getJoinData( propertyName );
+    }
+
+
+    protected Collection<CrudNativeEntityData.JoinData> getAllJoinData()
+    {
+        return getEntityData().getAllJoinData();
+    }
+
+
+    protected String getTableName()
+    {
+        return getEntityData().getTableName();
+    }
+
+
+    protected String getTableName(Class<?> entityClass)
+    {
+        return getEntityData(entityClass).getTableName();
+    }
+
+
+    protected String getFullTableName()
+    {
+        return getEntityData().getFullTableName();
+    }
+
+
+    protected String getFullTableName(Class<?> entityClass)
+    {
+        return getEntityData(entityClass).getFullTableName();
+    }
+
+
+    protected String[] getColumnsName()
+    {
+        return getEntityData().getColumnsName();
+    }
+
+
+    protected String[] getColumnsName(Class<?> entityClass)
+    {
+        return getEntityData(entityClass).getColumnsName();
+    }
+
+
+    protected StringBuilder getSelectColumns(String... columns)
+    {
+        return getEntityData().getSelectColumns(getTableName(), columns);
+    }
+
+
+    protected StringBuilder getSelectColumns(Class<?> entityClass, String... columns)
+    {
+        return getEntityData(entityClass).getSelectColumns(getTableName(entityClass), columns);
+    }
+
+
+    protected StringBuilder getInsertColumns()
+    {
+        return getEntityData().getInsertColumns();
+    }
+
+
+    protected StringBuilder getInsertColumns(Class<?> entityClass)
+    {
+        return getEntityData(entityClass).getInsertColumns();
+    }
+
+
+    protected StringBuilder getUpdateColumns(String... columns)
+    {
+        return getEntityData().getUpdateColumns(columns);
+    }
+
+
+    protected StringBuilder getUpdateColumns(Class<?> entityClass, String... columns)
+    {
+        return getEntityData(entityClass).getUpdateColumns(columns);
+    }
+
+
+    protected StringBuilder getEqualsKeyColumns()
+    {
+        return getEntityData().getEqualsKeyColumns();
+    }
+
+
+    protected StringBuilder getEqualsKeyColumns(Class<?> entityClass)
+    {
+        return getEntityData(entityClass).getEqualsKeyColumns();
+    }
+
+
+    protected StringBuilder getValuesColumns()
+    {
+        return getEntityData().getValuesColumns();
+    }
+
+
+    protected StringBuilder getValuesColumns(Class<?> entityClass)
+    {
+        return getEntityData(entityClass).getValuesColumns();
+    }
+
+
+    protected boolean isNullOrEmpty(Object value)
+    {
+        if (value == null)
+            return true;
+
+        if (value.getClass().isArray() && (Array.getLength(value) == 0))
+            return true;
+
+        if (value instanceof Collection && ((Collection<?>)value).isEmpty())
+            return true;
+
+        if (value instanceof Map && ((Map<?,?>)value).isEmpty())
+            return true;
+
+        if (value instanceof Sort && ((Sort)value).isEmpty())
+            return true;
+
+        if (value instanceof String)
+            return ((String)value).trim().isEmpty();
+
+        return false;
+    }
+
+
+    protected boolean isNotEmpty(Object value)
+    {
+        return !isNullOrEmpty(value);
+    }
+
+
+    protected void whereByFilter(StringBuilder sql, Map<String, Object> filterMap, boolean isLike)
+    {
+        if (isNullOrEmpty(filterMap))
+            return;
+
+        sql.append( " WHERE " );
+
+        int i=0;
+        for (Map.Entry<String, Object> entry : filterMap.entrySet())
+        {
+            String column = getTableName() + "." + entry.getKey();
+            Object value  = entry.getValue();
+
+            if (i++ > 0)
+                sql.append( " AND " );
+
+            if (value == null)
+            {
+                sql.append(column + " is null");
+            }
+            else
+            if (value instanceof String && isLike)
+            {
+                sql.append(column + " LIKE CONCAT('%',CONCAT(?,'%'))");
+            }
+            else
+            {
+                sql.append(column + " = ?");
+            }
+        }
+    }
+
+
+    protected int setFilterParameters(int index, Query query, Map<String, Object> filterMap)
+    {
+        if (isNotEmpty(filterMap))
+            for (Object value : filterMap.values())
+                if (value != null)
+                    query.setParameter(index++, value);
+
+        return index;
+    }
+
+
+    protected int setKeyParameters(int index, Query query, Object obj)
+    {
+        if (obj.getClass().equals(getKeyClass()))
+        {
+            ID id = (ID) obj;
+
+            if (getEntityData().isMultipleKey())
+            {
+                for (Object value : getKeyValues(id))
+                    query.setParameter(index++, value);
+            }
+            else
+            {
+                query.setParameter(1, id);
+            }
+        }
+        else
+        {
+            T entity = (T) obj;
+
+            for (Object value : getKeyValues(entity))
+                query.setParameter(index++, value);
+        }
+
+        return index;
+    }
+
+
+    protected int setValueParameters(int index, Query query, Object[] values)
+    {
+        if (values != null)
+            for (Object value : values)
+                query.setParameter(index++, value);
+
+        return index;
+    }
+
+
+    protected void setOffsetAndLimit(Query query, Pageable pageable)
+    {
+        if (isNullOrEmpty(pageable))
+            return;
+
+        query.setFirstResult( Math.max(0, (int)pageable.getOffset()) );
+        query.setMaxResults ( Math.max(1, pageable.getPageSize()) );
+    }
+
+
+    protected void orderBy(String tableName, StringBuilder sql, Pageable pageable)
+    {
+        if (isNullOrEmpty(pageable))
+            return;
+
+        if (isNullOrEmpty(pageable.getSort()))
+            return;
+
+        sql.append( " ORDER BY " );
+
+        tableName = isNotEmpty(tableName) ? (tableName + ".") : "";
+
+        int i=0;
+        for (Sort.Order order : pageable.getSort())
+        {
+            String column = tableName + order.getProperty();
+
+            if (i++ > 0)
+                sql.append( ", " );
+
+            sql.append( column + " " + order.getDirection() );
+        }
+    }
+
+    protected Map<String, Object> getFilterMap(Object filter)
+    {
+        return getEntityData().getFilterMap( filter );
+    }
+
+
+    protected Object[] getKeyValues(Object obj)
+    {
+        return getEntityData().getKeyValues( obj );
+    }
+
+
+    protected Object[] getValues(Object entity, boolean includeKeys, String... columns)
+    {
+        return getEntityData().getValues(entity, includeKeys, columns);
+    }
+
+
+    protected long readLongResult(Query query)
+    {
+        return ((Number) query.getSingleResult()).longValue();
+    }
+
+
+    protected Object readResult(Query query, String[] columns)
+    {
+        return readResult(getEntityClass(), query, columns);
+    }
+
+
+    protected Object readResult(Class<?> entityClass, Query query, String[] columns)
+    {
+        Object result = query.getSingleResult();
+        return getEntityData(entityClass).readResult(columns, result);
+    }
+
+
+    protected List<Object> readResultList(Query query, String[] columns)
+    {
+        return readResultList(getEntityClass(), query, columns);
+    }
+
+
+    protected List<Object> readResultList(Class<?> entityClass, Query query, String[] columns)
+    {
+        List<Object> results = query.getResultList();
+        return getEntityData(entityClass).readResultList(columns, results);
+    }
+
+
+    //
+    // Custom Repository Interface
+    //
+
+    @Override
+    public long count(T filter)
+    {
+        try
+        {
+            final StringBuilder sql = new StringBuilder()
+            .append( "SELECT COUNT(*) FROM " )
+            .append( getTableName() )
+            ;
+
+            Map<String, Object> filterMap = getFilterMap( filter );
+            whereByFilter(sql, filterMap, true);
+
+            Query query = getEntityManager().createNativeQuery( sql.toString() );
+            setFilterParameters(1, query, filterMap);
+
+            return readLongResult( query );
+        }
+        catch (NoResultException e)
+        {
+            return 0;
+        }
+    }
+
+
+    @Override
+    public long countAll()
+    {
+        try
+        {
+            final StringBuilder sql = new StringBuilder()
+            .append( "SELECT COUNT(*) FROM " )
+            .append( getTableName() )
+            ;
+
+            Query query = getEntityManager().createNativeQuery( sql.toString() );
+
+            return readLongResult( query );
+        }
+        catch (NoResultException e)
+        {
+            return 0;
+        }
+    }
+
+
+    @Override
+    public boolean exists(T filter)
+    {
+        if (isNullOrEmpty(filter))
+            return false;
+
+        try
+        {
+            final StringBuilder sql = new StringBuilder()
+            .append( "SELECT COUNT(*) FROM " )
+            .append( getTableName() )
+            ;
+
+            Map<String, Object> filterMap = getFilterMap( filter );
+
+            if (isNullOrEmpty(filterMap))
+                return false;
+
+            whereByFilter(sql, filterMap, false);
+
+            Query query = getEntityManager().createNativeQuery( sql.toString() );
+            setFilterParameters(1, query, filterMap);
+
+            return (readLongResult(query) > 0);
+        }
+        catch (NoResultException e)
+        {
+            return false;
+        }
+    }
+
+
+    @Override
+    public boolean existsById(ID id)
+    {
+        if (isNullOrEmpty(id))
+            return false;
+
+        try
+        {
+            final StringBuilder sql = new StringBuilder()
+            .append( "SELECT COUNT(*) FROM " )
+            .append( getTableName() )
+            .append( " WHERE " )
+            .append( getEqualsKeyColumns() )
+            ;
+
+            Query query = getEntityManager().createNativeQuery( sql.toString() );
+            setKeyParameters(1, query, id);
+
+            return (readLongResult(query) > 0);
+        }
+        catch (NoResultException e)
+        {
+            return false;
+        }
+    }
+
+
+    @Override
+    public List<T> find(T filter, Pageable pageable, String... columns)
+    {
+        try
+        {
+            final StringBuilder sql = new StringBuilder()
+            .append( "SELECT " )
+            .append( getSelectColumns(columns) )
+            .append( " FROM " )
+            .append( getTableName() )
+            ;
+
+            Map<String, Object> filterMap = getFilterMap( filter );
+            whereByFilter(sql, filterMap, true);
+            orderBy(getTableName(), sql, pageable);
+
+            Query query = getEntityManager().createNativeQuery( sql.toString() );
+            setFilterParameters(1, query, filterMap);
+            setOffsetAndLimit(query, pageable);
+
+            return (List<T>) readResultList(query, columns);
+        }
+        catch (NoResultException e)
+        {
+            return EMPTY_LIST;
+        }
+    }
+
+
+    @Override
+    public List<T> findAll(Pageable pageable, String... columns)
+    {
+        return find(null, pageable, columns);
+    }
+
+
+    @Override
+    public Page<T> findPage(T filter, Pageable pageable, String... columns)
+    {
+        long count = count(filter);
+
+        if (count > 0)
+        {
+            return new PageImpl<>(find(filter, pageable, columns), pageable, count);
+        }
+        else
+        {
+            return new PageImpl<>(EMPTY_LIST, pageable, 0);
+        }
+    }
+
+
+    @Override
+    public Page<T> findAllPage(Pageable pageable, String... columns)
+    {
+        long count = countAll();
+
+        if (count > 0)
+        {
+            return new PageImpl<>(findAll(pageable, columns), pageable, count);
+        }
+        else
+        {
+            return new PageImpl<>(EMPTY_LIST, pageable, 0);
+        }
+    }
+
+
+    @Override
+    public T get(T filter, String... columns)
+    {
+        if (isNullOrEmpty(filter))
+            return null;
+
+        try
+        {
+            final StringBuilder sql = new StringBuilder()
+            .append( "SELECT " )
+            .append( getSelectColumns(columns) )
+            .append( " FROM " )
+            .append( getTableName() )
+            ;
+
+            Map<String, Object> filterMap = getFilterMap( filter );
+
+            if (isNullOrEmpty(filterMap)) // get all
+                return null;
+
+            whereByFilter(sql, filterMap, false);
+
+            Query query = getEntityManager().createNativeQuery( sql.toString() );
+            setFilterParameters(1, query, filterMap);
+
+            return (T) readResult(query, columns);
+        }
+        catch (NoResultException e)
+        {
+            return null;
+        }
+    }
+
+
+    @Override
+    public T getById(ID id, String... columns)
+    {
+        if (isNullOrEmpty(id))
+            return null;
+
+        try
+        {
+            final StringBuilder sql = new StringBuilder()
+            .append( "SELECT " )
+            .append( getSelectColumns(columns) )
+            .append( " FROM " )
+            .append( getTableName() )
+            .append( " WHERE " )
+            .append( getEqualsKeyColumns() )
+            ;
+
+            Query query = getEntityManager().createNativeQuery( sql.toString() );
+            setKeyParameters(1, query, id);
+
+            return (T) readResult(query, columns);
+        }
+        catch (NoResultException e)
+        {
+            return null;
+        }
+    }
+
+
+    @Override
+    public int create(T entity)
+    {
+        if (isNullOrEmpty(entity))
+            return 0;
+
+        final StringBuilder sql = new StringBuilder()
+        .append( "INSERT INTO " )
+        .append( getTableName() )
+        .append( "(" )
+        .append( getInsertColumns() )
+        .append( ")" )
+        .append( " VALUES " )
+        .append( "(" )
+        .append( getValuesColumns() )
+        .append( ")" )
+        ;
+
+        Query query = getEntityManager().createNativeQuery( sql.toString() );
+        setValueParameters(1, query, getValues(entity, true));
+
+        return query.executeUpdate();
+    }
+
+
+    @Override
+    public int update(T entity, String... columns)
+    {
+        if (isNullOrEmpty(entity))
+            return 0;
+
+        final StringBuilder sql = new StringBuilder()
+        .append( "UPDATE " )
+        .append( getTableName() )
+        .append( " SET " )
+        .append( getUpdateColumns(columns) )
+        .append( " WHERE " )
+        .append( getEqualsKeyColumns() )
+        ;
+
+        Query query = getEntityManager().createNativeQuery( sql.toString() );
+
+        // values
+        int index = setValueParameters(1, query, getValues(entity, false, columns));
+
+        // keys
+        setKeyParameters(index, query, entity);
+
+        return query.executeUpdate();
+    }
+
+
+    @Override
+    public int update(T entity, T filter, String... columns)
+    {
+        if (isNullOrEmpty(entity))
+            return 0;
+
+        final StringBuilder sql = new StringBuilder()
+        .append( "UPDATE " )
+        .append( getTableName() )
+        .append( " SET " )
+        .append( getUpdateColumns(columns) )
+        ;
+
+        Map<String, Object> filterMap = getFilterMap( filter );
+
+        if (isNullOrEmpty(filterMap)) // update all
+            return 0;
+
+        whereByFilter(sql, filterMap, false);
+
+        Query query = getEntityManager().createNativeQuery( sql.toString() );
+
+        // values
+        int index = setValueParameters(1, query, getValues(entity, false, columns));
+
+        // filter
+        setFilterParameters(index, query, filterMap);
+
+        return query.executeUpdate();
+    }
+
+
+    @Override
+    public int delete(T filter)
+    {
+        if (isNullOrEmpty(filter))
+            return 0;
+
+        final StringBuilder sql = new StringBuilder()
+        .append( "DELETE FROM " )
+        .append( getTableName() )
+        ;
+
+        Map<String, Object> filterMap = getFilterMap( filter );
+
+        if (isNullOrEmpty(filterMap)) // delete all
+            return 0;
+
+        whereByFilter(sql, filterMap, false);
+
+        Query query = getEntityManager().createNativeQuery( sql.toString() );
+        setFilterParameters(1, query, filterMap);
+
+        return query.executeUpdate();
+    }
+
+
+    @Override
+    public int deleteById(ID id)
+    {
+        if (isNullOrEmpty(id))
+            return 0;
+
+        final StringBuilder sql = new StringBuilder()
+        .append( "DELETE FROM " )
+        .append( getTableName() )
+        .append( " WHERE " )
+        .append( getEqualsKeyColumns() )
+        ;
+
+        Query query = getEntityManager().createNativeQuery( sql.toString() );
+        setKeyParameters(1, query, id);
+
+        return query.executeUpdate();
+    }
+
+
+    @Override
+    public int deleteAll()
+    {
+        final StringBuilder sql = new StringBuilder()
+        .append( "DELETE FROM " )
+        .append( getTableName() )
+        ;
+
+        Query query = getEntityManager().createNativeQuery( sql.toString() );
+        return query.executeUpdate();
+    }
+
+
+    @Override
+    public void join(T entity, Class<?> referencedClass, String... columns)
+    {
+        join(entity, referencedClass, null, columns);
+    }
+
+
+    @Override
+    public void join(T entity, Class<?> referencedClass, Pageable pageable, String... columns)
+    {
+        if (isNullOrEmpty(entity))
+            return;
+
+        CrudNativeEntityData.JoinData joinData = getJoinData( referencedClass );
+
+        if (isNullOrEmpty(joinData))
+            throw new PersistenceException( getEntityClass().getName() +
+                                            ": join by referenced class '" + referencedClass.getSimpleName() + "' not found" );
+
+        doJoin(entity, joinData, pageable, columns);
+    }
+
+
+    @Override
+    public void join(T entity, String propertyName, String... columns)
+    {
+        join(entity, propertyName, null, columns);
+    }
+
+
+    @Override
+    public void join(T entity, String propertyName, Pageable pageable, String... columns)
+    {
+        if (isNullOrEmpty(entity))
+            return;
+
+        CrudNativeEntityData.JoinData joinData = getJoinData( propertyName );
+
+        if (isNullOrEmpty(joinData))
+            throw new PersistenceException( getEntityClass().getName() +
+                                            ": join by property '" + propertyName + "' not found" );
+
+        doJoin(entity, joinData, pageable, columns);
+    }
+
+
+    @Override
+    public void joinAll(T entity, String... columns)
+    {
+        if (isNullOrEmpty(entity))
+            return;
+
+        getAllJoinData().forEach( joinData -> doJoin(entity, joinData, null, columns) );
+    }
+
+
+    protected void doJoin(T entity, CrudNativeEntityData.JoinData joinData, Pageable pageable, String... columns)
+    {
+        try
+        {
+            Class<?> referencedClass = joinData.getReferencedClass();
+
+            String tableName = getTableName();
+            String referencedTableName = getTableName( referencedClass );
+            List<CrudNativeEntityData.JoinRef> joinRefList = joinData.getJoinRefList();
+
+            final StringBuilder sql = new StringBuilder()
+            .append( "SELECT " )
+            .append( getSelectColumns(referencedClass, columns) )
+            .append( " FROM " )
+            .append( referencedTableName + ", " + tableName )
+            .append( " WHERE " );
+            for (CrudNativeEntityData.JoinRef joinRef : joinRefList)
+            {
+                sql.append( referencedTableName + "." + joinRef.getReferencedColumnName() );
+                sql.append( " = " );
+                sql.append( tableName + "." + joinRef.getColumnName() );
+                sql.append( " AND " );
+            }
+            sql.append( getEqualsKeyColumns() )
+            ;
+
+            orderBy(referencedTableName, sql, pageable);
+
+            Query query = getEntityManager().createNativeQuery( sql.toString() );
+
+            // keys
+            setKeyParameters(1, query, entity);
+
+            // results
+            if (joinData.isMany())
+                joinData.setValue(entity, readResultList(referencedClass, query, columns));
+            else
+                joinData.setValue(entity, readResult(referencedClass, query, columns));
+        }
+        catch (NoResultException e)
+        {
+            /* ignore */
+        }
+        catch (Exception e)
+        {
+            throw new PersistenceException(e);
+        }
+    }
+
+}
+

@@ -1,0 +1,174 @@
+package ${BaseCrudNativeRepositoriesTestPackage};
+
+
+public class DataTestFactory
+{
+
+    private DataTestFactory() {}
+
+
+    public static Byte getByte()
+    {
+        return 0;
+    }
+
+
+    public static Short getShort()
+    {
+        return 0;
+    }
+
+
+    public static Integer getInteger()
+    {
+        return 0;
+    }
+
+
+    public static Long getLong()
+    {
+        return 0L;
+    }
+
+
+    public static Float getFloat()
+    {
+        return 0.0f;
+    }
+
+
+    public static Double getDouble()
+    {
+        return 0.0;
+    }
+
+
+    public static java.math.BigInteger getBigInteger()
+    {
+        return new java.math.BigInteger( getInteger().toString() );
+    }
+
+
+    public static java.math.BigDecimal getBigDecimal()
+    {
+        return new java.math.BigDecimal( getLong().toString() );
+    }
+
+
+    public static String getString()
+    {
+        return "x";
+    }
+
+
+    public static String getJson()
+    {
+        return "{}";
+    }
+
+
+    public static Boolean getBoolean()
+    {
+        return true;
+    }
+
+
+    public static char[] getCharArray()
+    {
+        return new char[0];
+    }
+
+
+    public static byte[] getByteArray()
+    {
+        return new byte[0];
+    }
+
+
+    public static java.util.Date getDate()
+    {
+        return new java.util.Date( System.currentTimeMillis() );
+    }
+
+
+    public static java.sql.Date getSqlDate()
+    {
+        return new java.sql.Date( System.currentTimeMillis() );
+    }
+
+
+    public static java.sql.Time getTime()
+    {
+        return new java.sql.Time( System.currentTimeMillis() );
+    }
+
+
+    public static java.sql.Timestamp getTimestamp()
+    {
+        return new java.sql.Timestamp( System.currentTimeMillis() );
+    }
+
+
+    public static java.sql.Clob getClob()
+    {
+        try
+        {
+            return new javax.sql.rowset.serial.SerialClob( getCharArray() );
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
+
+
+    public static java.sql.NClob getNClob()
+    {
+        return null;
+    }
+
+
+    public static java.sql.Blob getBlob()
+    {
+        try
+        {
+            return new javax.sql.rowset.serial.SerialBlob( getByteArray() );
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
+
+
+    public static java.sql.SQLXML getSQLXML()
+    {
+        return null;
+    }
+
+
+    public static java.sql.RowId getRowId()
+    {
+        return null;
+    }
+
+
+    public static java.sql.Ref getRef()
+    {
+        return null;
+    }
+
+
+    public static Object getObject()
+    {
+        return new Object();
+    }
+
+
+    public static Void getVoid()
+    {
+        return null;
+    }
+
+}
+

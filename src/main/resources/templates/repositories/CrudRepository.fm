@@ -1,0 +1,21 @@
+package ${CrudRepositoriesPackage};
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import ${EntitiesPackage}.${Entity};
+<#if isMultipleKey>
+import ${EntitiesPackage}.${Key};
+</#if>
+<#list importList as import>
+import ${import};
+</#list>
+
+
+public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}>
+{
+
+    <#list indexDataList as indexData>
+    <#if indexData.unique>${Entity}<#else>List<${Entity}></#if> ${indexData.findBy}(${indexData.param});
+
+    </#list>
+}
+

@@ -1,0 +1,132 @@
+package ${EntitiesPackage};
+
+import lombok.*;
+import javax.persistence.*;
+import java.io.Serializable;
+<#if isJson>
+import ${PersistencePackage}.Json;
+import ${PersistencePackage}.JsonType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
+</#if>
+<#list importList as import>
+import ${import};
+</#list>
+
+
+<#if builder>
+@Builder
+</#if>
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity(name = ${Entity}.NAME)
+@Table
+(
+    name = ${Entity}.TABLE,
+    schema = ${Entity}.SCHEMA,
+    catalog = ${Entity}.CATALOG,
+    indexes =
+    {
+        <#list indexDataList as indexData>
+        @Index(name = "${indexData.name}",
+               unique = ${indexData.unique?string},
+               columnList = ${Entity}.${indexData.column}_COLUMN),<#if indexData_has_next>${lineSeparator()}</#if>
+        </#list>
+    }
+)
+<#if isJson>
+@TypeDefs
+({
+    @TypeDef(name = JsonType.TYPE, typeClass = JsonType.class),
+})
+</#if>
+<#if isMultipleKey>
+@IdClass(${Key}.class)
+</#if>
+public class ${Entity} implements Serializable
+{
+    public static final String NAME    = "${entity}";
+
+    public static final String TABLE   = "${Table}";
+    public static final String SCHEMA  = "${Schema}";
+    public static final String CATALOG = "${Catalog}";
+
+    <#list fieldDataList as field>
+    public static final String ${field.column}_COLUMN = "${field.name}";
+    </#list>
+
+    <#list fieldDataList as fieldData>
+
+    <#list fieldData.annotations as annotation>
+    ${annotation}
+    </#list>
+    private ${fieldData.type} ${fieldData.property};
+    </#list>
+    <#if externalForeignKeyList?has_content>
+    <#list externalForeignKeyList as externalForeignKey>
+
+
+    @ToString.Exclude // avoid an infinite loop by lombok
+    <#if externalForeignKey.fk.many>
+    @OneToMany(mappedBy = ${externalForeignKey.mappedBy}, fetch = FetchType.LAZY)
+    private List<${asClass(externalForeignKey.fk.foreignTable)}Entity> ${asProperty(externalForeignKey.fk.foreignTable)}EntityList${externalForeignKey.suffix};
+    <#else>
+    @OneToOne(mappedBy = ${externalForeignKey.mappedBy}, fetch = FetchType.LAZY)
+    private ${asClass(externalForeignKey.fk.foreignTable)}Entity ${asProperty(externalForeignKey.fk.foreignTable)}Entity${externalForeignKey.suffix};
+    </#if>
+    </#list>
+    </#if>
+    <#if foreignKeyList?has_content>
+    <#list foreignKeyList as foreignKey>
+
+
+    @ToString.Exclude // avoid an infinite loop by lombok
+    <#if foreignKey.fk.many>
+    @ManyToOne(fetch = FetchType.LAZY, optional = ${foreignKey.fk.nullable?string})
+    <#else>
+    @OneToOne(fetch = FetchType.LAZY, optional = ${foreignKey.fk.nullable?string})
+    </#if>
+    <#list foreignKey.annotations as annotation>
+    ${annotation}
+    </#list>
+    private ${asClass(foreignKey.fk.foreignTable)}Entity ${asProperty(foreignKey.fk.foreignTable)}Entity${foreignKey.suffix};
+    </#list>
+    </#if>
+    <#if encodedDataList?has_content>
+
+
+    //
+    // Encoded
+    //
+    <#list encodedDataList as encodedData>
+
+    public ${encodedData.type} ${encodedData.getter}()
+    {
+        return ${encoder}.decode(${encodedData.property});
+    }
+
+    public void ${encodedData.setter}(${encodedData.type} ${encodedData.property})
+    {
+        this.${encodedData.property} = ${encoder}.encode(${encodedData.property});
+    }
+    </#list>
+
+    </#if>
+    <#if builder && encodedDataList?has_content>
+
+    public static class ${Entity}Builder
+    {
+        <#list encodedDataList as encodedData>
+        public ${Entity}Builder ${encodedData.property}(${encodedData.type} ${encodedData.property})
+        {
+            this.${encodedData.property} = ${encoder}.encode(${encodedData.property});
+            return this;
+        }<#if encodedData_has_next>${lineSeparator()}</#if>
+        </#list>
+    }
+
+    </#if>
+}
+

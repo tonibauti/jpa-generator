@@ -1,0 +1,159 @@
+package ${PersistencePackage};
+
+import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.usertype.UserType;
+
+import java.io.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+
+
+public class JsonType implements UserType
+{
+    public static final String TYPE = "JsonType";
+
+
+    public JsonType() {}
+
+
+    @Override
+    public int[] sqlTypes()
+    {
+        return new int[] { Types.JAVA_OBJECT };
+    }
+
+
+    @Override
+    public Class<?> returnedClass()
+    {
+        return Json.class;
+    }
+
+
+    @Override
+    public Object nullSafeGet(ResultSet rs,
+                              String[] names,
+                              SharedSessionContractImplementor session,
+                              Object owner) throws HibernateException, SQLException
+    {
+        try
+        {
+            String jsonContent = (!rs.wasNull()) ? rs.getString(names[0]) : null;
+
+            return (jsonContent != null) ? new Json(jsonContent) : null;
+        }
+        catch (Exception e)
+        {
+            throw new HibernateException("Failed to read Json", e);
+        }
+    }
+
+
+    @Override
+    public void nullSafeSet(PreparedStatement ps,
+                            Object value,
+                            int index,
+                            SharedSessionContractImplementor session) throws HibernateException, SQLException
+    {
+        try
+        {
+            String jsonContent = (value != null) ? ((Json)value).getContent() : null;
+
+            if (jsonContent == null)
+                ps.setNull(index, Types.OTHER);
+            else
+                ps.setObject(index, jsonContent, Types.OTHER);
+        }
+        catch (Exception e)
+        {
+            throw new HibernateException("Failed to write Json", e);
+        }
+    }
+
+
+    @Override
+    public Object deepCopy(Object value) throws HibernateException
+    {
+        if (value == null)
+            return null;
+
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             ObjectOutputStream oos = new ObjectOutputStream(bos))
+        {
+            oos.writeObject(value);
+            oos.flush();
+
+            try (ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray()))
+            {
+                return new ObjectInputStream(bis).readObject();
+            }
+        }
+        catch (Exception e)
+        {
+            throw new HibernateException("Failed to deep copy Json", e);
+        }
+    }
+
+
+    @Override
+    public boolean isMutable()
+    {
+        return true;
+    }
+
+
+    @Override
+    public Serializable disassemble(Object value) throws HibernateException
+    {
+        Object deepCopy = deepCopy( value );
+
+        if (deepCopy instanceof Serializable)
+        {
+            return (Serializable) deepCopy;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+
+    @Override
+    public Object assemble(Serializable cached, Object owner) throws HibernateException
+    {
+        return deepCopy( cached );
+    }
+
+
+    @Override
+    public Object replace(Object original, Object target, Object owner) throws HibernateException
+    {
+        return deepCopy( original );
+    }
+
+
+    @Override
+    public boolean equals(Object obj1, Object obj2) throws HibernateException
+    {
+        if (obj1 == null)
+        {
+            return (obj2 == null);
+        }
+        else
+        {
+            return obj1.equals( obj2 );
+        }
+    }
+
+
+    @Override
+    public int hashCode(Object obj) throws HibernateException
+    {
+        return (obj != null) ? obj.hashCode() : 0;
+    }
+
+}
+

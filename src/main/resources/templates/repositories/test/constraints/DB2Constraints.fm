@@ -1,0 +1,35 @@
+package ${BaseConstraintsCrudNativeRepositoriesTestPackage};
+
+import java.sql.SQLException;
+
+
+public class DB2Constraints extends AbstractConstraints
+{
+    private static final DB2Constraints instance = new DB2Constraints();
+
+
+    private DB2Constraints() {}
+
+
+    public static DB2Constraints getInstance()
+    {
+        return instance;
+    }
+
+
+    @Override
+    protected StringBuilder getQueryConstraints(String tableName, String constraintName, boolean enable)
+                                                throws SQLException
+    {
+        validateTableName( tableName );
+
+        StringBuilder query = new StringBuilder();
+
+        query.append("SET INTEGRITY FOR ").append(tableName);
+        query.append((enable) ? " ON " : " OFF ");
+
+        return query;
+    }
+
+}
+

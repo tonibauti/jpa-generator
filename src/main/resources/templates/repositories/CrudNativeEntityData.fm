@@ -1,0 +1,760 @@
+package ${BaseCrudNativeRepositoriesPackage};
+
+import javax.persistence.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
+
+
+public class CrudNativeEntityData
+{
+    private static final Map<String, CrudNativeEntityData> entityDataCache = new HashMap<>();
+
+
+    protected static CrudNativeEntityData getEntityData(Class<?> entityClass)
+    {
+        return (entityClass != null) ? entityDataCache.get( entityClass.getName() ) : null;
+    }
+
+
+    protected static void addEntityData(Class<?> entityClass, Class<?> keyClass)
+    {
+        if (entityClass != null && keyClass != null)
+            entityDataCache.put(entityClass.getName(), new CrudNativeEntityData(entityClass, keyClass));
+    }
+
+
+    private static class ColumnData
+    {
+        private Field field;
+        private String columnName;
+        private boolean isKey;
+        private boolean isGenerated;
+
+        public ColumnData copy()
+        {
+            ColumnData columnData = new ColumnData();
+            columnData.field = field;
+            columnData.columnName = columnName;
+            columnData.isKey = isKey;
+            columnData.isGenerated = isGenerated;
+            return columnData;
+        }
+    }
+
+    protected static class JoinRef
+    {
+        private final String columnName;
+        private final String referencedColumnName;
+
+        public JoinRef(String columnName, String referencedColumnName)
+        {
+            this.columnName = columnName;
+            this.referencedColumnName = referencedColumnName;
+        }
+        public String getColumnName() { return columnName; }
+        public String getReferencedColumnName() { return referencedColumnName; }
+    }
+
+    protected static class JoinData
+    {
+        private Field field;
+        private final List<JoinRef> joinRefList = new ArrayList<>();
+        private boolean isMany;
+        private Class<?> referencedClass;
+        private String referencedProperty;
+
+        public List<JoinRef> getJoinRefList() { return joinRefList; }
+        public boolean isMany() { return isMany; }
+        public Class<?> getReferencedClass() { return referencedClass; }
+        public void setValue(Object obj, Object value) throws Exception { field.set(obj, value); }
+    }
+
+
+    private Class<?> entityClass;
+    private Class<?> keyClass;
+
+    private String tableName;
+    private String fullTableName;
+    private String[] columnsName;
+
+    private final Map<String, ColumnData> columnDataMap = new LinkedHashMap<>();
+    private final Map<String, ColumnData> keyColumnDataMap = new LinkedHashMap<>();
+    private final Map<String, JoinData> joinDataMapByPropertyName = new LinkedHashMap<>();
+    private final Map<String, List<JoinData>> joinDataMapByClassName = new LinkedHashMap<>();
+
+    private final StringBuilder selectAllColumns = new StringBuilder();
+    private final StringBuilder insertColumns    = new StringBuilder();
+    private final StringBuilder updateAllColumns = new StringBuilder();
+    private final StringBuilder equalsKeyColumns = new StringBuilder();
+    private final StringBuilder valuesColumns    = new StringBuilder();
+
+
+    private CrudNativeEntityData() {}
+
+
+    public CrudNativeEntityData(Class<?> entityClass, Class<?> keyClass)
+    {
+        this.entityClass = entityClass;
+        this.keyClass    = keyClass;
+
+        readTable();
+        readColumns();
+        readJoins();
+
+        prepareSelectAllColumns();
+        prepareInsertColumns();
+        prepareUpdateColumns();
+        prepareEqualsKeyColumns();
+        prepareValuesColumns();
+    }
+
+
+    private boolean isNullOrEmpty(Object value)
+    {
+        if (value == null)
+            return true;
+
+        if (value.getClass().isArray() && (Array.getLength(value) == 0))
+            return true;
+
+        if (value instanceof Collection && ((Collection<?>)value).isEmpty())
+            return true;
+
+        if (value instanceof Map && ((Map<?,?>)value).isEmpty())
+            return true;
+
+        if (value instanceof String)
+            return ((String)value).trim().isEmpty();
+
+        return false;
+    }
+
+
+    private boolean isNotEmpty(Object value)
+    {
+        return !isNullOrEmpty(value);
+    }
+
+
+    private void readTable()
+    {
+        Table tableAnnotation = entityClass.getAnnotation(Table.class);
+
+        if (isNotEmpty(tableAnnotation))
+        {
+            tableName = tableAnnotation.name();
+
+            if (isNotEmpty(tableAnnotation.schema()))
+                fullTableName = tableAnnotation.schema() + "." + tableName;
+            else
+            if (isNotEmpty(tableAnnotation.catalog()))
+                fullTableName = tableAnnotation.catalog() + "." + tableName;
+            else
+                fullTableName = tableName;
+        }
+
+        if (isNullOrEmpty(tableName))
+            throw new PersistenceException(entityClass.getName() + ": undefined table name");
+    }
+
+
+    private void readColumns()
+    {
+        for (Field field : entityClass.getDeclaredFields())
+        {
+            Column columnAnnotation = field.getAnnotation(Column.class);
+
+            if (isNullOrEmpty(columnAnnotation))
+                continue;
+
+            field.setAccessible( true );
+
+            ColumnData columnData  = new ColumnData();
+            columnData.field       = field;
+            columnData.columnName  = columnAnnotation.name();
+            columnData.isKey       = field.isAnnotationPresent(Id.class);
+            columnData.isGenerated = field.isAnnotationPresent(GeneratedValue.class);
+
+            String columnName = columnAnnotation.name();
+
+            if (isNullOrEmpty(columnName))
+                throw new PersistenceException( entityClass.getName() +
+                                                ": undefined column name in '" + field.getName() + "' property" );
+
+            columnDataMap.put(columnName, columnData);
+
+            if (columnData.isKey)
+            {
+                keyColumnDataMap.put(columnAnnotation.name(), columnData.copy());
+            }
+        }
+
+        if (isNullOrEmpty(columnDataMap))
+            throw new PersistenceException(entityClass.getName() + ": undefined columns");
+
+        if (isNullOrEmpty(keyColumnDataMap))
+            throw new PersistenceException(entityClass.getName() + ": undefined key columns");
+
+
+        int i = 0;
+        columnsName = new String[ columnDataMap.size() ];
+        for (String columName : columnDataMap.keySet())
+            columnsName[i++] = columName;
+
+
+        if (isMultipleKey())
+        {
+            for (ColumnData keyColumnData : keyColumnDataMap.values())
+            {
+                String keyFieldName = keyColumnData.field.getName();
+
+                try
+                {
+                    Field keyField = keyClass.getDeclaredField( keyFieldName );
+                    keyField.setAccessible( true );
+                    keyColumnData.field = keyField;
+                }
+                catch (Exception e)
+                {
+                    throw new PersistenceException(keyClass.getName() + ": undefined '" + keyFieldName + "' property");
+                }
+            }
+        }
+    }
+
+
+    private void readJoins()
+    {
+        for (Field field : entityClass.getDeclaredFields())
+        {
+            PrimaryKeyJoinColumns primaryKeyJoinColumnsAnnotation = field.getAnnotation(PrimaryKeyJoinColumns.class);
+            PrimaryKeyJoinColumn primaryKeyJoinColumnAnnotation   = field.getAnnotation(PrimaryKeyJoinColumn.class);
+            JoinColumns joinColumnsAnnotation                     = field.getAnnotation(JoinColumns.class);
+            JoinColumn joinColumnAnnotation                       = field.getAnnotation(JoinColumn.class);
+            OneToOne oneToOneAnnotation                           = field.getAnnotation(OneToOne.class);
+            OneToMany oneToManyAnnotation                         = field.getAnnotation(OneToMany.class);
+
+            if (isNullOrEmpty(primaryKeyJoinColumnsAnnotation)
+                &&
+                isNullOrEmpty(primaryKeyJoinColumnAnnotation)
+                &&
+                isNullOrEmpty(joinColumnsAnnotation)
+                &&
+                isNullOrEmpty(joinColumnAnnotation)
+                &&
+                isNullOrEmpty(oneToOneAnnotation)
+                &&
+                isNullOrEmpty(oneToManyAnnotation))
+                continue;
+
+
+            field.setAccessible( true );
+
+            JoinData joinData = new JoinData();
+            joinData.field = field;
+
+            Class<?> referencedClass;
+
+            if (Collection.class.isAssignableFrom(field.getType()))
+            {
+                ParameterizedType genericType = (ParameterizedType) field.getGenericType();
+                referencedClass = ((Class<?>) genericType.getActualTypeArguments()[0]);
+                joinData.isMany = true;
+            }
+            else
+            {
+                referencedClass = field.getType();
+                joinData.isMany = false;
+            }
+
+            joinData.referencedClass = referencedClass;
+
+
+            if (isNotEmpty(primaryKeyJoinColumnsAnnotation))
+            {
+                if (isNullOrEmpty(primaryKeyJoinColumnsAnnotation.value()))
+                    throw new PersistenceException(entityClass.getName() +
+                                                   ": undefined primary joins columns in @PrimaryKeyJoinColumns");
+
+                for (PrimaryKeyJoinColumn primaryKeyJoinColumn : primaryKeyJoinColumnsAnnotation.value())
+                    joinData.joinRefList.add( new JoinRef(primaryKeyJoinColumn.name(),
+                                                          primaryKeyJoinColumn.referencedColumnName()) );
+            }
+            else
+            if (isNotEmpty(primaryKeyJoinColumnAnnotation))
+            {
+                joinData.joinRefList.add( new JoinRef(primaryKeyJoinColumnAnnotation.name(),
+                                                      primaryKeyJoinColumnAnnotation.referencedColumnName()) );
+            }
+            else
+            if (isNotEmpty(joinColumnsAnnotation))
+            {
+                if (isNullOrEmpty(joinColumnsAnnotation.value()))
+                    throw new PersistenceException(entityClass.getName() + ": undefined joins columns in @JoinColumns");
+
+                for (JoinColumn joinColumn : joinColumnsAnnotation.value())
+                    joinData.joinRefList.add( new JoinRef(joinColumn.name(),
+                                                          joinColumn.referencedColumnName()) );
+            }
+            else
+            if (isNotEmpty(joinColumnAnnotation))
+            {
+                joinData.joinRefList.add( new JoinRef(joinColumnAnnotation.name(),
+                                                      joinColumnAnnotation.referencedColumnName()) );
+            }
+            else
+            if (isNotEmpty(oneToOneAnnotation))
+            {
+                if (isNullOrEmpty(oneToOneAnnotation.mappedBy()))
+                    throw new PersistenceException(entityClass.getName() + ": undefined 'mappedBy' in @OneToOne");
+
+                joinData.referencedProperty = oneToOneAnnotation.mappedBy();
+            }
+            else
+            if (isNotEmpty(oneToManyAnnotation))
+            {
+                if (isNullOrEmpty(oneToManyAnnotation.mappedBy()))
+                    throw new PersistenceException(entityClass.getName() + ": undefined 'mappedBy' in @OneToMany");
+
+                joinData.referencedProperty = oneToManyAnnotation.mappedBy();
+            }
+
+            joinDataMapByPropertyName.put(field.getName(), joinData);
+            joinDataMapByClassName.computeIfAbsent(referencedClass.getName(), (key) -> new ArrayList<>()).add( joinData );
+        }
+    }
+
+
+    private void prepareSelectAllColumns()
+    {
+        int i = 0;
+        for (ColumnData columnData : columnDataMap.values())
+        {
+            if (i++ > 0)
+                selectAllColumns.append( ", " );
+
+            selectAllColumns.append( tableName + "." + columnData.columnName );
+        }
+    }
+
+
+    private void prepareInsertColumns()
+    {
+        int i = 0;
+        for (ColumnData columnData : columnDataMap.values())
+        {
+            if (i++ > 0)
+                insertColumns.append( ", " );
+
+            insertColumns.append( columnData.columnName );
+        }
+    }
+
+
+    private void prepareUpdateColumns()
+    {
+        int i = 0;
+        for (ColumnData columnData : columnDataMap.values())
+        {
+            if (columnData.isKey)
+                continue;
+
+            if (i++ > 0)
+                updateAllColumns.append( ", " );
+
+            updateAllColumns.append( columnData.columnName ).append( " = ?" );
+        }
+    }
+
+
+    private void prepareEqualsKeyColumns()
+    {
+        int i = 0;
+        for (ColumnData columnData : keyColumnDataMap.values())
+        {
+            if (i++ > 0)
+                equalsKeyColumns.append( " AND " );
+
+            equalsKeyColumns.append( tableName + "." + columnData.columnName ).append( " = ?" );
+        }
+    }
+
+
+    private void prepareValuesColumns()
+    {
+        for (int i=0; i<columnDataMap.size(); i++)
+        {
+            if (i > 0)
+                valuesColumns.append( ", " );
+
+            valuesColumns.append( "?" );
+        }
+    }
+
+
+    public Class<?> getEntityClass()
+    {
+        return entityClass;
+    }
+
+
+    public Class<?> getKeyClass()
+    {
+        return keyClass;
+    }
+
+
+    public String getTableName()
+    {
+        return tableName;
+    }
+
+
+    public String getFullTableName()
+    {
+        return fullTableName;
+    }
+
+
+    public String[] getColumnsName()
+    {
+        return columnsName;
+    }
+
+
+    private List<String> getValidColumns(String[] columns, boolean includeKeys, boolean strictMode)
+    {
+        List<String> result = new ArrayList<>();
+
+        for (String column : columns)
+        {
+            if (isNullOrEmpty(column))
+                continue;
+
+            if (!columnDataMap.containsKey(column))
+            {
+                if (strictMode)
+                    throw new PersistenceException(entityClass.getName() + ": column name '" + column + "' not found");
+                else
+                    continue;
+            }
+
+            if (keyColumnDataMap.containsKey(column) && !includeKeys)
+                continue;
+
+            result.add( column );
+        }
+
+        return result;
+    }
+
+
+    public StringBuilder getSelectColumns(String tableName, String... columns)
+    {
+        if (isNotEmpty(columns))
+        {
+            StringBuilder selectColumns = new StringBuilder();
+
+            tableName = (isNotEmpty(tableName)) ? (tableName + ".") : "";
+
+            int i = 0;
+            for (String column : getValidColumns(columns, true, false))
+            {
+                if (i++ > 0)
+                    selectColumns.append( ", " );
+
+                selectColumns.append( tableName ).append( column );
+            }
+
+            if (selectColumns.length() > 0)
+                return selectColumns;
+        }
+
+        return selectAllColumns;
+    }
+
+
+    public StringBuilder getInsertColumns()
+    {
+        return insertColumns;
+    }
+
+
+    public StringBuilder getUpdateColumns(String... columns)
+    {
+        if (isNotEmpty(columns))
+        {
+            StringBuilder updateColumns = new StringBuilder();
+
+            int i = 0;
+            for (String column : getValidColumns(columns, false, true))
+            {
+                if (i++ > 0)
+                    updateColumns.append( ", " );
+
+                updateColumns.append( column ).append( " = ?" );
+            }
+
+            if (updateColumns.length() > 0)
+                return updateColumns;
+        }
+
+        return updateAllColumns;
+    }
+
+
+    public StringBuilder getEqualsKeyColumns()
+    {
+        return equalsKeyColumns;
+    }
+
+
+    public StringBuilder getValuesColumns()
+    {
+        return valuesColumns;
+    }
+
+
+    public boolean isMultipleKey()
+    {
+        return (keyColumnDataMap.size() > 1);
+    }
+
+
+    private void readReferencedJoinRef(JoinData joinData)
+    {
+        if (isNotEmpty(joinData.referencedProperty) && isNullOrEmpty(joinData.joinRefList))
+        {
+            CrudNativeEntityData referencedEntityData = getEntityData( joinData.referencedClass );
+
+            if (isNullOrEmpty(referencedEntityData))
+                return;
+
+            JoinData referencedJoinData = referencedEntityData.getJoinData( joinData.referencedProperty );
+
+            if (isNullOrEmpty(referencedJoinData))
+                return;
+
+            // inverse reference
+            for (JoinRef referencedJoinRef : referencedJoinData.joinRefList)
+                joinData.joinRefList.add( new JoinRef(referencedJoinRef.referencedColumnName,
+                                                      referencedJoinRef.getColumnName()) );
+        }
+    }
+
+
+    public JoinData getJoinData(Class<?> referencedClass)
+    {
+        List<JoinData> joinDataList = joinDataMapByClassName.get( referencedClass.getName() );
+
+        if (isNullOrEmpty(joinDataList))
+            return null;
+
+        if (joinDataList.size() > 1)
+            throw new PersistenceException(entityClass.getName() +
+                                           ": found more than one referenced class '" + referencedClass.getSimpleName() + "'");
+
+        JoinData joinData = joinDataList.get(0);
+
+        readReferencedJoinRef( joinData );
+
+        return joinData;
+    }
+
+
+    public JoinData getJoinData(String propertyName)
+    {
+        JoinData joinData = joinDataMapByPropertyName.get( propertyName );
+
+        if (isNullOrEmpty(joinData))
+            return null;
+
+        readReferencedJoinRef( joinData );
+
+        return joinData;
+    }
+
+
+    public Collection<CrudNativeEntityData.JoinData> getAllJoinData()
+    {
+        joinDataMapByPropertyName.forEach((propertyName, joinData) -> readReferencedJoinRef( joinData) );
+        return joinDataMapByPropertyName.values();
+    }
+
+
+    public Map<String, Object> getFilterMap(Object filter)
+    {
+        Map<String, Object> filterMap = new LinkedHashMap<>();
+
+        try
+        {
+            if (filter != null)
+            {
+                filterMap = new LinkedHashMap<>();
+
+                for (ColumnData columnData : columnDataMap.values())
+                {
+                    Object value = columnData.field.get(filter);
+
+                    if (value != null)
+                        filterMap.put(columnData.columnName, value);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            throw new PersistenceException(e);
+        }
+
+        return filterMap;
+    }
+
+
+    public Object[] getKeyValues(Object obj)
+    {
+        Object[] values = new Object[ keyColumnDataMap.size() ];
+
+        try
+        {
+            int i = 0;
+
+            if (obj.getClass().equals(keyClass))
+            {
+                for (ColumnData columnData : keyColumnDataMap.values())
+                    values[i++] = columnData.field.get(obj);
+            }
+            else
+            {
+                for (String keyColumn : keyColumnDataMap.keySet())
+                    values[i++] = columnDataMap.get(keyColumn).field.get(obj);
+            }
+        }
+        catch (Exception e)
+        {
+            throw new PersistenceException(e);
+        }
+
+        return values;
+    }
+
+
+    public Object[] getValues(Object obj, boolean includeKeys, String... columns)
+    {
+        Object[] values;
+
+        try
+        {
+            if (isNotEmpty(columns))
+            {
+                List<String> columnList = getValidColumns(columns, includeKeys, true);
+
+                values = new Object[ columnList.size() ];
+
+                int i = 0;
+                for (String column : columnList)
+                    values[i++] = columnDataMap.get(column).field.get(obj);
+            }
+            else
+            {
+                values = (!includeKeys)
+                            ? new Object[ columnDataMap.size() - keyColumnDataMap.size()]
+                            : new Object[ columnDataMap.size() ];
+
+                int i = 0;
+                for (ColumnData columnData : columnDataMap.values())
+                {
+                    if (columnData.isKey && !includeKeys)
+                        continue;
+
+                    values[i++] = columnData.field.get(obj);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            throw new PersistenceException(e);
+        }
+
+        return values;
+    }
+
+
+    public List<Object> readResultList(String[] columns, List<Object> results)
+    {
+        List<Object> list = new ArrayList<>();
+
+        if (results != null)
+            for (Object result : results)
+                list.add( readResult(columns, result) );
+
+        return list;
+    }
+
+
+    public Object readResult(String[] columns, Object result)
+    {
+        try
+        {
+            if (isNullOrEmpty(columns))
+                columns = columnsName;
+
+            Object[] values = (columns.length == 1) ? new Object[]{result} : (Object[]) result;
+
+            Object entity = entityClass.getDeclaredConstructor().newInstance();
+
+            int i = 0;
+            for (String column : columns)
+            {
+                ColumnData columnData = columnDataMap.get( column );
+
+                if (isNullOrEmpty(columnData))
+                    continue;
+
+                Field field  = columnData.field;
+                Object value = values[i++];
+
+                if (value instanceof BigInteger)
+                {
+                    Class<?> fieldType = field.getType();
+
+                    if (fieldType.equals(Long.class))
+                        value = ((BigInteger)value).longValue();
+                    else
+                    if (fieldType.equals(Integer.class))
+                        value = ((BigInteger)value).intValue();
+                    else
+                    if (fieldType.equals(Short.class))
+                        value = ((BigInteger)value).shortValue();
+                    else
+                    if (fieldType.equals(Byte.class))
+                        value = ((BigInteger)value).byteValue();
+                }
+                else
+                if (value instanceof BigDecimal)
+                {
+                    Class<?> fieldType = field.getType();
+
+                    if (fieldType.equals(Double.class))
+                        value = ((BigDecimal)value).doubleValue();
+                    else
+                    if (fieldType.equals(Float.class))
+                        value = ((BigDecimal)value).floatValue();
+                }
+
+                field.set(entity, value);
+            }
+
+            return entity;
+        }
+        catch (Exception e)
+        {
+            throw new PersistenceException(e);
+        }
+    }
+
+}
+

@@ -1,0 +1,55 @@
+package ${BaseCrudNativeRepositoriesPackage};
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+
+
+public interface CrudNativeRepository<T, ID>
+{
+
+    long count(T filter);
+
+    long countAll();
+
+    boolean exists(T filter);
+
+    boolean existsById(ID id);
+
+    List<T> find(T filter, Pageable pageable, String... columns);
+
+    List<T> findAll(Pageable pageable, String... columns);
+
+    Page<T> findPage(T filter, Pageable pageable, String... columns);
+
+    Page<T> findAllPage(Pageable pageable, String... columns);
+
+    T get(T filter, String... columns);
+
+    T getById(ID id, String... columns);
+
+    int create(T entity);
+
+    int update(T entity, String... columns);
+
+    int update(T entity, T filter, String... columns);
+
+    int delete(T filter);
+
+    int deleteById(ID id);
+
+    int deleteAll();
+
+    void join(T entity, Class<?> referencedClass, String... columns);
+
+    void join(T entity, Class<?> referencedClass, Pageable pageable, String... columns);
+
+    void join(T entity, String propertyName, String... columns);
+
+    void join(T entity, String propertyName, Pageable pageable, String... columns);
+
+    void joinAll(T entity, String... columns);
+
+}
+

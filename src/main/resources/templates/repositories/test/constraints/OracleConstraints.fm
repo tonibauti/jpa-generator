@@ -1,0 +1,106 @@
+package ${BaseConstraintsCrudNativeRepositoriesTestPackage};
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class OracleConstraints extends AbstractConstraints
+{
+    private static final OracleConstraints instance = new OracleConstraints();
+
+
+    private OracleConstraints() {}
+
+
+    public static OracleConstraints getInstance()
+    {
+        return instance;
+    }
+
+
+    @Override
+    protected StringBuilder getQueryConstraints(String tableName, String constraintName, boolean enable)
+                                                throws SQLException
+    {
+        validateTableName( tableName );
+
+        StringBuilder query = new StringBuilder();
+
+        query.append("ALTER TABLE ").append(tableName);
+        query.append((enable) ? " enable " : " disable ");
+        query.append("CONSTRAINT ").append(constraintName);
+
+        return query;
+    }
+
+
+    @Override
+    public void setConstraints(Connection connection, List<String> constraintTablesName, boolean enable) throws SQLException
+    {
+        if (constraintTablesName != null && !constraintTablesName.isEmpty())
+        {
+            for (String tableName : constraintTablesName)
+            {
+                logger.info( super.getInfoText(tableName, null, enable) );
+
+                /* getTableConstraints:
+                SELECT * from user_constraints where constraint_type = 'R';
+                ALTER TABLE table_name disable CONSTRAINT constraint_name;
+                ALTER TABLE table_name enable CONSTRAINT constraint_name;
+                */
+
+                List<String> constraintsList = getTableConstraints(connection, tableName);
+
+                for (String constraint : constraintsList)
+                    super.setConstraints(connection, tableName, constraint, enable);
+            }
+        }
+        else
+        {
+            setConstraints(connection, null, null, enable);
+        }
+    }
+
+
+    private List<String> getTableConstraints(Connection connection, String tableName) throws SQLException
+    {
+        List<String> constraintsList = new ArrayList<>();
+
+        Statement statement = null;
+        ResultSet rs = null;
+
+        try
+        {
+            StringBuilder query = new StringBuilder();
+
+            query.append("SELECT CONSTRAINT_NAME FROM USER_CONSTRAINTS WHERE CONSTRAINT_TYPE = 'R'");
+            query.append(" AND ");
+            query.append("TABLE_NAME = '").append(tableName).append("'");
+
+            logger.info("getTableConstraints: {}", query);
+
+            statement = connection.createStatement();
+            rs = statement.executeQuery( query.toString() );
+
+            while (rs.next())
+                constraintsList.add( rs.getString("CONSTRAINT_NAME") );
+        }
+        catch (SQLException e)
+        {
+            logger.error("getTableConstraints", e);
+            throw e;
+        }
+        finally
+        {
+            super.close(statement, rs);
+        }
+
+        return constraintsList;
+    }
+
+}
+

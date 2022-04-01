@@ -1,0 +1,39 @@
+package ${PersistencePackage};
+
+import javax.persistence.Transient;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.domain.Persistable;
+
+
+public abstract class BaseEntity<T> implements Persistable<T>
+{
+    public static final String ID = "id";
+
+    @JsonIgnore
+    @Transient
+    private T id;
+
+    @JsonIgnore
+    @Transient
+    private boolean isNew;
+
+
+    protected BaseEntity() {}
+
+
+    @Override
+    public boolean isNew()
+    {
+        return isNew;
+    }
+
+
+    public void setNew(boolean isNew)
+    {
+        this.isNew = isNew;
+    }
+
+}
+
+
+

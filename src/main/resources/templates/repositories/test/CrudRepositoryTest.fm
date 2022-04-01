@@ -1,0 +1,190 @@
+package ${CrudRepositoriesTestPackage};
+
+import ${BaseCrudNativeRepositoriesTestPackage}.AbstractRepositoryTest;
+import ${BaseCrudNativeRepositoriesTestPackage}.DataTestFactory;
+import ${CrudRepositoriesPackage}.${ClassName}CrudRepository;
+import ${ConfigPackage}.${JpaConfig};
+import ${EntitiesPackage}.${Entity};
+<#if isMultipleKey>
+import ${EntitiesPackage}.${Key};
+</#if>
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.sql.DataSource;
+<#list importList as import>
+import ${import};
+</#list>
+
+
+@Transactional(transactionManager = ${JpaConfig}.TRANSACTION_MANAGER)
+@Rollback(true)
+public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
+{
+    @Autowired
+    @Qualifier(${JpaConfig}.DATASOURCE)
+    private DataSource dataSource;
+
+	@Autowired
+    private ${ClassName}CrudRepository ${objectName}CrudRepository;
+
+
+    public ${ClassName}CrudRepositoryTest()
+    {
+        super();
+        super.disableConstraints( ${Entity}.TABLE );
+    }
+
+
+    @Override
+    protected DataSource getDataSource()
+    {
+        return dataSource;
+    }
+
+
+    protected ${ClassName}CrudRepository getRepository()
+    {
+        return ${objectName}CrudRepository;
+    }
+
+
+    protected ${Key} getKey()
+    {
+        <#if isMultipleKey>
+        ${Key} key = new ${Key}();
+
+        <#list pkFieldDataList as pkFieldData>
+        key.${pkFieldData.setter}( DataTestFactory.get${pkFieldData.type}() );
+        </#list>
+
+        return key;
+        <#else>
+        <#list pkFieldDataList as pkFieldData>
+        return DataTestFactory.get${pkFieldData.type}();
+        </#list>
+        </#if>
+    }
+
+
+    protected ${Entity} getEntity()
+    {
+        ${Entity} entity = new ${Entity}();
+
+        <#list fieldDataList as fieldData>
+        entity.${fieldData.setter}( DataTestFactory.get${fieldData.type}() );
+        </#list>
+
+        return entity;
+    }
+
+
+    protected ${Entity} getFilter()
+    {
+        ${Entity} entity = new ${Entity}();
+
+        <#list filterDataList as filterData>
+        entity.${filterData.setter}( DataTestFactory.get${filterData.type}() );
+        </#list>
+
+        return entity;
+    }
+
+
+
+    @Test
+    public void count() throws Exception
+    {
+        logger.info("count");
+
+        long result = getRepository().count();
+
+        logger.info("result: " + result);
+    }
+
+
+    @Test
+    public void existsById() throws Exception
+    {
+        logger.info("existsById");
+
+        boolean result = getRepository().existsById( getKey() );
+
+        logger.info("result: " + result);
+    }
+
+
+    @Test
+    public void findAll() throws Exception
+    {
+        logger.info("findAll");
+
+        Page<${Entity}> result = getRepository().findAll( PageRequest.of(0,20) );
+
+        logger.info("result: " + result);
+    }
+
+
+    @Test
+    public void findById() throws Exception
+    {
+        logger.info("findById");
+
+        ${Entity} result = getRepository().findById( getKey() ).orElse( null );
+
+        logger.info("result: " + result);
+    }
+
+
+    @Test
+    public void save() throws Exception
+    {
+        logger.info("save");
+
+        ${Entity} result = getRepository().save( getEntity() );
+
+        logger.info("result: " + result);
+    }
+
+
+    @Test
+    public void deleteById() throws Exception
+    {
+        logger.info("deleteById");
+
+        try
+        {
+            getRepository().deleteById( getKey() );
+        }
+        catch (EmptyResultDataAccessException e) { /* ignore */ }
+    }
+
+
+    @Test
+    public void deleteAll() throws Exception
+    {
+        logger.info("deleteAll");
+
+        getRepository().deleteAll();
+    }
+    <#list indexDataList as indexData>
+
+
+    @Test
+    public void ${indexData.findBy}()
+    {
+        logger.info("${indexData.findBy}");
+
+        <#if indexData.unique>${Entity}<#else>List<${Entity}></#if> result = getRepository().${indexData.findBy}(${indexData.param});
+
+        logger.info("result: " + result);
+    }
+    </#list>
+}
+

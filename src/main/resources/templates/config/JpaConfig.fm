@@ -1,0 +1,123 @@
+package ${ConfigPackage};
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.orm.jpa.JpaDialect;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.JpaVendorAdapter;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.spi.PersistenceProvider;
+import javax.sql.DataSource;
+import java.util.Properties;
+
+
+/*
+@SpringBootApplication
+@EnableAutoConfiguration(exclude =
+{
+    DataSourceAutoConfiguration.class,
+    HibernateJpaAutoConfiguration.class,
+    JpaRepositoriesAutoConfiguration.class,
+    DataSourceTransactionManagerAutoConfiguration.class,
+})
+@EnableTransactionManagement
+@EnableConfigurationProperties
+*/
+
+
+@Configuration
+@EnableJpaRepositories
+(
+    entityManagerFactoryRef = ${ClassName}JpaConfig.ENTITY_MANAGER_FACTORY,
+    transactionManagerRef   = ${ClassName}JpaConfig.TRANSACTION_MANAGER,
+    basePackages = { ${ClassName}JpaConfig.REPOSITORIES_PACKAGE }
+)
+@PropertySources
+({
+    @PropertySource("classpath:/${DatabaseResourcesDir}/${DataSourceName}_datasource.properties"),
+    @PropertySource("classpath:application.properties")
+})
+public class ${ClassName}JpaConfig
+{
+    public static final String UNIT_NAME                 = "${ClassName}";
+    public static final String DATASOURCE                = UNIT_NAME + "DataSource";
+    public static final String TRANSACTION_MANAGER       = UNIT_NAME + "TransactionManager";
+
+    protected static final String ENTITY_MANAGER         = UNIT_NAME + "EntityManager";
+    protected static final String ENTITY_MANAGER_FACTORY = UNIT_NAME + "EntityManagerFactory";
+
+    protected static final String ENTITIES_PACKAGE       = "${EntitiesPackage}";
+    protected static final String REPOSITORIES_PACKAGE   = "${RepositoriesPackage}";
+
+
+    @Bean(UNIT_NAME + "HikariConfig")
+    @ConfigurationProperties(prefix = "spring.hikari.datasource.${DataSourcePropertiesName}")
+    protected HikariConfig hikariConfig()
+    {
+        return new HikariConfig();
+    }
+
+
+    @Bean(DATASOURCE)
+    public DataSource dataSource()
+    {
+        return new HikariDataSource( hikariConfig() );
+    }
+
+
+    @Bean(ENTITY_MANAGER)
+    public EntityManager entityManager()
+    {
+        return entityManagerFactory().createEntityManager();
+    }
+
+
+    @Bean(ENTITY_MANAGER_FACTORY)
+    public EntityManagerFactory entityManagerFactory()
+    {
+        LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+
+        entityManagerFactoryBean.setDataSource( dataSource() );
+        <#if xml>
+        //entityManagerFactoryBean.setPersistenceXmlLocation("classpath:/${DatabaseResourcesDir}/${DataSourceName}_persistence.xml");
+        </#if>
+        entityManagerFactoryBean.setPersistenceUnitName( UNIT_NAME );
+        entityManagerFactoryBean.setPersistenceProvider( new HibernatePersistenceProvider() );
+        entityManagerFactoryBean.setJpaDialect( new HibernateJpaDialect() );
+        entityManagerFactoryBean.setJpaVendorAdapter( new HibernateJpaVendorAdapter() );
+        entityManagerFactoryBean.setPackagesToScan( ENTITIES_PACKAGE );
+
+        entityManagerFactoryBean.setJpaProperties( getJpaProperties() );
+
+        entityManagerFactoryBean.afterPropertiesSet();
+        return entityManagerFactoryBean.getObject();
+    }
+
+
+    @Bean(TRANSACTION_MANAGER)
+    public JpaTransactionManager transactionManager()
+    {
+        return new JpaTransactionManager( entityManagerFactory() );
+    }
+
+
+    @Bean(UNIT_NAME + "JpaProperties")
+    @ConfigurationProperties(prefix = "spring.jpa.${DataSourcePropertiesName}")
+    protected Properties getJpaProperties()
+    {
+        return new Properties();
+    }
+
+}
+
