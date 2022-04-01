@@ -40,7 +40,7 @@ public class CLI
 
         Option helpOption = Option.builder(HELP_OPTION)
                                 //.longOpt("help")
-                                .desc("print this message")
+                                .desc("print this help message")
                                 .build();
 
         Option verboseOption = Option.builder(VERBOSE_OPTION)
