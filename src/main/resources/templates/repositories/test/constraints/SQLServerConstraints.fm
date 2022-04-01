@@ -1,0 +1,35 @@
+package ${BaseConstraintsCrudNativeRepositoriesTestPackage};
+
+import java.sql.SQLException;
+
+
+public class SQLServerConstraints extends AbstractConstraints
+{
+    private static final SQLServerConstraints instance = new SQLServerConstraints();
+
+
+    private SQLServerConstraints() {}
+
+
+    public static SQLServerConstraints getInstance()
+    {
+        return instance;
+    }
+
+
+    @Override
+    protected StringBuilder getQueryConstraints(String tableName, String constraintName, boolean enable)
+                                                throws SQLException
+    {
+        validateTableName( tableName );
+
+        StringBuilder query = new StringBuilder();
+
+        query.append("ALTER TABLE ").append(tableName);
+        query.append((enable) ? " CHECK " : " NOCHECK ").append("CONSTRAINT ALL");
+
+        return query;
+    }
+
+}
+

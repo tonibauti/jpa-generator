@@ -1,0 +1,29 @@
+
+#
+# Datasource
+#
+spring.hikari.datasource.${DataSourcePropertiesName}.driverClassName = ${driverClassName}
+<#if hikari>
+spring.hikari.datasource.${DataSourcePropertiesName}.jdbcUrl = ${jdbcUrl}
+<#elseif tomcat>
+spring.hikari.datasource.${DataSourcePropertiesName}.url = ${jdbcUrl}
+</#if>
+spring.hikari.datasource.${DataSourcePropertiesName}.username = ${username}
+spring.hikari.datasource.${DataSourcePropertiesName}.password = ${password}
+<#if hikari>
+spring.hikari.datasource.${DataSourcePropertiesName}.poolName = Pool-${ClassName}
+</#if>
+<#if dataSourceProperties??>
+<#list dataSourceProperties as key, value>
+spring.hikari.datasource.${DataSourcePropertiesName}.${key} = ${value}
+</#list>
+</#if>
+
+#
+# JPA
+#
+<#if jpaProperties??>
+<#list jpaProperties as key, value>
+spring.jpa.${DataSourcePropertiesName}.${key} = ${value}
+</#list>
+</#if>

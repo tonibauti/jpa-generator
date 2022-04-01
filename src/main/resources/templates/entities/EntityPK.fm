@@ -1,0 +1,29 @@
+package ${EntitiesPackage};
+
+import lombok.*;
+import java.io.Serializable;
+<#if isJson>
+import ${PersistencePackage}.Json;
+import ${PersistencePackage}.JsonType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
+</#if>
+<#list importList as import>
+import ${import};
+</#list>
+
+
+<#if builder>
+@Builder
+</#if>
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ${Key} implements Serializable
+{
+    <#list pkFieldDataList as pkFieldData>
+    private ${pkFieldData.type} ${pkFieldData.property};
+    </#list>
+}
+

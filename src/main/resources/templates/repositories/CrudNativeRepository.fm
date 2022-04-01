@@ -1,0 +1,18 @@
+package ${CrudNativeRepositoriesPackage};
+
+import ${BaseCrudNativeRepositoriesPackage}.AbstractCrudNativeRepository;
+import ${EntitiesPackage}.${Entity};
+<#if isMultipleKey>
+import ${EntitiesPackage}.${Key};
+</#if>
+import org.springframework.stereotype.Repository;
+<#list importList as import>
+import ${import};
+</#list>
+
+
+@Repository
+public class ${CrudNativeRepository} extends AbstractCrudNativeRepository<${Entity}, ${Key}>
+{
+}
+

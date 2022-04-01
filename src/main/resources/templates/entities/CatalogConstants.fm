@@ -1,0 +1,35 @@
+package ${CatalogConstantsPackage};
+
+<#list importList as import>
+import ${import};
+</#list>
+
+public enum ${ClassName}
+{
+    <#list catalogConstantsData as triple>
+    <#assign catalogColumn = triple.left>
+    <#assign catalogCode   = triple.middle>
+    <#assign catalogValue  = triple.right>
+    ${asColumn(catalogCode)} (${catalogValue})<#if triple_has_next>,<#else>;</#if>
+    </#list>
+
+
+    public interface ${catalogColumn}
+    {
+        <#list catalogConstantsData as triple>
+        <#assign catalogColumn = triple.left>
+        <#assign catalogCode   = triple.middle>
+        <#assign catalogValue  = triple.right>
+        String ${asColumn(catalogCode)} = "${catalogCode}";
+        </#list>
+    }
+
+
+    private final ${pkType} value;
+
+    ${ClassName}(${pkType} value) { this.value = value; }
+
+    public ${pkType} value() { return value; }
+
+}
+

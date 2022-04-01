@@ -1,0 +1,105 @@
+package ${BaseConstraintsCrudNativeRepositoriesTestPackage};
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+
+
+public abstract class AbstractConstraints
+{
+    protected Logger logger = LoggerFactory.getLogger( getClass() );
+
+
+    protected AbstractConstraints() {}
+
+
+    protected abstract StringBuilder getQueryConstraints(String tableName, String constraintName, boolean enable)
+                                                         throws SQLException;
+
+
+    protected void close(Statement statement, ResultSet rs)
+    {
+        try { if (rs != null) rs.close(); } catch (Exception e) { /* ignore */ }
+        try { if (statement != null) statement.close(); } catch (Exception e) { /* ignore */ }
+    }
+
+
+    protected void validateTableName(String tableName) throws SQLException
+    {
+        if (tableName == null || tableName.trim().isEmpty())
+            throw new SQLException("table name not defined");
+    }
+
+
+    protected String getInfoText(String tableName, String constraintName, boolean enable)
+    {
+        String infoText;
+        String strEnabled = (enable ? "ENABLE" : "DISABLE");
+
+        if (constraintName != null)
+            infoText = String.format("setConstraints(%s, \"%s\", \"%s\")", strEnabled, tableName, constraintName);
+        else
+        if (tableName != null)
+            infoText = String.format("setConstraints(%s, \"%s\")", strEnabled, tableName);
+        else
+            infoText = String.format("setConstraints(%s)", strEnabled);
+
+        return infoText;
+    }
+
+
+    public void setConstraints(Connection connection, String tableName, String constraintName, boolean enable)
+                               throws SQLException
+    {
+        String text = getInfoText(tableName, constraintName, enable);
+        logger.info( text );
+
+        Statement statement = null;
+
+        try
+        {
+            StringBuilder query = getQueryConstraints(tableName, constraintName, enable);
+
+            if (query == null)
+            {
+                logger.info("Query Constraints is null");
+                return;
+            }
+
+            logger.info("Query Constraints: {}", query);
+
+            statement = connection.createStatement();
+            statement.execute( query.toString() );
+        }
+        catch (SQLException e)
+        {
+            logger.error(text, e);
+            throw e;
+        }
+        finally
+        {
+            close(statement, null);
+        }
+    }
+
+
+    public void setConstraints(Connection connection, List<String> constraintTablesName, boolean enable) throws SQLException
+    {
+        if (constraintTablesName != null && !constraintTablesName.isEmpty())
+        {
+            for (String tableName : constraintTablesName)
+                setConstraints(connection, tableName, null, enable);
+        }
+        else
+        {
+            setConstraints(connection, null, null, enable);
+        }
+    }
+
+}
+

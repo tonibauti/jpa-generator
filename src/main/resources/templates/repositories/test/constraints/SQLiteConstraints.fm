@@ -1,0 +1,33 @@
+package ${BaseConstraintsCrudNativeRepositoriesTestPackage};
+
+import java.sql.SQLException;
+
+
+public class SQLiteConstraints extends AbstractConstraints
+{
+    private static final SQLiteConstraints instance = new SQLiteConstraints();
+
+
+    private SQLiteConstraints() {}
+
+
+    public static SQLiteConstraints getInstance()
+    {
+        return instance;
+    }
+
+
+    @Override
+    protected StringBuilder getQueryConstraints(String tableName, String constraintName, boolean enable)
+                                                throws SQLException
+    {
+        StringBuilder query = new StringBuilder();
+
+        query.append("PRAGMA foreign_keys = ");
+        query.append((enable) ? "ON" : "OFF");
+
+        return query;
+    }
+
+}
+

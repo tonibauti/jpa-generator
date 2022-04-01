@@ -1,0 +1,38 @@
+package ${BaseConstraintsCrudNativeRepositoriesTestPackage};
+
+import java.sql.SQLException;
+
+
+public class PostgreSQLConstraints extends AbstractConstraints
+{
+    private static final PostgreSQLConstraints instance = new PostgreSQLConstraints();
+
+
+    private PostgreSQLConstraints() {}
+
+
+    public static PostgreSQLConstraints getInstance()
+    {
+        return instance;
+    }
+
+
+    @Override
+    protected StringBuilder getQueryConstraints(String tableName, String constraintName, boolean enable)
+                                                throws SQLException
+    {
+        validateTableName( tableName );
+
+        StringBuilder query = new StringBuilder();
+
+        //query.append("SET session_replication_role = ");
+        //query.append((enable) ? "'origin'" : "'replica'");
+
+        query.append("ALTER TABLE ").append(tableName);
+        query.append((enable) ? " ENABLE " : " DISABLE ").append("TRIGGER ALL");
+
+        return query;
+    }
+
+}
+

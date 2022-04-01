@@ -1,0 +1,33 @@
+package ${PersistencePackage};
+
+import java.io.Serializable;
+
+
+public class Json implements Serializable
+{
+    private String content;
+
+
+    public Json() {}
+
+
+    public Json(String content)
+    {
+        this.content = content;
+    }
+
+
+    public String getContent()
+    {
+        return content;
+    }
+
+
+    @Override
+    public String toString()
+    {
+        return content;
+    }
+
+}
+
