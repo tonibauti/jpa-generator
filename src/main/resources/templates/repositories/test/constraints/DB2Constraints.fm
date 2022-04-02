@@ -5,7 +5,6 @@ import java.sql.SQLException;
 
 public class DB2Constraints extends AbstractConstraints
 {
-    private static final String TYPE = "db2";
     private static final DB2Constraints instance = new DB2Constraints();
 
 
@@ -15,13 +14,6 @@ public class DB2Constraints extends AbstractConstraints
     public static DB2Constraints getInstance()
     {
         return instance;
-    }
-
-
-    @Override
-    public String getType()
-    {
-        return TYPE;
     }
 
 

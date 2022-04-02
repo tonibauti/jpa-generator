@@ -12,13 +12,10 @@ import java.util.List;
 
 public abstract class AbstractConstraints
 {
-    protected Logger logger = LoggerFactory.getLogger( getClass() );
+    protected final Logger logger = LoggerFactory.getLogger( getClass() );
 
 
     protected AbstractConstraints() {}
-
-
-    public abstract String getType();
 
 
     protected abstract StringBuilder getQueryConstraints(String tableName, String constraintName, boolean enable)
@@ -68,9 +65,9 @@ public abstract class AbstractConstraints
         {
             StringBuilder query = getQueryConstraints(tableName, constraintName, enable);
 
-            if (query == null)
+            if (query == null || query.length() == 0)
             {
-                logger.info("Query Constraints is null");
+                logger.info("Query Constraints is empty");
                 return;
             }
 

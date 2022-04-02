@@ -5,7 +5,6 @@ import java.sql.SQLException;
 
 public class H2Constraints extends AbstractConstraints
 {
-    private static final String TYPE = "h2";
     private static final H2Constraints instance = new H2Constraints();
 
 
@@ -15,13 +14,6 @@ public class H2Constraints extends AbstractConstraints
     public static H2Constraints getInstance()
     {
         return instance;
-    }
-
-
-    @Override
-    public String getType()
-    {
-        return TYPE;
     }
 
 

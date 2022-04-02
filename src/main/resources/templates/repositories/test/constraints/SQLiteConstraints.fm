@@ -5,7 +5,6 @@ import java.sql.SQLException;
 
 public class SQLiteConstraints extends AbstractConstraints
 {
-    private static final String TYPE = "sqlite";
     private static final SQLiteConstraints instance = new SQLiteConstraints();
 
 
@@ -15,13 +14,6 @@ public class SQLiteConstraints extends AbstractConstraints
     public static SQLiteConstraints getInstance()
     {
         return instance;
-    }
-
-
-    @Override
-    public String getType()
-    {
-        return TYPE;
     }
 
 

@@ -5,7 +5,6 @@ import java.sql.SQLException;
 
 public class HSQLDBConstraints extends AbstractConstraints
 {
-    private static final String TYPE = "hsqldb";
     private static final HSQLDBConstraints instance = new HSQLDBConstraints();
 
 
@@ -15,13 +14,6 @@ public class HSQLDBConstraints extends AbstractConstraints
     public static HSQLDBConstraints getInstance()
     {
         return instance;
-    }
-
-
-    @Override
-    public String getType()
-    {
-        return TYPE;
     }
 
 

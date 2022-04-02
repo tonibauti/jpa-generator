@@ -1,0 +1,28 @@
+package ${BaseConstraintsRepositoriesTestPackage};
+
+import java.sql.SQLException;
+
+
+public class UnknownConstraints extends AbstractConstraints
+{
+    private static final UnknownConstraints instance = new UnknownConstraints();
+
+
+    private UnknownConstraints() {}
+
+
+    public static UnknownConstraints getInstance()
+    {
+        return instance;
+    }
+
+
+    @Override
+    protected StringBuilder getQueryConstraints(String tableName, String constraintName, boolean enable)
+                                                throws SQLException
+    {
+        return null;
+    }
+
+}
+

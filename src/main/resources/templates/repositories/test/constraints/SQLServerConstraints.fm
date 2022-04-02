@@ -5,7 +5,6 @@ import java.sql.SQLException;
 
 public class SQLServerConstraints extends AbstractConstraints
 {
-    private static final String TYPE = "sqlserver";
     private static final SQLServerConstraints instance = new SQLServerConstraints();
 
 
@@ -15,13 +14,6 @@ public class SQLServerConstraints extends AbstractConstraints
     public static SQLServerConstraints getInstance()
     {
         return instance;
-    }
-
-
-    @Override
-    public String getType()
-    {
-        return TYPE;
     }
 
 

@@ -5,7 +5,6 @@ import java.sql.SQLException;
 
 public class MariaDBConstraints extends AbstractConstraints
 {
-    private static final String TYPE = "mariadb";
     private static final MariaDBConstraints instance = new MariaDBConstraints();
 
 
@@ -15,13 +14,6 @@ public class MariaDBConstraints extends AbstractConstraints
     public static MariaDBConstraints getInstance()
     {
         return instance;
-    }
-
-
-    @Override
-    public String getType()
-    {
-        return TYPE;
     }
 
 

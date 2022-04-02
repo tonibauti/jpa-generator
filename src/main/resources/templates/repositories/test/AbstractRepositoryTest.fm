@@ -1,6 +1,6 @@
 package ${BaseRepositoriesTestPackage};
 
-import ${BaseConstraintsRepositoriesTestPackage}.*;
+import ${BaseConstraintsRepositoriesTestPackage}.${DatabaseConstraints};
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
@@ -12,7 +12,6 @@ import org.springframework.test.context.ActiveProfiles;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,20 +25,6 @@ public abstract class AbstractRepositoryTest
     private Connection connection;
     private boolean disableConstraints;
     private List<String> constraintTablesName;
-
-    private static final List<AbstractConstraints> DatabasesConstraints = new ArrayList<>();
-    static
-    {
-        DatabasesConstraints.add( DB2Constraints.getInstance() );
-        DatabasesConstraints.add( H2Constraints.getInstance() );
-        DatabasesConstraints.add( HSQLDBConstraints.getInstance() );
-        DatabasesConstraints.add( MariaDBConstraints.getInstance() );
-        DatabasesConstraints.add( MySQLConstraints.getInstance() );
-        DatabasesConstraints.add( OracleConstraints.getInstance() );
-        DatabasesConstraints.add( PostgreSQLConstraints.getInstance() );
-        DatabasesConstraints.add( SQLiteConstraints.getInstance() );
-        DatabasesConstraints.add( SQLServerConstraints.getInstance() );
-    }
 
 
     protected AbstractRepositoryTest() {}
@@ -92,18 +77,7 @@ public abstract class AbstractRepositoryTest
         if (connection == null)
             throw new SQLException("connection is null");
 
-        String databaseProductName = connection.getMetaData().getDatabaseProductName();
-
-        for (AbstractConstraints databaseConstraints : DatabasesConstraints)
-        {
-            if (databaseConstraints.getType().equalsIgnoreCase(databaseProductName))
-            {
-                databaseConstraints.setConstraints(connection, constraintTablesName, enable);
-                return;
-            }
-        }
-
-        throw new SQLException("not found how to enable/disable constraints for the database: " + databaseProductName);
+        ${DatabaseConstraints}.getInstance().setConstraints(connection, constraintTablesName, enable);
     }
 
 }

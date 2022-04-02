@@ -5,7 +5,6 @@ import java.sql.SQLException;
 
 public class MySQLConstraints extends AbstractConstraints
 {
-    private static final String TYPE = "mysql";
     private static final MySQLConstraints instance = new MySQLConstraints();
 
 
@@ -15,13 +14,6 @@ public class MySQLConstraints extends AbstractConstraints
     public static MySQLConstraints getInstance()
     {
         return instance;
-    }
-
-
-    @Override
-    public String getType()
-    {
-        return TYPE;
     }
 
 
