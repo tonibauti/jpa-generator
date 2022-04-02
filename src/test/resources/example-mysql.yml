@@ -51,10 +51,10 @@ generator:
   project:
     type: "spring"
     path: "/tmp/jpa-generator/example"
-    config-package: "org.tonibauti.example.config.database"
-    persistence-package: "org.tonibauti.example.persistence"
-    persistence-test-package: "org.tonibauti.example.test.persistence"
-    #encoder: "org.tonibauti.example.utils.encoder.XOREncoder"
+    config-package: "org.myorganization.example.config.database"
+    persistence-package: "org.myorganization.example.persistence"
+    persistence-test-package: "org.myorganization.example.test.persistence"
+    #encoder: "org.myorganization.example.utils.encoder.XOREncoder"
     use-builders: true
     timestamps-like-dates: true
 

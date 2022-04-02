@@ -12,6 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,6 +26,20 @@ public abstract class AbstractRepositoryTest
     private Connection connection;
     private boolean disableConstraints;
     private List<String> constraintTablesName;
+
+    private static final List<AbstractConstraints> DatabasesConstraints = new ArrayList<>();
+    static
+    {
+        DatabasesConstraints.add( DB2Constraints.getInstance() );
+        DatabasesConstraints.add( H2Constraints.getInstance() );
+        DatabasesConstraints.add( HSQLDBConstraints.getInstance() );
+        DatabasesConstraints.add( MariaDBConstraints.getInstance() );
+        DatabasesConstraints.add( MySQLConstraints.getInstance() );
+        DatabasesConstraints.add( OracleConstraints.getInstance() );
+        DatabasesConstraints.add( PostgreSQLConstraints.getInstance() );
+        DatabasesConstraints.add( SQLiteConstraints.getInstance() );
+        DatabasesConstraints.add( SQLServerConstraints.getInstance() );
+    }
 
 
     protected AbstractRepositoryTest() {}
@@ -71,61 +86,24 @@ public abstract class AbstractRepositoryTest
     }
 
 
-    private void setEnableDataBaseConstraints(Connection connection, List<String> constraintTablesName, boolean enable) throws SQLException
+    private void setEnableDataBaseConstraints(Connection connection, List<String> constraintTablesName, boolean enable)
+                                                  throws SQLException
     {
         if (connection == null)
             throw new SQLException("connection is null");
 
         String databaseProductName = connection.getMetaData().getDatabaseProductName();
 
-        if ("db2".equalsIgnoreCase(databaseProductName))
+        for (AbstractConstraints databaseConstraints : DatabasesConstraints)
         {
-            DB2Constraints.getInstance().setConstraints(connection, constraintTablesName, enable);
+            if (databaseConstraints.getType().equalsIgnoreCase(databaseProductName))
+            {
+                databaseConstraints.setConstraints(connection, constraintTablesName, enable);
+                return;
+            }
         }
-        else
-        if ("h2".equalsIgnoreCase(databaseProductName))
-        {
-            H2Constraints.getInstance().setConstraints(connection, constraintTablesName, enable);
-        }
-        else
-        if ("hsqldb".equalsIgnoreCase(databaseProductName))
-        {
-            HSQLDBConstraints.getInstance().setConstraints(connection, constraintTablesName, enable);
-        }
-        else
-        if ("mariadb".equalsIgnoreCase(databaseProductName))
-        {
-            MariaDBConstraints.getInstance().setConstraints(connection, constraintTablesName, enable);
-        }
-        else
-        if ("mysql".equalsIgnoreCase(databaseProductName))
-        {
-            MySQLConstraints.getInstance().setConstraints(connection, constraintTablesName, enable);
-        }
-        else
-        if ("oracle".equalsIgnoreCase(databaseProductName))
-        {
-            OracleConstraints.getInstance().setConstraints(connection, constraintTablesName, enable);
-        }
-        else
-        if ("postgresql".equalsIgnoreCase(databaseProductName))
-        {
-            PostgreSQLConstraints.getInstance().setConstraints(connection, constraintTablesName, enable);
-        }
-        else
-        if ("sqlite".equalsIgnoreCase(databaseProductName))
-        {
-            SQLiteConstraints.getInstance().setConstraints(connection, constraintTablesName, enable);
-        }
-        else
-        if ("sqlserver".equalsIgnoreCase(databaseProductName))
-        {
-            SQLServerConstraints.getInstance().setConstraints(connection, constraintTablesName, enable);
-        }
-        else
-        {
-            throw new SQLException("not found how to enable/disable restrictions for the database: " + databaseProductName);
-        }
+
+        throw new SQLException("not found how to enable/disable restrictions for the database: " + databaseProductName);
     }
 
 }

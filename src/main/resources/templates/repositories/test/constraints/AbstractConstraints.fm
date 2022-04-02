@@ -18,6 +18,9 @@ public abstract class AbstractConstraints
     protected AbstractConstraints() {}
 
 
+    public abstract String getType();
+
+
     protected abstract StringBuilder getQueryConstraints(String tableName, String constraintName, boolean enable)
                                                          throws SQLException;
 
