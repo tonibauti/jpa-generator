@@ -26,7 +26,7 @@ public class GeneratorTest
     }
 
 
-    //@Test
+    @Test
     public void generateTest()
     {
         Main.main( getArgs() );
