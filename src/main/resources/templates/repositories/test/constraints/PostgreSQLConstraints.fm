@@ -1,4 +1,4 @@
-package ${BaseConstraintsCrudNativeRepositoriesTestPackage};
+package ${BaseConstraintsRepositoriesTestPackage};
 
 import java.sql.SQLException;
 

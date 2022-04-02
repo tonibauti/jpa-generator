@@ -1,7 +1,7 @@
 package ${CrudRepositoriesTestPackage};
 
-import ${BaseCrudNativeRepositoriesTestPackage}.AbstractRepositoryTest;
-import ${BaseCrudNativeRepositoriesTestPackage}.DataTestFactory;
+import ${BaseRepositoriesTestPackage}.AbstractRepositoryTest;
+import ${BaseRepositoriesTestPackage}.DataTestFactory;
 import ${CrudRepositoriesPackage}.${ClassName}CrudRepository;
 import ${ConfigPackage}.${JpaConfig};
 import ${EntitiesPackage}.${Entity};
