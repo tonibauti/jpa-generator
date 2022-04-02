@@ -1,11 +1,10 @@
-package ${BaseConstraintsCrudNativeRepositoriesTestPackage};
+package ${BaseConstraintsRepositoriesTestPackage};
 
 import java.sql.SQLException;
 
 
 public class PostgreSQLConstraints extends AbstractConstraints
 {
-    private static final String TYPE = "postgresql";
     private static final PostgreSQLConstraints instance = new PostgreSQLConstraints();
 
 
@@ -15,13 +14,6 @@ public class PostgreSQLConstraints extends AbstractConstraints
     public static PostgreSQLConstraints getInstance()
     {
         return instance;
-    }
-
-
-    @Override
-    public String getType()
-    {
-        return TYPE;
     }
 
 

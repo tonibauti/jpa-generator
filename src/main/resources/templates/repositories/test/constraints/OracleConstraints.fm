@@ -1,4 +1,4 @@
-package ${BaseConstraintsCrudNativeRepositoriesTestPackage};
+package ${BaseConstraintsRepositoriesTestPackage};
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -10,7 +10,6 @@ import java.util.List;
 
 public class OracleConstraints extends AbstractConstraints
 {
-    private static final String TYPE = "oracle";
     private static final OracleConstraints instance = new OracleConstraints();
 
 
@@ -20,13 +19,6 @@ public class OracleConstraints extends AbstractConstraints
     public static OracleConstraints getInstance()
     {
         return instance;
-    }
-
-
-    @Override
-    public String getType()
-    {
-        return TYPE;
     }
 
 

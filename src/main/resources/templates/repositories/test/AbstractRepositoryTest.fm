@@ -103,7 +103,7 @@ public abstract class AbstractRepositoryTest
             }
         }
 
-        throw new SQLException("not found how to enable/disable constraints for the database: " + databaseProductName);
+        throw new SQLException("not found how to enable/disable restrictions for the database: " + databaseProductName);
     }
 
 }

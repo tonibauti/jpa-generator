@@ -52,12 +52,12 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
         if (TARGET[index].contains("Constraints"))
         {
             // constraints
-            return getWorkspace().getBaseConstraintsCrudNativeRepositoriesTestDir() + TARGET[index];
+            return getWorkspace().getBaseConstraintsRepositoriesTestDir() + TARGET[index];
         }
         else
         {
             // base
-            return getWorkspace().getBaseCrudNativeRepositoriesTestDir() + TARGET[index];
+            return getWorkspace().getBaseRepositoriesTestDir() + TARGET[index];
         }
     }
 
@@ -129,8 +129,8 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
                             : super.getSimpleKey(dbTable, importList);
 
         map.put("CrudRepositoriesTestPackage", getWorkspace().getCrudRepositoriesTestPackage());
-        map.put("BaseCrudNativeRepositoriesTestPackage", getWorkspace().getBaseCrudNativeRepositoriesTestPackage());
-        map.put("BaseConstraintsCrudNativeRepositoriesTestPackage", getWorkspace().getBaseConstraintsCrudNativeRepositoriesTestPackage());
+        map.put("BaseRepositoriesTestPackage", getWorkspace().getBaseRepositoriesTestPackage());
+        map.put("BaseConstraintsRepositoriesTestPackage", getWorkspace().getBaseConstraintsRepositoriesTestPackage());
         map.put("CrudRepositoriesPackage", getWorkspace().getCrudRepositoriesPackage());
         map.put("ConfigPackage", getWorkspace().getConfigPackage());
         map.put("JpaConfig", Strings.toClassName(getWorkspace().getDataSourceName())+"JpaConfig");

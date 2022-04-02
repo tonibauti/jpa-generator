@@ -1,4 +1,4 @@
-package ${BaseCrudNativeRepositoriesTestPackage};
+package ${BaseRepositoriesTestPackage};
 
 
 public class DataTestFactory

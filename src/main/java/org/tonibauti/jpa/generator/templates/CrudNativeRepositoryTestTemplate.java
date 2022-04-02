@@ -8,10 +8,7 @@ import org.tonibauti.jpa.generator.templates.base.AbstractTemplate;
 import org.tonibauti.jpa.generator.templates.base.FieldData;
 import org.tonibauti.jpa.generator.utils.Strings;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class CrudNativeRepositoryTestTemplate extends AbstractTemplate
@@ -19,16 +16,7 @@ public class CrudNativeRepositoryTestTemplate extends AbstractTemplate
     private static final String[] SOURCE =
     {
         "templates/repositories/test/constraints/AbstractConstraints.fm",
-        "templates/repositories/test/constraints/DB2Constraints.fm",
-        "templates/repositories/test/constraints/H2Constraints.fm",
-        "templates/repositories/test/constraints/HSQLDBConstraints.fm",
-        "templates/repositories/test/constraints/MariaDBConstraints.fm",
-        "templates/repositories/test/constraints/MySQLConstraints.fm",
-        "templates/repositories/test/constraints/OracleConstraints.fm",
-        "templates/repositories/test/constraints/PostgreSQLConstraints.fm",
-        "templates/repositories/test/constraints/SQLiteConstraints.fm",
-        "templates/repositories/test/constraints/SQLServerConstraints.fm",
-
+        "templates/repositories/test/constraints/${DatabaseConstraints}.fm",
         "templates/repositories/test/DataTestFactory.fm",
         "templates/repositories/test/AbstractRepositoryTest.fm",
         "templates/repositories/test/CrudNativeRepositoryTest.fm",
@@ -37,20 +25,27 @@ public class CrudNativeRepositoryTestTemplate extends AbstractTemplate
     private static final String[] TARGET =
     {
         "AbstractConstraints.java",
-        "DB2Constraints.java",
-        "H2Constraints.java",
-        "HSQLDBConstraints.java",
-        "MariaDBConstraints.java",
-        "MySQLConstraints.java",
-        "OracleConstraints.java",
-        "PostgreSQLConstraints.java",
-        "SQLiteConstraints.java",
-        "SQLServerConstraints.java",
-
+        "${DatabaseConstraints}.java",
         "DataTestFactory.java",
         "AbstractRepositoryTest.java",
         "${ClassName}CrudNativeRepositoryTest.java",
     };
+
+    private static final Map<String, String> DatabaseConstraintsMaps = new LinkedHashMap<>();
+    static
+    {
+        DatabaseConstraintsMaps.put("h2",         "H2Constraints");
+        DatabaseConstraintsMaps.put("db2",        "DB2Constraints");
+        DatabaseConstraintsMaps.put("hsqldb",     "HSQLDBConstraints");
+        DatabaseConstraintsMaps.put("mariadb",    "MariaDBConstraints");
+        DatabaseConstraintsMaps.put("mysql",      "MySQLConstraints");
+        DatabaseConstraintsMaps.put("oracle",     "OracleConstraints");
+        DatabaseConstraintsMaps.put("postgresql", "PostgreSQLConstraints");
+        DatabaseConstraintsMaps.put("sqlite",     "SQLiteConstraints");
+        DatabaseConstraintsMaps.put("sqlserver",  "SQLServerConstraints");
+        DatabaseConstraintsMaps.put("unknown",    "UnknownConstraints");
+    }
+
 
 
     public CrudNativeRepositoryTestTemplate(Workspace workspace, List<DBTable> tables)
@@ -59,10 +54,29 @@ public class CrudNativeRepositoryTestTemplate extends AbstractTemplate
     }
 
 
+    private String getDatabaseConstraints()
+    {
+        String databaseProductName = getWorkspace().getDbConnection().getDatabaseProductName().toLowerCase();
+
+        for (Map.Entry<String, String> entry : DatabaseConstraintsMaps.entrySet())
+            if (databaseProductName.contains(entry.getKey()))
+                return entry.getValue();
+
+        return DatabaseConstraintsMaps.get( "unknown" );
+    }
+
+
     @Override
     public String getSource(int index, DBTable dbTable)
     {
-        return SOURCE[index];
+        if (SOURCE[index].contains("${DatabaseConstraints}"))
+        {
+            return SOURCE[index].replace("${DatabaseConstraints}", getDatabaseConstraints());
+        }
+        else
+        {
+            return SOURCE[index];
+        }
     }
 
 
@@ -78,12 +92,21 @@ public class CrudNativeRepositoryTestTemplate extends AbstractTemplate
         if (TARGET[index].contains("Constraints"))
         {
             // constraints
-            return getWorkspace().getBaseConstraintsCrudNativeRepositoriesTestDir() + TARGET[index];
+
+            if (TARGET[index].contains("${DatabaseConstraints}"))
+            {
+                return getWorkspace().getBaseConstraintsRepositoriesTestDir()
+                       + TARGET[index].replace("${DatabaseConstraints}", getDatabaseConstraints());
+            }
+            else
+            {
+                return getWorkspace().getBaseConstraintsRepositoriesTestDir() + TARGET[index];
+            }
         }
         else
         {
             // base
-            return getWorkspace().getBaseCrudNativeRepositoriesTestDir() + TARGET[index];
+            return getWorkspace().getBaseRepositoriesTestDir() + TARGET[index];
         }
     }
 
@@ -156,8 +179,9 @@ public class CrudNativeRepositoryTestTemplate extends AbstractTemplate
         }
 
         map.put("CrudNativeRepositoriesTestPackage", getWorkspace().getCrudNativeRepositoriesTestPackage());
-        map.put("BaseCrudNativeRepositoriesTestPackage", getWorkspace().getBaseCrudNativeRepositoriesTestPackage());
-        map.put("BaseConstraintsCrudNativeRepositoriesTestPackage", getWorkspace().getBaseConstraintsCrudNativeRepositoriesTestPackage());
+        map.put("BaseRepositoriesTestPackage", getWorkspace().getBaseRepositoriesTestPackage());
+        map.put("BaseConstraintsRepositoriesTestPackage", getWorkspace().getBaseConstraintsRepositoriesTestPackage());
+        map.put("DatabaseConstraints", getDatabaseConstraints());
         map.put("CrudNativeRepositoriesPackage", getWorkspace().getCrudNativeRepositoriesPackage());
         map.put("ConfigPackage", getWorkspace().getConfigPackage());
         map.put("JpaConfig", Strings.toClassName(getWorkspace().getDataSourceName())+"JpaConfig");
