@@ -8,10 +8,7 @@ import org.tonibauti.jpa.generator.templates.base.AbstractTemplate;
 import org.tonibauti.jpa.generator.templates.base.FieldData;
 import org.tonibauti.jpa.generator.utils.Strings;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class CrudNativeRepositoryTestTemplate extends AbstractTemplate
@@ -34,11 +31,11 @@ public class CrudNativeRepositoryTestTemplate extends AbstractTemplate
         "${ClassName}CrudNativeRepositoryTest.java",
     };
 
-    private static final Map<String, String> DatabaseConstraintsMaps = new HashMap<>();
+    private static final Map<String, String> DatabaseConstraintsMaps = new LinkedHashMap<>();
     static
     {
-        DatabaseConstraintsMaps.put("db2",        "DB2Constraints");
         DatabaseConstraintsMaps.put("h2",         "H2Constraints");
+        DatabaseConstraintsMaps.put("db2",        "DB2Constraints");
         DatabaseConstraintsMaps.put("hsqldb",     "HSQLDBConstraints");
         DatabaseConstraintsMaps.put("mariadb",    "MariaDBConstraints");
         DatabaseConstraintsMaps.put("mysql",      "MySQLConstraints");
