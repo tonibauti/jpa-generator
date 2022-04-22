@@ -5,9 +5,10 @@ import org.apache.commons.cli.*;
 
 public class CLI
 {
-    private static final String FILE_OPTION     = "f";
-    private static final String HELP_OPTION     = "h";
-    private static final String VERBOSE_OPTION  = "v";
+    private static final String CONFIG_FILE_OPTION  = "f";
+    private static final String ENV_FILE_OPTION     = "e";
+    private static final String HELP_OPTION         = "h";
+    private static final String VERBOSE_OPTION      = "v";
 
     private static final CLI instance = new CLI();
 
@@ -31,12 +32,20 @@ public class CLI
 
     private void configure()
     {
-        Option sourceOption = Option.builder(FILE_OPTION)
-                                .argName("config file")
-                                .desc("config file (yaml format) is required")
-                                .hasArg()
-                                .required()
-                                .build();
+        Option configFileOption = Option.builder(CONFIG_FILE_OPTION)
+                                    //.longOpt("config")
+                                    .argName("config file")
+                                    .desc("config file (yaml format) is required")
+                                    .hasArg()
+                                    .required()
+                                    .build();
+
+        Option environmentFileOption = Option.builder(ENV_FILE_OPTION)
+                                        //.longOpt("env")
+                                        .argName("environment file")
+                                        .desc("environment file (key/value format)")
+                                        .hasArg()
+                                        .build();
 
         Option helpOption = Option.builder(HELP_OPTION)
                                 //.longOpt("help")
@@ -48,7 +57,8 @@ public class CLI
                                 .desc("enable verbose")
                                 .build();
 
-        options.addOption( sourceOption );
+        options.addOption( configFileOption );
+        options.addOption( environmentFileOption );
         options.addOption( helpOption );
         options.addOption( verboseOption );
     }
@@ -75,10 +85,16 @@ public class CLI
 
             CLIArgs cliArgs = CLIArgs.getInstance();
 
-            if (commandLine.hasOption(FILE_OPTION))
+            if (commandLine.hasOption(CONFIG_FILE_OPTION))
             {
-                String source = commandLine.getOptionValue(FILE_OPTION);
-                cliArgs.setSource( source.trim() );
+                String config = commandLine.getOptionValue(CONFIG_FILE_OPTION);
+                cliArgs.setConfig( config.trim() );
+            }
+
+            if (commandLine.hasOption(ENV_FILE_OPTION))
+            {
+                String environment = commandLine.getOptionValue(ENV_FILE_OPTION);
+                cliArgs.setEnvironment( environment.trim() );
             }
 
             cliArgs.setHelp( commandLine.hasOption(HELP_OPTION) );

@@ -23,22 +23,32 @@ public class Main
             if (CLIArgs.getInstance().isHelp())
             {
                 CLI.getInstance().usage();
+                return;
             }
-            else
-            {
-                String sourceFileName = CLIArgs.getInstance().getSource();
-                File sourceFile = new File( sourceFileName );
 
-                if (sourceFile.exists() && sourceFile.isFile())
+            File configFile = new File( CLIArgs.getInstance().getConfig() );
+
+            if (!configFile.exists() || !configFile.isFile())
+            {
+                Console.fileNotFound( configFile );
+                return;
+            }
+
+            File environmentFile = null;
+
+            if (CLIArgs.getInstance().getEnvironment() != null)
+            {
+                environmentFile = new File( CLIArgs.getInstance().getEnvironment() );
+
+                if (!environmentFile.exists() || !environmentFile.isFile())
                 {
-                    Generator generator = new Generator();
-                    generator.generate( sourceFile );
-                }
-                else
-                {
-                    Console.fileNotFound( sourceFile );
+                    Console.fileNotFound( environmentFile );
+                    return;
                 }
             }
+
+            Generator generator = new Generator();
+            generator.generate(configFile, environmentFile);
         }
         catch (ValidationException e)
         {

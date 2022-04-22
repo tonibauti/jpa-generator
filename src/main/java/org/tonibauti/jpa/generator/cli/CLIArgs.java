@@ -5,7 +5,8 @@ public class CLIArgs
 {
     private static final CLIArgs instance = new CLIArgs();
 
-    private String source;
+    private String config;
+    private String environment;
     private boolean help;
     private boolean verbose;
 
@@ -22,16 +23,26 @@ public class CLIArgs
     }
 
 
-    public String getSource()
+    public String getConfig()
     {
-        return source;
+        return config;
     }
 
 
-    public CLIArgs setSource(String source)
+    public void setConfig(String config)
     {
-        this.source = source;
-        return this;
+        this.config = config;
+    }
+
+
+    public String getEnvironment()
+    {
+        return environment;
+    }
+
+    public void setEnvironment(String environment)
+    {
+        this.environment = environment;
     }
 
 
@@ -53,10 +64,9 @@ public class CLIArgs
     }
 
 
-    public CLIArgs setVerbose(boolean verbose)
+    public void setVerbose(boolean verbose)
     {
         this.verbose = verbose;
-        return this;
     }
 
 }

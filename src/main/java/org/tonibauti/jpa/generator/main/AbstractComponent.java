@@ -101,6 +101,12 @@ public abstract class AbstractComponent
     }
 
 
+    protected Integer getInt(String value, Integer defaultValue)
+    {
+        try { return Integer.parseInt(value); } catch (Exception e) { return defaultValue; }
+    }
+
+
     protected boolean isNullOrEmpty(Object value)
     {
         if (value == null)
@@ -304,6 +310,106 @@ public abstract class AbstractComponent
         }
 
         return result;
+    }
+
+
+    protected List<String> multiSplit(String str, String separator)
+    {
+        List<String> list = new ArrayList<>();
+
+        if (str != null && !str.trim().isEmpty())
+        {
+            try
+            {
+                int pos;
+                int index = 0;
+
+                String value;
+
+                while ( (pos=str.indexOf(separator,index)) >= 0 )
+                {
+                    value = str.substring(index,pos);
+                    value = value.trim();
+
+                    if (!value.isEmpty())
+                        list.add( value );
+
+                    index = pos + separator.length();
+                }
+
+                // remainder after the last separator
+                value = str.substring(index);
+                value = value.trim();
+
+                if (!value.isEmpty())
+                    list.add( value );
+            }
+            catch (Exception ignored) { /**/ }
+
+            // separator not found
+            if (list.isEmpty())
+                list.add( str );
+        }
+
+        return list;
+    }
+
+
+    protected String getFirstSplit(String str, String separator)
+    {
+        return safeEval(() -> getFirst(multiSplit(str, separator)), "");
+    }
+
+
+    protected String getLastSplit(String str, String separator)
+    {
+        return safeEval(() -> getLast(multiSplit(str, separator)), "");
+    }
+
+
+    protected String replacePattern(String str, String begin, String end, Map<Object,Object> map)
+    {
+        if (str != null && !str.trim().isEmpty())
+        {
+            Map<String, String> auxMap = new HashMap<>();
+
+            String[] separators = new String[]{begin,end};
+
+            while (str.contains(begin) && str.contains(end))
+            {
+                int pos;
+                int index = 0;
+
+                String value;
+
+                int sep = 0;
+                while ( (pos=str.indexOf(separators[sep],index)) >= 0 )
+                {
+                    if (separators[sep].equals(end))
+                    {
+                        value = str.substring(index,pos);
+
+                        String prop = (String) map.get( value.trim() );
+
+                        if (prop == null)
+                            throw new RuntimeException("property '" + (begin + value + end) + "' not found");
+
+                        auxMap.put((begin + value + end), prop.trim());
+                    }
+
+                    // next
+                    index = pos + separators[sep].length();
+                    sep   = (sep+1) % separators.length;
+                }
+
+                for (Map.Entry<String,String> entry : auxMap.entrySet())
+                    str = str.replace(entry.getKey(), entry.getValue());
+
+                auxMap.clear();
+            }
+        }
+
+        return str;
     }
 
 }

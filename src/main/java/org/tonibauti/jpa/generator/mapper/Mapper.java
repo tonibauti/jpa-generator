@@ -68,9 +68,21 @@ public class Mapper
     }
 
 
+    public <T> T readJson(StringBuilder input, Class<T> type) throws Exception
+    {
+        return jsonObjectMapper.readValue(input.toString(), type);
+    }
+
+
     public <T> T readYaml(InputStream inputStream, Class<T> type) throws Exception
     {
         return yamlObjectMapper.readValue(inputStream, type);
+    }
+
+
+    public <T> T readYaml(StringBuilder input, Class<T> type) throws Exception
+    {
+        return yamlObjectMapper.readValue(input.toString(), type);
     }
 
 

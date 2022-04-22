@@ -7,11 +7,13 @@ import org.tonibauti.jpa.generator.explorer.DatabaseExplorer;
 import org.tonibauti.jpa.generator.explorer.metada.DBTable;
 import org.tonibauti.jpa.generator.mapper.Mapper;
 import org.tonibauti.jpa.generator.templates.*;
+import org.tonibauti.jpa.generator.utils.Files;
 import org.tonibauti.jpa.generator.validators.Validator;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.List;
+import java.util.Properties;
 
 
 public class Generator extends AbstractComponent
@@ -23,21 +25,64 @@ public class Generator extends AbstractComponent
     }
 
 
-    private Config read(File sourceFile) throws Exception
+    private Config readYaml(File configFile) throws Exception
     {
-        try (FileInputStream inputStream = new FileInputStream(sourceFile))
+        try (FileInputStream inputStream = new FileInputStream(configFile))
         {
             return Mapper.getInstance().readYaml(inputStream, Config.class);
         }
     }
 
 
-    public void generate(File sourceFile) throws Exception
+    private Config readYaml(StringBuilder configContent) throws Exception
+    {
+        try
+        {
+            return Mapper.getInstance().readYaml(configContent, Config.class);
+        }
+        catch (Exception e)
+        {
+            if (e.getMessage().contains("NullPointerException"))
+            {
+                // JsonMappingException
+                String msg = super.getLastSplit(e.getMessage(), ":");
+                msg = msg.substring(0,msg.length()-1); // remove ')'
+                throw new Exception("Unrecognized value in field '" + msg + "' from source file");
+            }
+            else
+            {
+                throw e;
+            }
+        }
+    }
+
+
+    public void generate(File configFile, File environmentFile) throws Exception
     {
         Console.separator();
 
-        // read config files
-        Config config = read( sourceFile );
+        StringBuilder configContent;
+
+        try (FileInputStream configFileInputStream = new FileInputStream(configFile))
+        {
+            // read config file with environment file
+            if (environmentFile != null)
+            {
+                Properties env = Files.readProperties( new FileInputStream(environmentFile) );
+
+                configContent = Files.readLines(configFileInputStream, (line) ->
+                {
+                    return super.replacePattern(line, "{{", "}}", env);
+                });
+            }
+            else
+            {
+                configContent = Files.readStream( configFileInputStream );
+            }
+        }
+
+        // read config content
+        Config config = readYaml( configContent );
 
         // validate config file
         Validator.getInstance().validate( config );
