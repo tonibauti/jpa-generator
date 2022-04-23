@@ -19,8 +19,8 @@ jobs:
     - name: Set up JDK
       uses: actions/setup-java@v3
       with:
-        java-version: '8'
-        distribution: 'tonibauti'
+        java-version: '11'
+        distribution: 'temurin'
         cache: maven
     - name: Build with Maven
       run: mvn -DskipTests -B package --file pom.xml
