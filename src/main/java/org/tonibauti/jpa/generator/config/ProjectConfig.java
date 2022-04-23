@@ -46,10 +46,10 @@ public class ProjectConfig extends AbstractComponent
     @NotNull
     protected Boolean useBuilders;
 
-    @JsonProperty("timestamps-like-dates")
-    @JsonAlias("timestampsLikeDates")
+    @JsonProperty("use-timestamps-like-dates")
+    @JsonAlias("useTimestampsLikeDates")
     @NotNull
-    protected Boolean timestampsLikeDates;
+    protected Boolean useTimestampsLikeDates;
 
     @JsonAlias("encoder")
     protected String encoder;
@@ -141,14 +141,14 @@ public class ProjectConfig extends AbstractComponent
         this.useBuilders = useBuilders;
     }
 
-    public Boolean getTimestampsLikeDates()
+    public Boolean getUseTimestampsLikeDates()
     {
-        return timestampsLikeDates;
+        return useTimestampsLikeDates;
     }
 
-    public void setTimestampsLikeDates(Boolean timestampsLikeDates)
+    public void setUseTimestampsLikeDates(Boolean useTimestampsLikeDates)
     {
-        this.timestampsLikeDates = timestampsLikeDates;
+        this.useTimestampsLikeDates = useTimestampsLikeDates;
     }
 
     public String getEncoder()
