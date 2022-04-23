@@ -31,6 +31,15 @@
     </properties>
 
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub tonibauti Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/tonibauti/jpa-generator</url>
+        </repository>
+    </distributionManagement>
+
+
     <dependencies>
 
         <!-- Freemarker -->
