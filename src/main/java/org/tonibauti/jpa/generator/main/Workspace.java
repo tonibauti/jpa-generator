@@ -158,9 +158,9 @@ public class Workspace
     }
 
 
-    public boolean isTimestampsLikeDates()
+    public boolean isUseTimestampsLikeDates()
     {
-        return bool(generatorConfig.getProjectConfig().getTimestampsLikeDates());
+        return bool(generatorConfig.getProjectConfig().getUseTimestampsLikeDates());
     }
 
 

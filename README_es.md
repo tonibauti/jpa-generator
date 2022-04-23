@@ -1,4 +1,36 @@
+# JPA Generator
 
+[[English](./README.md)]
+
+Es un generador de código java, que a partir de una conexión jdbc a una base de datos, 
+escanea su tablas, relaciones, claves primarias, claves foráneas, índices, etc.
+y crea la capa de persistencia en JPA.
+
+Se genera lo siguiente:
+
+- Configuración
+- Entidades
+- Relaciones
+- Repositorios (tipo spring data y tipo sql nativo)
+- Tests
+
+Actualmente, los proveedores soportados son los siguientes:
+
+- Hikari (para el datasource)
+- Hibernate (para el jpa)
+- Spring (para el tipo de proyecto)
+
+Forma de uso:
+
+```
+java -jar jpa-generator.jar -h
+
+java -jar jpa-generator.jar -f myconfig.yml
+```
+
+Ejemplo de fichero de configuración:
+
+```Yaml
 version: "1.0"
 
 generator:
@@ -6,10 +38,9 @@ generator:
   generate-entities: true
   generate-crud-repositories: true
   generate-crud-repositories-test: true
-  generate-crud-native-repositories: true
-  generate-crud-native-repositories-test: true
+  generate-crud-native-repositories: false
+  generate-crud-native-repositories-test: false
   generate-joins: true
-
 
   datasource:
     provider: "hikari"
@@ -32,7 +63,6 @@ generator:
       dataSourceProperties.prepStmtCacheSize: 250
       dataSourceProperties.prepStmtCacheSqlLimit: 2048
 
-
   jpa:
     provider: "hibernate"
     properties:
@@ -46,7 +76,6 @@ generator:
       #javax.persistence.schema-generation.create-source: "metadata"
       #javax.persistence.schema-generation.scripts.action: "create"
       #javax.persistence.schema-generation.scripts.create-target: "example.sql"
-
 
   project:
     type: "spring"
@@ -64,7 +93,7 @@ generator:
       excludes:
         - ""
 
-    columns:
+    columns:    # formato: tabla.columna
       includes:
         - "*"
       excludes:
@@ -73,4 +102,5 @@ generator:
         - ""
       invisible:
         - "*.password"
+```
 
