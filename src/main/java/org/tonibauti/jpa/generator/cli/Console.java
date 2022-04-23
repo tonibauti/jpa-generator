@@ -18,6 +18,8 @@ public class Console
     protected static final String CLI_NAME = "jpa-generator";
     protected static final String URL      = "https://github.com/tonibauti";
 
+    public static final String SUPPORTED_VERSION = "1.0.0";
+
 
     private Console() {}
 

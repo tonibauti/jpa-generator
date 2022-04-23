@@ -5,6 +5,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.tonibauti.jpa.generator.main.AbstractComponent;
+import org.tonibauti.jpa.generator.validators.CheckVersionPattern;
 
 import java.util.Set;
 
@@ -13,6 +14,7 @@ public class Config extends AbstractComponent
 {
     @JsonProperty("version")
     @NotBlank
+    @CheckVersionPattern
     protected String version;
 
     @JsonProperty("generator")

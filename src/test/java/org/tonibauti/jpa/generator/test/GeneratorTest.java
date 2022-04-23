@@ -16,11 +16,11 @@ public class GeneratorTest
 
             //"C:/Temp/jpa-generator/manadas-access.yml",
             "C:/Temp/jpa-generator/manadas-mysql.yml",
-
             //"C:/Temp/jpa-generator/manadas-postgresql.yml",
-
             //"./test-postgresql.yml",
 
+            "-e",
+            "C:/Temp/jpa-generator/manadas-mysql.env",
             "-v",
         };
     }

@@ -492,9 +492,6 @@ public abstract class AbstractTemplate extends AbstractComponent
     }
 
 
-
-
-
     /*
     protected String getColumnComment(DBColumn dbColumn)
     {
