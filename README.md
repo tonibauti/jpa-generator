@@ -36,12 +36,12 @@ version: "1.0"
 generator:
   generate-config: true
   generate-entities: true
+  generate-joins: true
   generate-crud-repositories: true
   generate-crud-repositories-test: true
   generate-crud-native-repositories: false
   generate-crud-native-repositories-test: false
-  generate-joins: true
-
+  
   datasource:
     provider: "hikari"
     name: "example"
