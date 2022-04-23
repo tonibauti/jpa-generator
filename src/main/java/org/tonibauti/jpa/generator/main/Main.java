@@ -18,7 +18,9 @@ public class Main
             Console.banner();
 
             if (!CLI.getInstance().parseArgs(args))
+            {
                 return;
+            }
 
             if (CLIArgs.getInstance().isHelp())
             {
