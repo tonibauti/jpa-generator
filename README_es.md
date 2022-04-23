@@ -12,7 +12,7 @@ Se genera lo siguiente:
 - Entidades
 - Relaciones
 - Repositorios (tipo spring data y tipo sql nativo)
-- Tests
+- Tests de los Respositorios
 
 Actualmente, los proveedores soportados son los siguientes:
 
@@ -20,7 +20,7 @@ Actualmente, los proveedores soportados son los siguientes:
 - Hibernate (para el jpa)
 - Spring (para el tipo de proyecto)
 
-Forma de uso:
+### Forma de uso:
 
 ```
 java -jar jpa-generator.jar -h
@@ -28,9 +28,9 @@ java -jar jpa-generator.jar -h
 java -jar jpa-generator.jar -f myconfig.yml
 ```
 
-Ejemplo de fichero de configuración:
+#### Ejemplo de fichero de configuración:
 
-```Yaml
+```yaml
 version: "1.0"
 
 generator:
@@ -102,5 +102,67 @@ generator:
         - ""
       invisible:
         - "*.password"
+```
+
+---
+
+#### Configuración de la aplicación:
+
+```java
+@SpringBootApplication
+@EnableAutoConfiguration(exclude =
+{
+    DataSourceAutoConfiguration.class,
+    HibernateJpaAutoConfiguration.class,
+    JpaRepositoriesAutoConfiguration.class,
+    DataSourceTransactionManagerAutoConfiguration.class,
+})
+@EnableTransactionManagement
+@EnableConfigurationProperties
+public class Application
+{
+    public static void main(String[] args)
+    {
+        SpringApplication.run(Application.class, args);
+    }   
+}
+```
+
+---
+
+#### Dependencias del proyecto:
+
+```xml
+<!-- Spring Web -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+
+<!-- Spring Validation -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+
+<!-- Spring JDBC -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jdbc</artifactId>
+</dependency>
+
+<!-- Spring JPA -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+
+<!-- Lombok -->
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.22</version>
+    <scope>provided</scope>
+</dependency>
 ```
 
