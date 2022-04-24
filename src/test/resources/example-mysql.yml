@@ -50,11 +50,11 @@ generator:
 
   project:
     type: "spring"
-    path: "/tmp/jpa-generator/example"
+    path: "/myprojects/example"
     config-package: "org.myorganization.example.config.database"
     persistence-package: "org.myorganization.example.persistence"
     persistence-test-package: "org.myorganization.example.test.persistence"
-    #encoder: "org.myorganization.example.utils.encoder.XOREncoder"
+    encoder: "org.myorganization.example.utils.encoder.XOREncoder"
     use-builders: true
     use-timestamps-like-dates: true
 
