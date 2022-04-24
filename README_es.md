@@ -4,9 +4,7 @@
 
 Es un generador de código java, a partir de una conexión jdbc a una base de datos, 
 escanea su tablas, relaciones, claves primarias, claves foráneas, índices, etc.
-y genera la capa de persistencia JPA.
-
-Se genera lo siguiente:
+y genera la capa de persistencia JPA que incluye:
 
 - Configuración
 - Entidades
@@ -16,9 +14,11 @@ Se genera lo siguiente:
 
 Actualmente, los proveedores soportados son los siguientes:
 
-- Hikari (para el datasource)
-- Hibernate (para el jpa)
-- Spring (para el tipo de proyecto)
+| Proveedor | Componente |
+|-----------|------------|
+| hikari    | datasource |
+| hibernate | jpa        |
+| spring    | proyecto   |
 
 ### Forma de uso:
 
