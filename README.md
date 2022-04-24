@@ -3,7 +3,7 @@
 [[Español](./README_es.md)]
 
 It is a java code generator, from a database jdbc connection,
-scan your tables, relationships, primary keys, foreign keys, indexes, etc.
+scans your tables, relationships, primary keys, foreign keys, indexes, etc.
 and generates the JPA persistence layer.
 
 The following is generated:
