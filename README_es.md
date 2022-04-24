@@ -2,9 +2,9 @@
 
 [[English](./README.md)]
 
-Es un generador de código java, que a partir de una conexión jdbc a una base de datos, 
+Es un generador de código java, a partir de una conexión jdbc a una base de datos, 
 escanea su tablas, relaciones, claves primarias, claves foráneas, índices, etc.
-y crea la capa de persistencia JPA.
+y genera la capa de persistencia JPA.
 
 Se genera lo siguiente:
 
@@ -26,12 +26,15 @@ Actualmente, los proveedores soportados son los siguientes:
 java -jar jpa-generator.jar -h
 
 java -jar jpa-generator.jar -f myconfig.yml
+
+java -jar jpa-generator.jar -f myconfig.yml -e myconfig.env
 ```
 
 #### Ejemplo de fichero de configuración:
 
 ```yaml
 version: "1.0"
+#version: {{ version }}   # myconfig.env --> version = 1.0
 
 generator:
   generate-config: true

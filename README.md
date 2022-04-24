@@ -2,9 +2,9 @@
 
 [[Español](./README_es.md)]
 
-It is a java code generator, that from a database jdbc connection,
+It is a java code generator, from a database jdbc connection,
 scan your tables, relationships, primary keys, foreign keys, indexes, etc.
-and create the JPA persistence layer.
+and generates the JPA persistence layer.
 
 The following is generated:
 
@@ -26,12 +26,15 @@ Currently, the supported providers are the following:
 java -jar jpa-generator.jar -h
 
 java -jar jpa-generator.jar -f myconfig.yml
+
+java -jar jpa-generator.jar -f myconfig.yml -e myconfig.env 
 ```
 
 #### Configuration file example:
 
 ```yaml
 version: "1.0"
+#version: {{ version }}   # myconfig.env --> version = 1.0
 
 generator:
   generate-config: true
