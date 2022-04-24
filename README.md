@@ -4,9 +4,7 @@
 
 It is a java code generator, from a database jdbc connection,
 scans your tables, relationships, primary keys, foreign keys, indexes, etc.
-and generates the JPA persistence layer.
-
-The following is generated:
+and generates the JPA persistence layer which includes:
 
 - Configuration
 - Entities
@@ -16,9 +14,11 @@ The following is generated:
 
 Currently, the supported providers are the following:
 
-- Hikari (for datasource)
-- Hibernate (for jpa)
-- Spring (for project type)
+| Provider  | Component  |
+|-----------|------------|
+| hikari    | datasource |
+| hibernate | jpa        |
+| spring    | project    | 
 
 ### How to use:
 
