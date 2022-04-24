@@ -11,6 +11,12 @@ import java.io.File;
 public class Main
 {
 
+    private static boolean existsFile(File file)
+    {
+        return (file != null && file.exists() && file.isFile());
+    }
+
+
     public static void main(String[] args)
     {
         try
@@ -30,7 +36,7 @@ public class Main
 
             File configFile = new File( CLIArgs.getInstance().getConfig() );
 
-            if (!configFile.exists() || !configFile.isFile())
+            if (!existsFile(configFile))
             {
                 Console.fileNotFound( configFile );
                 return;
@@ -42,7 +48,7 @@ public class Main
             {
                 environmentFile = new File( CLIArgs.getInstance().getEnvironment() );
 
-                if (!environmentFile.exists() || !environmentFile.isFile())
+                if (!existsFile(environmentFile))
                 {
                     Console.fileNotFound( environmentFile );
                     return;
