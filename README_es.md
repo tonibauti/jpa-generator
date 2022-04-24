@@ -4,7 +4,7 @@
 
 Es un generador de código java, que a partir de una conexión jdbc a una base de datos, 
 escanea su tablas, relaciones, claves primarias, claves foráneas, índices, etc.
-y crea la capa de persistencia en JPA.
+y crea la capa de persistencia JPA.
 
 Se genera lo siguiente:
 
@@ -79,7 +79,7 @@ generator:
 
   project:
     type: "spring"
-    path: "/tmp/jpa-generator/example"
+    path: "/myprojects/example"
     config-package: "org.myorganization.example.config.database"
     persistence-package: "org.myorganization.example.persistence"
     persistence-test-package: "org.myorganization.example.test.persistence"
@@ -133,36 +133,38 @@ public class Application
 #### Dependencias del proyecto:
 
 ```xml
-<!-- Spring Web -->
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-web</artifactId>
-</dependency>
-
-<!-- Spring Validation -->
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-validation</artifactId>
-</dependency>
-
-<!-- Spring JDBC -->
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-jdbc</artifactId>
-</dependency>
-
-<!-- Spring JPA -->
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-data-jpa</artifactId>
-</dependency>
-
-<!-- Lombok -->
-<dependency>
-    <groupId>org.projectlombok</groupId>
-    <artifactId>lombok</artifactId>
-    <version>1.18.22</version>
-    <scope>provided</scope>
-</dependency>
+<dependencies>
+    <!-- Spring Web -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    
+    <!-- Spring Validation -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+    
+    <!-- Spring JDBC -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-jdbc</artifactId>
+    </dependency>
+    
+    <!-- Spring JPA -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    
+    <!-- Lombok -->
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.18.22</version>
+        <scope>provided</scope>
+    </dependency>
+</dependencies>
 ```
 
