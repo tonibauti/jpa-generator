@@ -148,7 +148,14 @@ public abstract class AbstractTemplate extends AbstractComponent
                 continue;
 
             if (!dbIndex.isUnique())
+            {
                 super.addToList(List.class.getName(), importList, false);
+                if (!isTest)
+                {
+                    super.addToList("org.springframework.data.domain.Page", importList, false);
+                    super.addToList("org.springframework.data.domain.Pageable", importList, false);
+                }
+            }
 
             StringBuilder property = new StringBuilder();
             StringBuilder param = new StringBuilder();
@@ -211,13 +218,18 @@ public abstract class AbstractTemplate extends AbstractComponent
                 fieldData.setUnique( dbIndex.isUnique() );
 
                 if (isTest)
-                    fieldData.setParam( " DataTestFactory.get" + getNormalizedType(dbColumn.getClassName(), importList) + "() " );
+                    fieldData.setParam( "DataTestFactory.get" + getNormalizedType(dbColumn.getClassName(), importList) + "()" );
                 else
                     fieldData.setParam( getNormalizedType(dbColumn.getClassName(), importList) + " " + fieldData.getProperty() );
 
                 if (!dbIndex.isUnique() || (dbIndex.getColumns().size() > 1))
                 {
                     super.addToList(List.class.getName(), importList, false);
+                    if (!isTest)
+                    {
+                        super.addToList("org.springframework.data.domain.Page", importList, false);
+                        super.addToList("org.springframework.data.domain.Pageable", importList, false);
+                    }
                     fieldData.setUnique( false );
                 }
 

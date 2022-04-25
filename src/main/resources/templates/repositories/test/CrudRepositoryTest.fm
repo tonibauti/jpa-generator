@@ -16,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.sql.DataSource;
 <#list importList as import>
 import ${import};
@@ -181,9 +180,17 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
     {
         logger.info("${indexData.findBy}");
 
-        <#if indexData.unique>${Entity}<#else>List<${Entity}></#if> result = getRepository().${indexData.findBy}(${indexData.param});
+        <#if indexData.unique>
+        ${Entity} result = getRepository().${indexData.findBy}(${indexData.param});
 
         logger.info("result: " + result);
+        <#else>
+        List<${Entity}> list = getRepository().${indexData.findBy}(${indexData.param});
+        logger.info("result: " + list);
+
+        Page<${Entity}> page = getRepository().${indexData.findBy}(${indexData.param}, PageRequest.of(0,10));
+        logger.info("result: " + page.toList());
+        </#if>
     }
     </#list>
 }
