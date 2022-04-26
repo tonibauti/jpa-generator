@@ -124,9 +124,9 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
     {
         logger.info("findAll");
 
-        Page<${Entity}> result = getRepository().findAll( PageRequest.of(0,20) );
+        Page<${Entity}> result = getRepository().findAll( PageRequest.of(0,10) );
 
-        logger.info("result: " + result);
+        logger.info("result: " + result.toList());
     }
 
 

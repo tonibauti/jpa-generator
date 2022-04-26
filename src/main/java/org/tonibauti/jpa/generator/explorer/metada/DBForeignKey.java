@@ -126,7 +126,8 @@ public class DBForeignKey
                 &&
                 referencedPrimaryKey
                 &&
-                table.getPrimaryKeyList().size() == referencedTable.getPrimaryKeyList().size());
+                table.getPrimaryKeyList().equals(referencedTable.getPrimaryKeyList()));
+                //table.getPrimaryKeyList().size() == referencedTable.getPrimaryKeyList().size());
     }
 
     public boolean isNullable()

@@ -145,7 +145,7 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
     {
         logger.info("find");
 
-        List<${Entity}> result = getRepository().find(getFilter(), PageRequest.of(0,20));
+        List<${Entity}> result = getRepository().find(getFilter(), PageRequest.of(0,10));
 
         logger.info("result: " + result);
     }
@@ -156,7 +156,7 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
     {
         logger.info("findAll");
 
-        List<${Entity}> result = getRepository().findAll( PageRequest.of(0,20) );
+        List<${Entity}> result = getRepository().findAll( PageRequest.of(0,10) );
 
         logger.info("result: " + result);
     }
