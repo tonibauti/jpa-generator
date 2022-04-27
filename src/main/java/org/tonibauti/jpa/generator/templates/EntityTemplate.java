@@ -87,10 +87,12 @@ public class EntityTemplate extends AbstractTemplate
     public static class ForeignKey
     {
         DBForeignKey fk;
+        String mode;
         String mappedBy;
         String suffix;
         List<String> annotations;
         public DBForeignKey getFk() { return fk; }
+        public String getMode() { return mode; }
         public String getMappedBy() { return mappedBy; }
         public String getSuffix() { return suffix; }
         public List<String> getAnnotations() { return annotations; }
@@ -116,6 +118,12 @@ public class EntityTemplate extends AbstractTemplate
             foreignKey.mappedBy = className+"Entity.NAME";
             foreignKey.suffix = "";
             foreignKey.annotations = super.getJpaForeignKeyAnnotations( dbForeignKey );
+
+            // TODO: OneToOne || ManyToOne --> isEqualsPrimaryKeyJoin || isPrimaryKeyJoin
+            if (isExternalFK)
+                foreignKey.mode = dbForeignKey.isMany() ? "@OneToMany" : "@OneToOne";
+            else
+                foreignKey.mode = dbForeignKey.isMany() ? "@ManyToOne" : "@OneToOne";
 
             if (isExternalFK && dbForeignKey.isMany())
                 super.addToList(List.class.getName(), importList, false);

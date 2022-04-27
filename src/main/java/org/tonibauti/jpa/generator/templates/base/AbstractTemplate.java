@@ -125,7 +125,7 @@ public abstract class AbstractTemplate extends AbstractComponent
 
         for (DBForeignKey dbForeignKey : dbTable.getForeignKeyList())
         {
-            if (dbForeignKey.isPrimaryKeyJoin())
+            if (dbForeignKey.isEqualsPrimaryKeyJoin())
             {
                 table = dbForeignKey.getForeignTable();
                 break;
@@ -411,12 +411,12 @@ public abstract class AbstractTemplate extends AbstractComponent
 
     protected List<String> getJpaForeignKeyAnnotations(DBForeignKey dbForeignKey)
     {
+        List<String> foreignKeyAnnotations = new ArrayList<>();
+
         String tab = "";
 
-        String joinColumns = dbForeignKey.isPrimaryKeyJoin() ? "@PrimaryKeyJoinColumns" : "@JoinColumns";
-        String joinColumn  = dbForeignKey.isPrimaryKeyJoin() ? "@PrimaryKeyJoinColumn"  : "@JoinColumn";
-
-        List<String> foreignKeyAnnotations = new ArrayList<>();
+        String joinColumns = dbForeignKey.isEqualsPrimaryKeyJoin() ? "@PrimaryKeyJoinColumns" : "@JoinColumns";
+        String joinColumn  = dbForeignKey.isEqualsPrimaryKeyJoin() ? "@PrimaryKeyJoinColumn"  : "@JoinColumn";
 
         boolean isCompositeKey = (dbForeignKey.getForeignKeyRefList().size() > 1); // multi foreign key
 
@@ -439,7 +439,7 @@ public abstract class AbstractTemplate extends AbstractComponent
             foreignKeyAnnotations.add( tab + "(" );
             foreignKeyAnnotations.add( tab + "    name = " + Strings.toColumnName(dbForeignKeyRef.getColumnName()) + "_COLUMN" + "," );
 
-            if (!dbForeignKey.isPrimaryKeyJoin())
+            if (!dbForeignKey.isEqualsPrimaryKeyJoin())
             {
                 foreignKeyAnnotations.add( tab + "    nullable = " + dbForeignKey.isNullable() + "," );
                 foreignKeyAnnotations.add( tab + "    unique = " + dbForeignKey.isUnique() + "," );

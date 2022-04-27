@@ -69,11 +69,10 @@ public class ${Entity} implements Serializable
 
 
     @ToString.Exclude // avoid an infinite loop by lombok
+    ${externalForeignKey.mode}(mappedBy = ${externalForeignKey.mappedBy}, fetch = FetchType.LAZY)
     <#if externalForeignKey.fk.many>
-    @OneToMany(mappedBy = ${externalForeignKey.mappedBy}, fetch = FetchType.LAZY)
     private List<${asClass(externalForeignKey.fk.foreignTable)}Entity> ${asProperty(externalForeignKey.fk.foreignTable)}EntityList${externalForeignKey.suffix};
     <#else>
-    @OneToOne(mappedBy = ${externalForeignKey.mappedBy}, fetch = FetchType.LAZY)
     private ${asClass(externalForeignKey.fk.foreignTable)}Entity ${asProperty(externalForeignKey.fk.foreignTable)}Entity${externalForeignKey.suffix};
     </#if>
     </#list>
@@ -83,11 +82,7 @@ public class ${Entity} implements Serializable
 
 
     @ToString.Exclude // avoid an infinite loop by lombok
-    <#if foreignKey.fk.many>
-    @ManyToOne(fetch = FetchType.LAZY, optional = ${foreignKey.fk.nullable?string})
-    <#else>
-    @OneToOne(fetch = FetchType.LAZY, optional = ${foreignKey.fk.nullable?string})
-    </#if>
+    ${foreignKey.mode}(fetch = FetchType.LAZY, optional = ${foreignKey.fk.nullable?string})
     <#list foreignKey.annotations as annotation>
     ${annotation}
     </#list>
