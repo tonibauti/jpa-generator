@@ -1,6 +1,7 @@
 package org.tonibauti.jpa.generator.main;
 
 import org.tonibauti.jpa.generator.config.GeneratorConfig;
+import org.tonibauti.jpa.generator.config.ProjectConfig;
 import org.tonibauti.jpa.generator.explorer.metada.DBConnection;
 import org.tonibauti.jpa.generator.utils.Strings;
 
@@ -10,9 +11,6 @@ import java.util.Map;
 
 public class Workspace
 {
-    public static final String SPRING       = "spring";
-    public static final String QUARKUS      = "quarkus";
-    public static final String HIBERNATE    = "hibernate";
     public static final String SRC          = "src";
     public static final String MAIN         = "main";
     public static final String JAVA         = "java";
@@ -25,8 +23,10 @@ public class Workspace
     public static final String CATALOGS     = "catalogs";
     public static final String REPOSITORIES = "repositories";
     public static final String CRUD         = "crud";
-    public static final String CRUD_NATIVE  = "crud_native";
+    //public static final String CRUD_NATIVE  = "crud_native";
+    public static final String CRUD_NATIVE  = "crud";
     public static final String BASE         = "base";
+    public static final String CONSTRAINTS  = "constraints";
 
     private GeneratorConfig generatorConfig;
     private DBConnection dbConnection;
@@ -124,25 +124,33 @@ public class Workspace
 
     public boolean isCrudRepositories()
     {
-        return bool(generatorConfig.getGenerateCrudRepositories());
+        return (bool(generatorConfig.getGenerateCrudRepositories())
+                &&
+                GeneratorConfig.REPOSITORIES_MODE_SPRING_DATA.equalsIgnoreCase(generatorConfig.getGenerateCrudRepositoriesMode()));
     }
 
 
     public boolean isCrudRepositoriesTest()
     {
-        return bool(generatorConfig.getGenerateCrudRepositoriesTest());
+        return (bool(generatorConfig.getGenerateCrudRepositoriesTest())
+                &&
+                GeneratorConfig.REPOSITORIES_MODE_SPRING_DATA.equalsIgnoreCase(generatorConfig.getGenerateCrudRepositoriesMode()));
     }
 
 
     public boolean isCrudNativeRepositories()
     {
-        return bool(generatorConfig.getGenerateCrudNativeRepositories());
+        return (bool(generatorConfig.getGenerateCrudRepositories())
+                &&
+                GeneratorConfig.REPOSITORIES_MODE_NATIVE.equalsIgnoreCase(generatorConfig.getGenerateCrudRepositoriesMode()));
     }
 
 
     public boolean isCrudNativeRepositoriesTest()
     {
-        return bool(generatorConfig.getGenerateCrudNativeRepositoriesTest());
+        return (bool(generatorConfig.getGenerateCrudRepositoriesTest())
+                &&
+                GeneratorConfig.REPOSITORIES_MODE_NATIVE.equalsIgnoreCase(generatorConfig.getGenerateCrudRepositoriesMode()));
     }
 
 
@@ -178,13 +186,13 @@ public class Workspace
 
     public boolean isSpring()
     {
-        return SPRING.equalsIgnoreCase(getProjectType());
+        return ProjectConfig.PROJECT_TYPE_SPRING.equalsIgnoreCase(getProjectType());
     }
 
 
     public boolean isQuarkus()
     {
-        return QUARKUS.equalsIgnoreCase(getProjectType());
+        return ProjectConfig.PROJECT_TYPE_QUARKUS.equalsIgnoreCase(getProjectType());
     }
 
 
@@ -379,7 +387,7 @@ public class Workspace
 
     public String getBaseConstraintsRepositoriesTestDir()
     {
-        return getBaseRepositoriesTestDir() + toJavaPath( "constraints" );
+        return getBaseRepositoriesTestDir() + toJavaPath( CONSTRAINTS );
     }
 
 
@@ -508,6 +516,7 @@ public class Workspace
         // entities
         createDir( getEntitiesDir() );
 
+        // entities / catalogs
         if (isCatalogConstants())
         {
             createDir( getCatalogConstantsDir() );

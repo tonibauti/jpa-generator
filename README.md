@@ -1,10 +1,16 @@
 # JPA Generator
 
-[[Español](./README_es.md)]
+[ [Español](./README_es.md) ]
 
-It is a java code generator, from a database jdbc connection,
-scans your tables, relationships, primary keys, foreign keys, indexes, etc.
+JPA Generator is a java code generator, from a database jdbc connection,
+analyses your tables, relationships, primary keys, foreign keys, indexes, etc.
 and generates the JPA persistence layer which includes:
+
+/**/
+JPA Generator is a java code generator that analyses a database structure (provided with a jdbc connection), 
+scans all its tables, relationships, primary keys, foreign keys, indexes, etc. 
+and generates the JPA persistence layer which includes:
+/**/
 
 - Configuration
 - Entities
@@ -12,7 +18,7 @@ and generates the JPA persistence layer which includes:
 - Repositories (spring data type and native sql type)
 - Repositories Tests
 
-Currently, the supported providers are the following:
+Currently, the following providers are supported:
 
 | Provider  | Component  |
 |-----------|------------|
@@ -42,8 +48,7 @@ generator:
   generate-joins: true
   generate-crud-repositories: true
   generate-crud-repositories-test: true
-  generate-crud-native-repositories: false
-  generate-crud-native-repositories-test: false
+  generate-crud-repositories-mode: "native"  # spring-data | native
   
   datasource:
     provider: "hikari"

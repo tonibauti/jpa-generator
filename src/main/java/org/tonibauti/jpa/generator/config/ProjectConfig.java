@@ -15,10 +15,13 @@ import java.util.Set;
 
 public class ProjectConfig extends AbstractComponent
 {
+    public static final String PROJECT_TYPE_SPRING  = "spring";
+    public static final String PROJECT_TYPE_QUARKUS = "quarkus";
+
     @JsonProperty("type")
     @NotNull
-    //@StringValues("spring, quarkus")
-    @StringValues("spring")
+    //@StringValues(PROJECT_TYPE_SPRING + "," + PROJECT_TYPE_QUARKUS)
+    @StringValues(PROJECT_TYPE_SPRING)
     protected String type;
 
     @JsonProperty("path")

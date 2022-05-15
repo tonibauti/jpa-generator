@@ -123,12 +123,15 @@ public abstract class AbstractTemplate extends AbstractComponent
 
         String table = dbTable.getName();
 
-        for (DBForeignKey dbForeignKey : dbTable.getForeignKeyList())
+        if (workspace.isCrudRepositories())
         {
-            if (dbForeignKey.isEqualsPrimaryKeyJoin())
+            for (DBForeignKey dbForeignKey : dbTable.getForeignKeyList())
             {
-                table = dbForeignKey.getForeignTable();
-                break;
+                if (dbForeignKey.isPrimaryKeyJoin())
+                {
+                    table = dbForeignKey.getForeignTable();
+                    break;
+                }
             }
         }
 
@@ -144,12 +147,14 @@ public abstract class AbstractTemplate extends AbstractComponent
 
         for (DBIndex dbIndex : dbTable.getIndexList())
         {
+            // is not multiple
             if (dbIndex.getColumns().size() <= 1)
                 continue;
 
             if (!dbIndex.isUnique())
             {
                 super.addToList(List.class.getName(), importList, false);
+
                 if (!isTest)
                 {
                     super.addToList("org.springframework.data.domain.Page", importList, false);
@@ -167,10 +172,13 @@ public abstract class AbstractTemplate extends AbstractComponent
                 if (property.length() > 0)
                     property.append("And");
 
-                if (param.length() > 0)
-                    param.append(", ");
+                if (dbColumn.isPrimaryKey())
+                    property.append("Id");  // findBy<EmbeddedId>
 
                 property.append( Strings.toClassName(column) );
+
+                if (param.length() > 0)
+                    param.append(", ");
 
                 if (isTest)
                     param.append( "DataTestFactory.get" + getNormalizedType(dbColumn.getClassName(), importList) + "()" );
@@ -208,28 +216,41 @@ public abstract class AbstractTemplate extends AbstractComponent
                 if (aux.contains(column))
                     continue;
 
+                StringBuilder property = new StringBuilder();
+
                 DBColumn dbColumn = dbTable.getColumn( column );
 
-                if (dbColumn.isPrimaryKey() && !dbTable.isMultipleKey())
-                    continue;
+                if (dbColumn.isPrimaryKey())
+                {
+                    if (dbTable.isMultipleKey())
+                        property.append("Id");  // findBy<EmbeddedId>
+                    else
+                        continue;
+                }
+
+                property.append( Strings.toClassName(column) );
 
                 FieldData fieldData = new FieldData();
-                fieldData.setProperty( Strings.toPropertyName(dbColumn.getName()) );
+                fieldData.setProperty( property.toString() );
                 fieldData.setUnique( dbIndex.isUnique() );
+
 
                 if (isTest)
                     fieldData.setParam( "DataTestFactory.get" + getNormalizedType(dbColumn.getClassName(), importList) + "()" );
                 else
-                    fieldData.setParam( getNormalizedType(dbColumn.getClassName(), importList) + " " + fieldData.getProperty() );
+                    fieldData.setParam( getNormalizedType(dbColumn.getClassName(), importList) + " " + Strings.toPropertyName(column) );
+
 
                 if (!dbIndex.isUnique() || (dbIndex.getColumns().size() > 1))
                 {
                     super.addToList(List.class.getName(), importList, false);
+
                     if (!isTest)
                     {
                         super.addToList("org.springframework.data.domain.Page", importList, false);
                         super.addToList("org.springframework.data.domain.Pageable", importList, false);
                     }
+
                     fieldData.setUnique( false );
                 }
 
@@ -415,8 +436,8 @@ public abstract class AbstractTemplate extends AbstractComponent
 
         String tab = "";
 
-        String joinColumns = dbForeignKey.isEqualsPrimaryKeyJoin() ? "@PrimaryKeyJoinColumns" : "@JoinColumns";
-        String joinColumn  = dbForeignKey.isEqualsPrimaryKeyJoin() ? "@PrimaryKeyJoinColumn"  : "@JoinColumn";
+        String joinColumns = dbForeignKey.isPrimaryKeyJoin() ? "@PrimaryKeyJoinColumns" : "@JoinColumns";
+        String joinColumn  = dbForeignKey.isPrimaryKeyJoin() ? "@PrimaryKeyJoinColumn"  : "@JoinColumn";
 
         boolean isCompositeKey = (dbForeignKey.getForeignKeyRefList().size() > 1); // multi foreign key
 
@@ -439,7 +460,7 @@ public abstract class AbstractTemplate extends AbstractComponent
             foreignKeyAnnotations.add( tab + "(" );
             foreignKeyAnnotations.add( tab + "    name = " + Strings.toColumnName(dbForeignKeyRef.getColumnName()) + "_COLUMN" + "," );
 
-            if (!dbForeignKey.isEqualsPrimaryKeyJoin())
+            if (!dbForeignKey.isPrimaryKeyJoin())
             {
                 foreignKeyAnnotations.add( tab + "    nullable = " + dbForeignKey.isNullable() + "," );
                 foreignKeyAnnotations.add( tab + "    unique = " + dbForeignKey.isUnique() + "," );

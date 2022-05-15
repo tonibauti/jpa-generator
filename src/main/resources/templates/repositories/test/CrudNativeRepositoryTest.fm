@@ -255,9 +255,10 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
     {
         logger.info("joinAll");
 
-        getRepository().joinAll( getEntity() );
+        ${Entity} entity = getEntity();
+        getRepository().joinAll( entity );
 
-        //logger.info("result: " + result);
+        logger.info("result: " + entity);
     }
 
 }

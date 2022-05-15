@@ -119,6 +119,7 @@ public class DBForeignKey
         analyze();
     }
 
+    /*
     @JsonIgnore
     public boolean isEqualsPrimaryKeyJoin()
     {
@@ -128,6 +129,7 @@ public class DBForeignKey
                 &&
                 table.getPrimaryKeyList().equals(referencedTable.getPrimaryKeyList()));
     }
+    */
 
     @JsonIgnore
     public boolean isPrimaryKeyJoin()

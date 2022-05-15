@@ -1,9 +1,9 @@
 # JPA Generator
 
-[[English](./README.md)]
+[ [English](./README.md) ]
 
-Es un generador de código java, a partir de una conexión jdbc a una base de datos, 
-escanea su tablas, relaciones, claves primarias, claves foráneas, índices, etc.
+JPA Generator es un generador de código java, a partir de una conexión jdbc a una base de datos, 
+analiza su tablas, relaciones, claves primarias, claves foráneas, índices, etc.
 y genera la capa de persistencia JPA que incluye:
 
 - Configuración
@@ -42,8 +42,7 @@ generator:
   generate-joins: true
   generate-crud-repositories: true
   generate-crud-repositories-test: true
-  generate-crud-native-repositories: false
-  generate-crud-native-repositories-test: false
+  generate-crud-repositories-mode: "native"  # spring-data | native
 
   datasource:
     provider: "hikari"
