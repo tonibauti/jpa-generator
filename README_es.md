@@ -2,14 +2,14 @@
 
 [ [English](./README.md) ]
 
-JPA Generator es un generador de código java, a partir de una conexión jdbc a una base de datos, 
-analiza su tablas, relaciones, claves primarias, claves foráneas, índices, etc.
+JPA Generator es un generador de código java que analiza la estructura de una base de datos (a partir de una conexión jdbc), 
+escanea su tablas, relaciones, claves primarias, claves foráneas, índices, etc.
 y genera la capa de persistencia JPA que incluye:
 
 - Configuración
 - Entidades
 - Relaciones
-- Repositorios (tipo spring data y tipo sql nativo)
+- Repositorios (tipo spring data o tipo sql nativo)
 - Tests de los Respositorios
 
 Actualmente, los proveedores soportados son los siguientes:
