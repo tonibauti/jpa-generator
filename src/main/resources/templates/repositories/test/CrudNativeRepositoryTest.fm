@@ -1,4 +1,4 @@
-package ${CrudNativeRepositoriesTestPackage};
+package ${CrudRepositoriesTestPackage};
 
 import ${BaseRepositoriesTestPackage}.AbstractRepositoryTest;
 import ${BaseRepositoriesTestPackage}.DataTestFactory;

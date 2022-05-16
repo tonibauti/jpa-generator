@@ -92,13 +92,14 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
 
             if (workspace.isCrudRepositoriesTest())
             {
-                return getWorkspace().getCrudRepositoriesTestDir() + TARGET[index].replace("${ClassName}", className);
+                return getWorkspace().getCrudRepositoriesTestDir()
+                       + TARGET[index].replace("${ClassName}", className);
             }
             else
             if (workspace.isCrudNativeRepositoriesTest())
             {
-                return getWorkspace().getCrudNativeRepositoriesTestDir()
-                       + TARGET[index].replace("CrudRepository", "CrudNativeRepository").replace("${ClassName}", className);
+                return getWorkspace().getCrudRepositoriesTestDir()
+                       + TARGET[index].replace("${ClassName}", className).replace("CrudRepository", "CrudNativeRepository");
             }
             else
             {
@@ -190,15 +191,14 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
         if (workspace.isCrudRepositoriesTest())
         {
             map.put("CrudRepositoriesPackage", getWorkspace().getCrudRepositoriesPackage());
-            map.put("CrudRepositoriesTestPackage", getWorkspace().getCrudRepositoriesTestPackage());
         }
         else
         if (workspace.isCrudNativeRepositoriesTest())
         {
             map.put("CrudNativeRepositoriesPackage", getWorkspace().getCrudNativeRepositoriesPackage());
-            map.put("CrudNativeRepositoriesTestPackage", getWorkspace().getCrudNativeRepositoriesTestPackage());
         }
 
+        map.put("CrudRepositoriesTestPackage", getWorkspace().getCrudRepositoriesTestPackage());
         map.put("BaseRepositoriesTestPackage", getWorkspace().getBaseRepositoriesTestPackage());
         map.put("BaseConstraintsRepositoriesTestPackage", getWorkspace().getBaseConstraintsRepositoriesTestPackage());
         map.put("DatabaseConstraints", getDatabaseConstraints());

@@ -367,15 +367,9 @@ public class Workspace
     }
 
 
-    public String getCrudNativeRepositoriesTestDir()
-    {
-        return getRepositoriesTestDir() + toJavaPath( CRUD_NATIVE );
-    }
-
-
     public String getBaseCrudNativeRepositoriesDir()
     {
-        return getRepositoriesDir() + toJavaPath( CRUD_NATIVE ) + toJavaPath( BASE );
+        return getCrudNativeRepositoriesDir() + toJavaPath( BASE );
     }
 
 
@@ -473,12 +467,6 @@ public class Workspace
     }
 
 
-    public String getCrudNativeRepositoriesTestPackage()
-    {
-        return getPackage( getCrudNativeRepositoriesTestDir() );
-    }
-
-
     public String getBaseCrudNativeRepositoriesPackage()
     {
         return getPackage( getBaseCrudNativeRepositoriesDir() );
@@ -547,15 +535,7 @@ public class Workspace
             createDir( getBaseRepositoriesTestDir() );
             createDir( getBaseConstraintsRepositoriesTestDir() );
 
-            if (isCrudRepositoriesTest())
-            {
-                createDir( getCrudRepositoriesTestDir());
-            }
-
-            if (isCrudNativeRepositoriesTest())
-            {
-                createDir( getCrudNativeRepositoriesTestDir() );
-            }
+            createDir( getCrudRepositoriesTestDir());
         }
     }
 
