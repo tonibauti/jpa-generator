@@ -121,21 +121,31 @@ public class Generator extends AbstractComponent
 
         if (super.bool(generatorConfig.getGenerateEntities()))
         {
-            Console.out("Generating Entities...");
-            EntityTemplate entityTemplate = new EntityTemplate(workspace, tables);
-            entityTemplate.generate();
+            if (GeneratorConfig.REPOSITORIES_MODE_SPRING_DATA.equalsIgnoreCase(generatorConfig.getGenerateMode()))
+            {
+                Console.out("Generating Entities...");
+                EntityTemplate entityTemplate = new EntityTemplate(workspace, tables);
+                entityTemplate.generate();
+            }
+            else
+            if (GeneratorConfig.REPOSITORIES_MODE_NATIVE.equalsIgnoreCase(generatorConfig.getGenerateMode()))
+            {
+                Console.out("Generating Entities...");
+                EntityTemplate entityTemplate = new EntityTemplate(workspace, tables);
+                entityTemplate.generate();
+            }
         }
 
         if (super.bool(generatorConfig.getGenerateCrudRepositories()))
         {
-            if (GeneratorConfig.REPOSITORIES_MODE_SPRING_DATA.equalsIgnoreCase(generatorConfig.getGenerateCrudRepositoriesMode()))
+            if (GeneratorConfig.REPOSITORIES_MODE_SPRING_DATA.equalsIgnoreCase(generatorConfig.getGenerateMode()))
             {
                 Console.out("Generating Crud Repositories...");
                 CrudRepositoryTemplate crudRepositoryTemplate = new CrudRepositoryTemplate(workspace, tables);
                 crudRepositoryTemplate.generate();
             }
             else
-            if (GeneratorConfig.REPOSITORIES_MODE_NATIVE.equalsIgnoreCase(generatorConfig.getGenerateCrudRepositoriesMode()))
+            if (GeneratorConfig.REPOSITORIES_MODE_NATIVE.equalsIgnoreCase(generatorConfig.getGenerateMode()))
             {
                 Console.out("Generating Crud Repositories...");
                 CrudNativeRepositoryTemplate crudNativeRepositoryTemplate = new CrudNativeRepositoryTemplate(workspace, tables);

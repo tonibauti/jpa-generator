@@ -38,11 +38,11 @@ version: "1.0"
 
 generator:
   generate-config: true
+  generate-mode: "native"  # spring-data | native
   generate-entities: true
   generate-joins: true
   generate-crud-repositories: true
   generate-crud-repositories-test: true
-  generate-crud-repositories-mode: "native"  # spring-data | native
   
   datasource:
     provider: "hikari"

@@ -121,35 +121,39 @@ public class Workspace
     }
 
 
-    public boolean isCrudRepositories()
+    public boolean isSpringDataMode()
     {
-        return (bool(generatorConfig.getGenerateCrudRepositories())
-                &&
-                GeneratorConfig.REPOSITORIES_MODE_SPRING_DATA.equalsIgnoreCase(generatorConfig.getGenerateCrudRepositoriesMode()));
+        return GeneratorConfig.REPOSITORIES_MODE_SPRING_DATA.equalsIgnoreCase(generatorConfig.getGenerateMode());
     }
 
 
-    public boolean isCrudRepositoriesTest()
+    public boolean isNativeMode()
     {
-        return (bool(generatorConfig.getGenerateCrudRepositoriesTest())
-                &&
-                GeneratorConfig.REPOSITORIES_MODE_SPRING_DATA.equalsIgnoreCase(generatorConfig.getGenerateCrudRepositoriesMode()));
+        return GeneratorConfig.REPOSITORIES_MODE_NATIVE.equalsIgnoreCase(generatorConfig.getGenerateMode());
+    }
+
+
+    public boolean isEntities()
+    {
+        return bool(generatorConfig.getGenerateCrudRepositories());
+    }
+
+
+    public boolean isCrudRepositories()
+    {
+        return (bool(generatorConfig.getGenerateCrudRepositories()) && isSpringDataMode());
     }
 
 
     public boolean isCrudNativeRepositories()
     {
-        return (bool(generatorConfig.getGenerateCrudRepositories())
-                &&
-                GeneratorConfig.REPOSITORIES_MODE_NATIVE.equalsIgnoreCase(generatorConfig.getGenerateCrudRepositoriesMode()));
+        return (bool(generatorConfig.getGenerateCrudRepositories()) && isNativeMode());
     }
 
 
-    public boolean isCrudNativeRepositoriesTest()
+    public boolean isCrudRepositoriesTest()
     {
-        return (bool(generatorConfig.getGenerateCrudRepositoriesTest())
-                &&
-                GeneratorConfig.REPOSITORIES_MODE_NATIVE.equalsIgnoreCase(generatorConfig.getGenerateCrudRepositoriesMode()));
+        return bool(generatorConfig.getGenerateCrudRepositoriesTest());
     }
 
 
@@ -501,7 +505,10 @@ public class Workspace
         //createDir( getPersistenceResourcesDir() );
 
         // entities
-        createDir( getEntitiesDir() );
+        if (isEntities())
+        {
+            createDir( getEntitiesDir() );
+        }
 
         // entities / catalogs
         if (isCatalogConstants())
@@ -523,7 +530,7 @@ public class Workspace
         }
 
         // test crud repositories
-        if (isCrudRepositoriesTest() || isCrudNativeRepositoriesTest())
+        if (isCrudRepositoriesTest())
         {
             createDir( getTestDir() );
             createDir( getJavaTestDir() );

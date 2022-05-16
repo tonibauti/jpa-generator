@@ -20,6 +20,12 @@ public class GeneratorConfig extends AbstractComponent
     @NotNull
     protected Boolean generateConfig;
 
+    @JsonProperty("generate-mode")
+    @JsonAlias("generateMode")
+    @NotNull
+    @StringValues(REPOSITORIES_MODE_SPRING_DATA + "," + REPOSITORIES_MODE_NATIVE)
+    protected String generateMode;
+
     @JsonProperty("generate-entities")
     @JsonAlias("generateEntities")
     @NotNull
@@ -34,12 +40,6 @@ public class GeneratorConfig extends AbstractComponent
     @JsonAlias("generateCrudRepositoriesTest")
     @NotNull
     protected Boolean generateCrudRepositoriesTest;
-
-    @JsonProperty("generate-crud-repositories-mode")
-    @JsonAlias("generateCrudRepositoriesMode")
-    @NotNull
-    @StringValues(REPOSITORIES_MODE_SPRING_DATA + "," + REPOSITORIES_MODE_NATIVE)
-    protected String generateCrudRepositoriesMode;
 
     @JsonProperty("generate-joins")
     @JsonAlias("generateJoins")
@@ -79,6 +79,16 @@ public class GeneratorConfig extends AbstractComponent
         this.generateConfig = generateConfig;
     }
 
+    public String getGenerateMode()
+    {
+        return generateMode;
+    }
+
+    public void setGenerateMode(String generateMode)
+    {
+        this.generateMode = generateMode;
+    }
+
     public Boolean getGenerateEntities()
     {
         return generateEntities;
@@ -107,16 +117,6 @@ public class GeneratorConfig extends AbstractComponent
     public void setGenerateCrudRepositoriesTest(Boolean generateCrudRepositoriesTest)
     {
         this.generateCrudRepositoriesTest = generateCrudRepositoriesTest;
-    }
-
-    public String getGenerateCrudRepositoriesMode()
-    {
-        return generateCrudRepositoriesMode;
-    }
-
-    public void setGenerateCrudRepositoriesMode(String generateCrudRepositoriesMode)
-    {
-        this.generateCrudRepositoriesMode = generateCrudRepositoriesMode;
     }
 
     public Boolean getGenerateJoins()
