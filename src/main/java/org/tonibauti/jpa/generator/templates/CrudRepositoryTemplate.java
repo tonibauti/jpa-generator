@@ -63,13 +63,11 @@ public class CrudRepositoryTemplate extends AbstractTemplate
 
         List<String> importList = new ArrayList<>();
 
-        /*
-        // index multiple
-        indexDataList.addAll( super.getMultipleIndex(dbTable, false, importList) );
+        //// index multiple
+        //indexDataList.addAll( super.getMultipleIndex(dbTable, false, importList) );
 
         // index simple
         indexDataList.addAll( super.getSimpleIndex(dbTable, false, importList) );
-        */
 
         // key
         String keyType = dbTable.isMultipleKey()

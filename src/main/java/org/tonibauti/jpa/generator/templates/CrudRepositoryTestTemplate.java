@@ -241,13 +241,11 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
         {
             List<FieldData> indexDataList = new ArrayList<>();
 
-            /*
-            // index multiple
-            indexDataList.addAll( super.getMultipleIndex(dbTable, true, importList) );
+            //// index multiple
+            //indexDataList.addAll( super.getMultipleIndex(dbTable, true, importList) );
 
             // index simple
             indexDataList.addAll( super.getSimpleIndex(dbTable, true, importList) );
-            */
 
             map.put("indexDataList", indexDataList);
         }

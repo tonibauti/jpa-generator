@@ -189,7 +189,69 @@ public abstract class AbstractTemplate extends AbstractComponent
     }
 
 
-    protected List<FieldData> getMultipleIndex(DBTable dbTable, boolean isTest, List<String> importList)
+    protected List<FieldData> getSimpleIndex(DBTable dbTable, boolean isTest, List<String> importList)
+    {
+        List<FieldData> indexDataList = new ArrayList<>();
+
+        for (DBIndex dbIndex : dbTable.getIndexList())
+        {
+            // is not simple
+            if (dbIndex.getColumns().size() != 1)
+                continue;
+
+            String column = dbIndex.getColumns().get(0);
+            DBColumn dbColumn = dbTable.getColumn(column);
+
+            String property = Strings.toClassName(column);
+            boolean unique  = dbIndex.isUnique();
+            String param    = null;
+
+            // partial key --> not unique
+            if (dbColumn.isPrimaryKey())
+            {
+                if (dbTable.isMultipleKey())
+                {
+                    property = "Id"+property; // EmbeddedId
+                    unique = false;
+                }
+                else
+                    continue;
+            }
+
+            // param
+            if (!isTest)
+                param = getNormalizedType(dbColumn.getClassName(), importList) + " " + Strings.toPropertyName(column);
+            else
+                param = "DataTestFactory.get" + getNormalizedType(dbColumn.getClassName(), importList) + "()";
+
+            // unique
+            if (!unique)
+            {
+                super.addToList(List.class.getName(), importList, false);
+
+                if (!isTest)
+                {
+                    super.addToList("org.springframework.data.domain.Page", importList, false);
+                    super.addToList("org.springframework.data.domain.Pageable", importList, false);
+                }
+            }
+
+            FieldData indexData = new FieldData();
+
+            indexData.setProperty( property );
+            indexData.setParam( param );
+            indexData.setUnique( unique );
+
+            indexDataList.add( indexData );
+        }
+
+        return indexDataList;
+    }
+
+
+
+
+    protected List<FieldData> getMultipleIndex_1(DBTable dbTable, boolean isTest, List<String> importList)
     {
         List<FieldData> indexDataList = new ArrayList<>();
 
@@ -247,67 +309,6 @@ public abstract class AbstractTemplate extends AbstractComponent
             indexDataList.add( fieldData );
 
             aux.add( property.toString() );
-        }
-
-        return indexDataList;
-    }
-
-
-    protected List<FieldData> getSimpleIndex(DBTable dbTable, boolean isTest, List<String> importList)
-    {
-        List<FieldData> indexDataList = new ArrayList<>();
-
-        Set<String> aux = new HashSet<>();
-
-        for (DBIndex dbIndex : dbTable.getIndexList())
-        {
-            for (String column : dbIndex.getColumns())
-            {
-                if (aux.contains(column))
-                    continue;
-
-                StringBuilder property = new StringBuilder();
-
-                DBColumn dbColumn = dbTable.getColumn( column );
-
-                if (dbColumn.isPrimaryKey())
-                {
-                    if (dbTable.isMultipleKey())
-                        property.append("Id");  // findBy<EmbeddedId>
-                    else
-                        continue;
-                }
-
-                property.append( Strings.toClassName(column) );
-
-                FieldData fieldData = new FieldData();
-                fieldData.setProperty( property.toString() );
-                fieldData.setUnique( dbIndex.isUnique() );
-
-
-                if (isTest)
-                    fieldData.setParam( "DataTestFactory.get" + getNormalizedType(dbColumn.getClassName(), importList) + "()" );
-                else
-                    fieldData.setParam( getNormalizedType(dbColumn.getClassName(), importList) + " " + Strings.toPropertyName(column) );
-
-
-                if (!dbIndex.isUnique() || (dbIndex.getColumns().size() > 1))
-                {
-                    super.addToList(List.class.getName(), importList, false);
-
-                    if (!isTest)
-                    {
-                        super.addToList("org.springframework.data.domain.Page", importList, false);
-                        super.addToList("org.springframework.data.domain.Pageable", importList, false);
-                    }
-
-                    fieldData.setUnique( false );
-                }
-
-                indexDataList.add( fieldData );
-
-                aux.add( column );
-            }
         }
 
         return indexDataList;
