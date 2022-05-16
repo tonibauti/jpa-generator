@@ -23,8 +23,11 @@ public class Workspace
     public static final String CATALOGS     = "catalogs";
     public static final String REPOSITORIES = "repositories";
     public static final String CRUD         = "crud";
+    public static final String CUSTOM       = "custom";
     //public static final String CRUD_NATIVE  = "crud_native";
     public static final String CRUD_NATIVE  = "crud";
+    //public static final String CUSTOM_NATIVE  = "custom_native";
+    public static final String CUSTOM_NATIVE= "custom";
     public static final String BASE         = "base";
     public static final String CONSTRAINTS  = "constraints";
 
@@ -355,15 +358,33 @@ public class Workspace
     }
 
 
+    public String getCustomRepositoriesDir()
+    {
+        return getRepositoriesDir() + toJavaPath( CUSTOM );
+    }
+
+
     public String getCrudRepositoriesTestDir()
     {
         return getRepositoriesTestDir() + toJavaPath( CRUD );
     }
 
 
+    public String getCustomRepositoriesTestDir()
+    {
+        return getRepositoriesTestDir() + toJavaPath( CUSTOM );
+    }
+
+
     public String getCrudNativeRepositoriesDir()
     {
         return getRepositoriesDir() + toJavaPath( CRUD_NATIVE );
+    }
+
+
+    public String getCustomNativeRepositoriesDir()
+    {
+        return getRepositoriesDir() + toJavaPath( CUSTOM_NATIVE );
     }
 
 
@@ -516,11 +537,13 @@ public class Workspace
         if (isCrudRepositories())
         {
             createDir( getCrudRepositoriesDir() );
+            createDir( getCustomRepositoriesDir() );
         }
 
         if (isCrudNativeRepositories())
         {
             createDir( getCrudNativeRepositoriesDir() );
+            createDir( getCustomNativeRepositoriesDir() );
             createDir( getBaseCrudNativeRepositoriesDir() );
         }
 
@@ -536,6 +559,7 @@ public class Workspace
             createDir( getBaseConstraintsRepositoriesTestDir() );
 
             createDir( getCrudRepositoriesTestDir());
+            createDir( getCustomRepositoriesTestDir());
         }
     }
 
