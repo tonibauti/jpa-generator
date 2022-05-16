@@ -135,6 +135,37 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
     }
 
 
+    private FieldData getFieldData(DBColumn dbColumn)
+    {
+        FieldData fieldData = new FieldData();
+
+        String quoteId = workspace.getDbConnection().getQuoteId();
+
+        String columnName = dbColumn.isQuoted() ? (quoteId + dbColumn.getName() + quoteId) : dbColumn.getName();
+
+        fieldData.setName( columnName );
+        fieldData.setColumn( Strings.toColumnName(dbColumn.getName()) );
+        fieldData.setProperty( Strings.toPropertyName(dbColumn.getName()) );
+        fieldData.setType( super.getNormalizedType(dbColumn.getClassName(), null) );
+
+        // DataTestFactory
+        if (dbColumn.getClassName().equals(DBConnection.BYTE_ARRAY_CLASS_NAME))
+            fieldData.setType("ByteArray");
+        else
+        if (dbColumn.getClassName().equals(java.sql.Date.class.getName()))
+            fieldData.setType("SqlDate");
+        else
+        if (dbColumn.isJson())
+            fieldData.setType("Json");
+        // DataTestFactory
+
+        if (dbColumn.isPrimaryKey())
+            fieldData.setPk( true );
+
+        return fieldData;
+    }
+
+
     @Override
     public Map<String, Object> getMapping(int index, DBTable dbTable)
     {
@@ -151,36 +182,15 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
 
         for (DBColumn dbColumn : dbTable.getColumnList())
         {
-            FieldData fieldData = new FieldData();
-
-            fieldData.setName( dbColumn.getName() );
-            fieldData.setColumn( Strings.toColumnName(dbColumn.getName()) );
-            fieldData.setProperty( Strings.toPropertyName(dbColumn.getName()) );
-            fieldData.setType( super.getNormalizedType(dbColumn.getClassName(), null) );
-
-            // DataTestFactory
-            if (dbColumn.getClassName().equals(DBConnection.BYTE_ARRAY_CLASS_NAME))
-                fieldData.setType("ByteArray");
-            else
-            if (dbColumn.getClassName().equals(java.sql.Date.class.getName()))
-                fieldData.setType("SqlDate");
-            else
-            if (dbColumn.isJson())
-                fieldData.setType("Json");
-            // DataTestFactory
-
+            FieldData fieldData = getFieldData( dbColumn );
 
             // filter
             if (super.isFilterType(dbColumn))
                 filterDataList.add( fieldData );
             // filter
 
-
             if (dbColumn.isPrimaryKey())
-            {
                 pkFieldDataList.add( fieldData );
-                fieldData.setPk( true );
-            }
 
             fieldDataList.add( fieldData );
         }
@@ -189,6 +199,25 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
         String keyType = dbTable.isMultipleKey()
                             ? super.getMultipleKey( dbTable )
                             : super.getSimpleKey(dbTable, importList);
+
+        // primary keys from table of multiple key
+        String multipleKeyTableName = super.getMultipleKeyTableName( dbTable );
+        if (multipleKeyTableName != null)
+        {
+            DBTable dbTableMultiKey = super.getTable( multipleKeyTableName );
+            if (dbTableMultiKey != null)
+            {
+                pkFieldDataList.clear();
+
+                for (DBColumn dbColumn : dbTableMultiKey.getColumnList())
+                {
+                    if (dbColumn.isPrimaryKey())
+                    {
+                        pkFieldDataList.add( getFieldData( dbColumn ) );
+                    }
+                }
+            }
+        }
 
         map.put("CrudRepositoriesTestPackage", getWorkspace().getCrudRepositoriesTestPackage());
         map.put("BaseRepositoriesTestPackage", getWorkspace().getBaseRepositoriesTestPackage());

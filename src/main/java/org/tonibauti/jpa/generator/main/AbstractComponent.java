@@ -1,6 +1,7 @@
 package org.tonibauti.jpa.generator.main;
 
 import jakarta.validation.ConstraintViolation;
+import org.tonibauti.jpa.generator.utils.Triple;
 import org.tonibauti.jpa.generator.validators.Validator;
 
 import java.lang.reflect.Array;
@@ -119,6 +120,9 @@ public abstract class AbstractComponent
             return true;
 
         if (value instanceof Map && ((Map<?,?>)value).isEmpty())
+            return true;
+
+        if (value instanceof Triple && ((Triple<?,?,?>)value).isEmpty())
             return true;
 
         if (value instanceof String)

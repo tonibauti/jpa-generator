@@ -76,6 +76,17 @@ public abstract class AbstractTemplate extends AbstractComponent
     }
 
 
+    protected DBTable getTable(String tableName)
+    {
+        if (tables != null)
+            for (DBTable dbTable : tables)
+                if (dbTable.getName().equals(tableName))
+                    return dbTable;
+
+        return null;
+    }
+
+
     protected String getDataSourcePropertiesName()
     {
         return workspace.getDataSourceName().replace("_","-").toLowerCase();
