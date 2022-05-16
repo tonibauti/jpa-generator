@@ -1,4 +1,4 @@
-package ${CrudNativeRepositoriesPackage};
+package ${CrudRepositoriesPackage};
 
 import ${BaseCrudNativeRepositoriesPackage}.AbstractCrudNativeRepository;
 import ${EntitiesPackage}.${Entity};

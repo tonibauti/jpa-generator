@@ -2,7 +2,7 @@ package ${CrudRepositoriesTestPackage};
 
 import ${BaseRepositoriesTestPackage}.AbstractRepositoryTest;
 import ${BaseRepositoriesTestPackage}.DataTestFactory;
-import ${CrudNativeRepositoriesPackage}.${ClassName}CrudNativeRepository;
+import ${CrudRepositoriesPackage}.${ClassName}CrudNativeRepository;
 import ${ConfigPackage}.${JpaConfig};
 import ${EntitiesPackage}.${Entity};
 <#if isMultipleKey>

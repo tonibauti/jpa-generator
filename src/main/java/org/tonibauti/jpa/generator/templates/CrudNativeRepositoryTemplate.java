@@ -49,7 +49,7 @@ public class CrudNativeRepositoryTemplate extends AbstractTemplate
         if (TARGET[index].contains("${ClassName}"))
         {
             String className = Strings.toClassName( dbTable.getName() );
-            return getWorkspace().getCrudNativeRepositoriesDir() + TARGET[index].replace("${ClassName}", className);
+            return getWorkspace().getCrudRepositoriesDir() + TARGET[index].replace("${ClassName}", className);
         }
         else
         {
@@ -79,7 +79,7 @@ public class CrudNativeRepositoryTemplate extends AbstractTemplate
                             ? super.getMultipleKey( dbTable )
                             : super.getSimpleKey(dbTable, importList);
 
-        map.put("CrudNativeRepositoriesPackage", getWorkspace().getCrudNativeRepositoriesPackage());
+        map.put("CrudRepositoriesPackage", getWorkspace().getCrudRepositoriesPackage());
         map.put("BaseCrudNativeRepositoriesPackage", getWorkspace().getBaseCrudNativeRepositoriesPackage());
         map.put("ConfigPackage", getWorkspace().getConfigPackage());
         map.put("JpaConfig", Strings.toClassName(getWorkspace().getDataSourceName())+"JpaConfig");

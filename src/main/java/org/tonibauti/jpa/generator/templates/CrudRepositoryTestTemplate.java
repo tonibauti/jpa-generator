@@ -188,19 +188,10 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
                             ? super.getMultipleKey( dbTable )
                             : super.getSimpleKey(dbTable, importList);
 
-        if (workspace.isCrudRepositoriesTest())
-        {
-            map.put("CrudRepositoriesPackage", getWorkspace().getCrudRepositoriesPackage());
-        }
-        else
-        if (workspace.isCrudNativeRepositoriesTest())
-        {
-            map.put("CrudNativeRepositoriesPackage", getWorkspace().getCrudNativeRepositoriesPackage());
-        }
-
         map.put("CrudRepositoriesTestPackage", getWorkspace().getCrudRepositoriesTestPackage());
         map.put("BaseRepositoriesTestPackage", getWorkspace().getBaseRepositoriesTestPackage());
         map.put("BaseConstraintsRepositoriesTestPackage", getWorkspace().getBaseConstraintsRepositoriesTestPackage());
+        map.put("CrudRepositoriesPackage", getWorkspace().getCrudRepositoriesPackage());
         map.put("DatabaseConstraints", getDatabaseConstraints());
         map.put("ConfigPackage", getWorkspace().getConfigPackage());
         map.put("JpaConfig", Strings.toClassName(getWorkspace().getDataSourceName())+"JpaConfig");

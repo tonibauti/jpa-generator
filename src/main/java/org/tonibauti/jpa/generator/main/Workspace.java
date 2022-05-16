@@ -24,10 +24,6 @@ public class Workspace
     public static final String REPOSITORIES = "repositories";
     public static final String CRUD         = "crud";
     public static final String CUSTOM       = "custom";
-    //public static final String CRUD_NATIVE  = "crud_native";
-    public static final String CRUD_NATIVE  = "crud";
-    //public static final String CUSTOM_NATIVE  = "custom_native";
-    public static final String CUSTOM_NATIVE= "custom";
     public static final String BASE         = "base";
     public static final String CONSTRAINTS  = "constraints";
 
@@ -376,21 +372,9 @@ public class Workspace
     }
 
 
-    public String getCrudNativeRepositoriesDir()
-    {
-        return getRepositoriesDir() + toJavaPath( CRUD_NATIVE );
-    }
-
-
-    public String getCustomNativeRepositoriesDir()
-    {
-        return getRepositoriesDir() + toJavaPath( CUSTOM_NATIVE );
-    }
-
-
     public String getBaseCrudNativeRepositoriesDir()
     {
-        return getCrudNativeRepositoriesDir() + toJavaPath( BASE );
+        return getCrudRepositoriesDir() + toJavaPath( BASE );
     }
 
 
@@ -482,12 +466,6 @@ public class Workspace
     }
 
 
-    public String getCrudNativeRepositoriesPackage()
-    {
-        return getPackage( getCrudNativeRepositoriesDir() );
-    }
-
-
     public String getBaseCrudNativeRepositoriesPackage()
     {
         return getPackage( getBaseCrudNativeRepositoriesDir() );
@@ -534,22 +512,19 @@ public class Workspace
         // repositories
         createDir( getRepositoriesDir() );
 
-        if (isCrudRepositories())
+        // crud repositories
+        if (isCrudRepositories() || isCrudNativeRepositories())
         {
             createDir( getCrudRepositoriesDir() );
             createDir( getCustomRepositoriesDir() );
+
+            if (isCrudNativeRepositories())
+                createDir( getBaseCrudNativeRepositoriesDir() );
         }
 
-        if (isCrudNativeRepositories())
-        {
-            createDir( getCrudNativeRepositoriesDir() );
-            createDir( getCustomNativeRepositoriesDir() );
-            createDir( getBaseCrudNativeRepositoriesDir() );
-        }
-
+        // test crud repositories
         if (isCrudRepositoriesTest() || isCrudNativeRepositoriesTest())
         {
-            // test
             createDir( getTestDir() );
             createDir( getJavaTestDir() );
             //createDir( getResourcesTestDir() );
