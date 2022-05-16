@@ -76,9 +76,18 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
     {
         ${Entity} entity = new ${Entity}();
 
+        <#if isMultipleKey>
+        entity.setId( getKey() );
+        <#list fieldDataList as fieldData>
+        <#if !fieldData.pk>
+        entity.${fieldData.setter}( DataTestFactory.get${fieldData.type}() );
+        </#if>
+        </#list>
+        <#else>
         <#list fieldDataList as fieldData>
         entity.${fieldData.setter}( DataTestFactory.get${fieldData.type}() );
         </#list>
+        </#if>
 
         return entity;
     }
@@ -88,9 +97,18 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
     {
         ${Entity} entity = new ${Entity}();
 
+        <#if isMultipleKey>
+        entity.setId( getKey() );
+        <#list filterDataList as filterData>
+        <#if !filterData.pk>
+        entity.${filterData.setter}( DataTestFactory.get${filterData.type}() );
+        </#if>
+        </#list>
+        <#else>
         <#list filterDataList as filterData>
         entity.${filterData.setter}( DataTestFactory.get${filterData.type}() );
         </#list>
+        </#if>
 
         return entity;
     }
