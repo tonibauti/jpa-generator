@@ -42,9 +42,6 @@ import ${import};
     @TypeDef(name = JsonType.TYPE, typeClass = JsonType.class),
 })
 </#if>
-<#if isMultipleKey>
-@IdClass(${Key}.class)
-</#if>
 public class ${Entity} implements Serializable
 {
     public static final String NAME    = "${entity}";
@@ -57,6 +54,28 @@ public class ${Entity} implements Serializable
     public static final String ${fieldData.column}_COLUMN = "${fieldData.name}";
     </#list>
 
+    <#if isMultipleKey>
+
+    @EmbeddedId // (<#list pkFieldDataList as pkFieldData>${pkFieldData.name}<#if pkFieldData_has_next>, </#if></#list>)
+    <#if multipleKeyWithDifferentNames?has_content>
+    @AttributeOverrides
+    ({
+        <#list multipleKeyWithDifferentNames as foreignKeyRef>
+        @AttributeOverride(name = "${asProperty(foreignKeyRef.referencedColumnName)}", column=@Column(name = ${asColumn(foreignKeyRef.columnName)}_COLUMN)),
+        </#list>
+    })
+    </#if>
+    private ${Key} id;
+    <#list fieldDataList as fieldData>
+    <#if !fieldData.pk>
+
+    <#list fieldData.annotations as annotation>
+    ${annotation}
+    </#list>
+    private ${fieldData.type} ${fieldData.property};
+    </#if>
+    </#list>
+    <#else>
     <#list fieldDataList as fieldData>
 
     <#list fieldData.annotations as annotation>
@@ -64,6 +83,7 @@ public class ${Entity} implements Serializable
     </#list>
     private ${fieldData.type} ${fieldData.property};
     </#list>
+    </#if>
     <#if externalForeignKeyList?has_content>
     <#list externalForeignKeyList as externalForeignKey>
 

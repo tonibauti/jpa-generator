@@ -177,8 +177,10 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
 
 
             if (dbColumn.isPrimaryKey())
+            {
                 pkFieldDataList.add( fieldData );
-
+                fieldData.setPk( true );
+            }
 
             fieldDataList.add( fieldData );
         }

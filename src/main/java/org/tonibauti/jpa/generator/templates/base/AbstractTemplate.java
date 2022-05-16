@@ -109,6 +109,34 @@ public abstract class AbstractTemplate extends AbstractComponent
     }
 
 
+    protected boolean isEmbeddable(DBTable dbTable)
+    {
+        return (dbTable.isMultipleKey() && workspace.isSpringDataMode());
+    }
+
+
+    protected List<DBForeignKey.DBForeignKeyRef> getMultipleKeyWithDifferentNames(DBTable dbTable)
+    {
+        if (dbTable.isMultipleKey() && workspace.isSpringDataMode() && !dbTable.getForeignKeyList().isEmpty())
+        {
+            for (DBForeignKey dbForeignKey : dbTable.getForeignKeyList())
+            {
+                // primary key with same size --> same PK
+                if (dbForeignKey.isPrimaryKeyJoin())
+                {
+                    // different names
+                    if (!dbForeignKey.isEqualsPrimaryKeyJoin())
+                    {
+                        return dbForeignKey.getForeignKeyRefList();
+                    }
+                }
+            }
+        }
+
+        return new ArrayList<>();
+    }
+
+
     protected String getSimpleKey(DBTable dbTable, List<String> importList)
     {
         String primaryKey = dbTable.getPrimaryKeyList().get(0);
@@ -116,17 +144,18 @@ public abstract class AbstractTemplate extends AbstractComponent
     }
 
 
-    protected String getMultipleKey(DBTable dbTable)
+    protected String getMultipleKeyTableName(DBTable dbTable)
     {
         if (!dbTable.isMultipleKey())
             return null;
 
         String table = dbTable.getName();
 
-        if (workspace.isCrudRepositories())
+        if (workspace.isSpringDataMode()) // TODO: ??
         {
             for (DBForeignKey dbForeignKey : dbTable.getForeignKeyList())
             {
+                // primary key with same size --> same PK
                 if (dbForeignKey.isPrimaryKeyJoin())
                 {
                     table = dbForeignKey.getForeignTable();
@@ -135,7 +164,17 @@ public abstract class AbstractTemplate extends AbstractComponent
             }
         }
 
-        return Strings.toClassName( table ) + "PK";
+        return table;
+    }
+
+
+    protected String getMultipleKey(DBTable dbTable)
+    {
+        String multipleKeyTableName = getMultipleKeyTableName( dbTable );
+
+        return (multipleKeyTableName != null)
+                ? Strings.toClassName( multipleKeyTableName ) + "PK"
+                : null;
     }
 
 
@@ -358,12 +397,12 @@ public abstract class AbstractTemplate extends AbstractComponent
     }
 
 
-    protected List<String> getJpaAnnotations(String column, DBColumn dbColumn)
+    protected List<String> getJpaAnnotations(String column, DBColumn dbColumn, DBTable dbTable)
     {
         List<String> annotations = new ArrayList<>();
 
         // @Id
-        if (dbColumn.isPrimaryKey())
+        if (dbColumn.isPrimaryKey() && !isEmbeddable(dbTable))
         {
             annotations.add( "@Id" );
         }

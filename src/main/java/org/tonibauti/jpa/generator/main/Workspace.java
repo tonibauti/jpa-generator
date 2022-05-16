@@ -516,12 +516,11 @@ public class Workspace
             createDir( getCatalogConstantsDir() );
         }
 
-        // repositories
-        createDir( getRepositoriesDir() );
-
         // crud repositories
         if (isCrudRepositories() || isCrudNativeRepositories())
         {
+            createDir( getRepositoriesDir() );
+
             createDir( getCrudRepositoriesDir() );
             createDir( getCustomRepositoriesDir() );
 
