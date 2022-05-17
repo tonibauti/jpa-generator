@@ -278,8 +278,8 @@ public abstract class AbstractTemplate extends AbstractComponent
                 if (property.length() > 0)
                     property.append("And");
 
-                //if (dbColumn.isPrimaryKey())
-                //    property.append("Id");  // EmbeddedId
+                if (dbColumn.isPrimaryKey())
+                    property.append("Id");  // EmbeddedId
 
                 property.append( Strings.toClassName(column) );
 
