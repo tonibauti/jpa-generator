@@ -191,6 +191,7 @@ public abstract class AbstractComponent
                         .map(item -> (T) ((item instanceof String) ? ((String)item).toLowerCase() : item))
                         .collect(Collectors.toList());
 
+                // to lower case
                 list2 = collection1
                         .stream()
                         .map(item -> (T) ((item instanceof String) ? ((String)item).toLowerCase() : item))

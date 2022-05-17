@@ -15,7 +15,9 @@ import org.tonibauti.jpa.generator.utils.Resources;
 import org.tonibauti.jpa.generator.utils.Strings;
 
 import java.sql.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class DatabaseExplorer extends AbstractComponent implements AbstractResultSet
@@ -429,6 +431,9 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
 
         try
         {
+            // to add ordered primary key by KEY_SEQ (1..N)
+            Map<Integer, String> aux = new HashMap<>();
+
             rst = dbMetaData.getPrimaryKeys(dbTable.getCatalog(), dbTable.getSchema(), dbTable.getName());
 
             while (rst.next())
@@ -437,11 +442,17 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
                 String tableSchema  = getString(rst, "TABLE_SCHEM");
                 String tableName    = getString(rst, "TABLE_NAME");
                 String columnName   = getString(rst, "COLUMN_NAME");
-                Integer keySeq      = getInt(rst,    "KEY_SEQ");
+                Integer keySeq      = getInt(rst,    "KEY_SEQ"); // 1..N
                 String pkName       = getString(rst, "PK_NAME");
 
-                dbTable.addPrimaryKeyColumn( columnName );
+                aux.put(keySeq, columnName);
             }
+
+            // add ordered by KEY_SEQ (1..N)
+            for (int i=1; i<=aux.size(); i++)
+                dbTable.addPrimaryKeyColumn( aux.get(i) );
+
+            aux.clear();
 
             if (dbTable.getPrimaryKeyList().isEmpty())
             {

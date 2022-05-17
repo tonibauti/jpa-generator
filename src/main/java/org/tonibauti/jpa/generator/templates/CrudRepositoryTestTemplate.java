@@ -202,6 +202,7 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
 
         // primary keys from table of multiple key
         String multipleKeyTableName = super.getMultipleKeyTableName( dbTable );
+
         if (multipleKeyTableName != null)
         {
             DBTable dbTableMultiKey = super.getTable( multipleKeyTableName );
@@ -241,11 +242,11 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
         {
             List<FieldData> indexDataList = new ArrayList<>();
 
-            //// index multiple
-            //indexDataList.addAll( super.getMultipleIndex(dbTable, true, importList) );
-
             // index simple
             indexDataList.addAll( super.getSimpleIndex(dbTable, true, importList) );
+
+            // index multiple
+            indexDataList.addAll( super.getMultipleIndex(dbTable, true, importList) );
 
             map.put("indexDataList", indexDataList);
         }
