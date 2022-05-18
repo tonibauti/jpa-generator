@@ -142,9 +142,10 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
     {
         logger.info("findAll");
 
-        Page<${Entity}> result = getRepository().findAll( PageRequest.of(0,10) );
+        Page<${Entity}> page = getRepository().findAll( PageRequest.of(0,10) );
 
-        logger.info("result: " + result.toList());
+        logger.info("page {}/{} of {} elements: {}",
+                    page.getNumber(), page.getTotalPages(), page.getTotalElements(), page.toList());
     }
 
 
@@ -203,11 +204,10 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
 
         logger.info("result: " + result);
         <#else>
-        List<${Entity}> list = getRepository().${indexData.findBy}(${indexData.param});
-        logger.info("result: " + list);
-
         Page<${Entity}> page = getRepository().${indexData.findBy}(${indexData.param}, PageRequest.of(0,10));
-        logger.info("result: " + page.toList());
+
+        logger.info("page {}/{} of {} elements: {}",
+                    page.getNumber(), page.getTotalPages(), page.getTotalElements(), page.toList());
         </#if>
     }
     </#list>

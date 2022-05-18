@@ -170,7 +170,8 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
 
         Page<${Entity}> page = getRepository().findPage(getFilter(), PageRequest.of(0,10));
 
-        logger.info("result: " + page.toList());
+        logger.info("page {}/{} of {} elements: {}",
+                    page.getNumber(), page.getTotalPages(), page.getTotalElements(), page.toList());
     }
 
 
@@ -181,7 +182,8 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
 
         Page<${Entity}> page = getRepository().findAllPage( PageRequest.of(0,10) );
 
-        logger.info("result: " + page.toList());
+        logger.info("page {}/{} of {} elements: {}",
+                    page.getNumber(), page.getTotalPages(), page.getTotalElements(), page.toList());
     }
 
 
