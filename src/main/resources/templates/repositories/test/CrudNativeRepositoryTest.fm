@@ -11,6 +11,7 @@ import ${EntitiesPackage}.${Key};
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
@@ -159,6 +160,28 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
         List<${Entity}> result = getRepository().findAll( PageRequest.of(0,10) );
 
         logger.info("result: " + result);
+    }
+
+
+    @Test
+    public void findPage() throws Exception
+    {
+        logger.info("findPage");
+
+        Page<${Entity}> page = getRepository().findPage(getFilter(), PageRequest.of(0,10));
+
+        logger.info("result: " + page.toList());
+    }
+
+
+    @Test
+    public void findAllPage() throws Exception
+    {
+        logger.info("findAllPage");
+
+        Page<${Entity}> page = getRepository().findAllPage( PageRequest.of(0,10) );
+
+        logger.info("result: " + page.toList());
     }
 
 
