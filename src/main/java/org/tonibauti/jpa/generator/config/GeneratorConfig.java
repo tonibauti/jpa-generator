@@ -13,7 +13,7 @@ import java.util.Set;
 public class GeneratorConfig extends AbstractComponent
 {
     public static final String REPOSITORIES_MODE_SPRING_DATA = "spring-data";
-    public static final String REPOSITORIES_MODE_NATIVE      = "native";
+    public static final String REPOSITORIES_MODE_NATIVE_SQL  = "native-sql";
 
     @JsonProperty("generate-config")
     @JsonAlias("generateConfig")
@@ -23,7 +23,7 @@ public class GeneratorConfig extends AbstractComponent
     @JsonProperty("generate-mode")
     @JsonAlias("generateMode")
     @NotNull
-    @StringValues(REPOSITORIES_MODE_SPRING_DATA + "," + REPOSITORIES_MODE_NATIVE)
+    @StringValues(REPOSITORIES_MODE_SPRING_DATA + "," + REPOSITORIES_MODE_NATIVE_SQL)
     protected String generateMode;
 
     @JsonProperty("generate-entities")

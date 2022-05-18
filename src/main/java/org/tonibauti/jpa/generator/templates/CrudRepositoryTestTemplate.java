@@ -74,7 +74,7 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
             return SOURCE[index].replace("${DatabaseConstraints}", getDatabaseConstraints());
         }
         else
-        if (SOURCE[index].contains("CrudRepository") && workspace.isNativeMode())
+        if (SOURCE[index].contains("CrudRepository") && workspace.isNativeSqlMode())
         {
             return SOURCE[index].replace("CrudRepository", "CrudNativeRepository");
         }
@@ -96,7 +96,7 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
                        + TARGET[index].replace("${ClassName}", className);
             }
             else
-            if (workspace.isNativeMode())
+            if (workspace.isNativeSqlMode())
             {
                 return getWorkspace().getCrudRepositoriesTestDir()
                        + TARGET[index].replace("${ClassName}", className).replace("CrudRepository", "CrudNativeRepository");

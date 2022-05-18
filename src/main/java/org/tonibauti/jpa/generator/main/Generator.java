@@ -128,7 +128,7 @@ public class Generator extends AbstractComponent
                 entityTemplate.generate();
             }
             else
-            if (GeneratorConfig.REPOSITORIES_MODE_NATIVE.equalsIgnoreCase(generatorConfig.getGenerateMode()))
+            if (GeneratorConfig.REPOSITORIES_MODE_NATIVE_SQL.equalsIgnoreCase(generatorConfig.getGenerateMode()))
             {
                 Console.out("Generating Entities...");
                 EntityTemplate entityTemplate = new EntityTemplate(workspace, tables);
@@ -145,7 +145,7 @@ public class Generator extends AbstractComponent
                 crudRepositoryTemplate.generate();
             }
             else
-            if (GeneratorConfig.REPOSITORIES_MODE_NATIVE.equalsIgnoreCase(generatorConfig.getGenerateMode()))
+            if (GeneratorConfig.REPOSITORIES_MODE_NATIVE_SQL.equalsIgnoreCase(generatorConfig.getGenerateMode()))
             {
                 Console.out("Generating Crud Repositories...");
                 CrudNativeRepositoryTemplate crudNativeRepositoryTemplate = new CrudNativeRepositoryTemplate(workspace, tables);

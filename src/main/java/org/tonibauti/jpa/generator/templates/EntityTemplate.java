@@ -44,7 +44,7 @@ public class EntityTemplate extends AbstractTemplate
     @Override
     public String getSource(int index, DBTable dbTable)
     {
-        if (SOURCE[index].contains("Entity") && workspace.isNativeMode())
+        if (SOURCE[index].contains("Entity") && workspace.isNativeSqlMode())
         {
             return SOURCE[index].replace("Entity", "EntityNative");
         }

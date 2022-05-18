@@ -594,11 +594,9 @@ public class CrudNativeEntityData
         {
             if (filter != null)
             {
-                filterMap = new LinkedHashMap<>();
-
                 for (ColumnData columnData : columnDataMap.values())
                 {
-                    Object value = columnData.field.get(filter);
+                    Object value = columnData.field.get( filter );
 
                     if (value != null)
                         filterMap.put(columnData.columnName, value);

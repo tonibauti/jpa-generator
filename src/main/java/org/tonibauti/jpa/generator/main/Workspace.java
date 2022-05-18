@@ -127,9 +127,9 @@ public class Workspace
     }
 
 
-    public boolean isNativeMode()
+    public boolean isNativeSqlMode()
     {
-        return GeneratorConfig.REPOSITORIES_MODE_NATIVE.equalsIgnoreCase(generatorConfig.getGenerateMode());
+        return GeneratorConfig.REPOSITORIES_MODE_NATIVE_SQL.equalsIgnoreCase(generatorConfig.getGenerateMode());
     }
 
 
@@ -147,7 +147,7 @@ public class Workspace
 
     public boolean isCrudNativeRepositories()
     {
-        return (bool(generatorConfig.getGenerateCrudRepositories()) && isNativeMode());
+        return (bool(generatorConfig.getGenerateCrudRepositories()) && isNativeSqlMode());
     }
 
 
