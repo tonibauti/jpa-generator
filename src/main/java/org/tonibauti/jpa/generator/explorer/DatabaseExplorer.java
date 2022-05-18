@@ -5,12 +5,10 @@ import org.tonibauti.jpa.generator.cli.Console;
 import org.tonibauti.jpa.generator.config.Config;
 import org.tonibauti.jpa.generator.config.DataSourceConfig;
 import org.tonibauti.jpa.generator.config.GeneratorConfig;
-import org.tonibauti.jpa.generator.explorer.metada.DBColumn;
-import org.tonibauti.jpa.generator.explorer.metada.DBConnection;
-import org.tonibauti.jpa.generator.explorer.metada.DBTable;
-import org.tonibauti.jpa.generator.explorer.metada.Database;
+import org.tonibauti.jpa.generator.explorer.metada.*;
 import org.tonibauti.jpa.generator.main.AbstractComponent;
 import org.tonibauti.jpa.generator.mapper.Mapper;
+import org.tonibauti.jpa.generator.utils.DataMap;
 import org.tonibauti.jpa.generator.utils.Resources;
 import org.tonibauti.jpa.generator.utils.Strings;
 
@@ -448,9 +446,11 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
                 aux.put(keySeq, columnName);
             }
 
-            // add ordered by KEY_SEQ (1..N)
+            // add ordered primary key by KEY_SEQ (1..N)
             for (int i=1; i<=aux.size(); i++)
+            {
                 dbTable.addPrimaryKeyColumn( aux.get(i) );
+            }
 
             aux.clear();
 
@@ -509,6 +509,9 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
 
         try
         {
+            // to add ordered keys by KEY_SEQ (1..N)
+            Map<Integer, DataMap> aux = new HashMap<>();
+
             rst = dbMetaData.getImportedKeys(dbTable.getCatalog(), dbTable.getSchema(), dbTable.getName());
 
             while (rst.next())
@@ -532,13 +535,29 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
                 if (dbForeignColumn == null)
                     continue;
 
-                dbTable.addForeignKey(foreignKeyName,
-                                      false, // not external
-                                      dbTable,
-                                      dbColumn,
-                                      dbForeignTable,
-                                      dbForeignColumn);
+                DataMap dataMap = new DataMap();
+                dataMap.put("foreignKeyName", foreignKeyName);
+                dataMap.put("dbTable", dbTable);
+                dataMap.put("dbColumn", dbColumn);
+                dataMap.put("dbForeignTable", dbForeignTable);
+                dataMap.put("dbForeignColumn", dbForeignColumn);
+                aux.put(keySeq, dataMap);
             }
+
+            // add ordered keys by KEY_SEQ (1..N)
+            for (int i=1; i<=aux.size(); i++)
+            {
+                DataMap dataMap = aux.get(i);
+
+                dbTable.addForeignKey(dataMap.get("foreignKeyName"),
+                                      false, // not external
+                                      dataMap.get("dbTable"),
+                                      dataMap.get("dbColumn"),
+                                      dataMap.get("dbForeignTable"),
+                                      dataMap.get("dbForeignColumn"));
+            }
+
+            aux.clear();
         }
         finally
         {
@@ -553,6 +572,9 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
 
         try
         {
+            // to add ordered keys by KEY_SEQ (1..N)
+            Map<Integer, DataMap> aux = new HashMap<>();
+
             rst = dbMetaData.getExportedKeys(dbTable.getCatalog(), dbTable.getSchema(), dbTable.getName());
 
             while (rst.next())
@@ -576,13 +598,29 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
                 if (dbForeignColumn == null)
                     continue;
 
-                dbTable.addForeignKey(foreignKeyName,
-                                      true, // external
-                                      dbTable,
-                                      dbColumn,
-                                      dbForeignTable,
-                                      dbForeignColumn);
+                DataMap dataMap = new DataMap();
+                dataMap.put("foreignKeyName", foreignKeyName);
+                dataMap.put("dbTable", dbTable);
+                dataMap.put("dbColumn", dbColumn);
+                dataMap.put("dbForeignTable", dbForeignTable);
+                dataMap.put("dbForeignColumn", dbForeignColumn);
+                aux.put(keySeq, dataMap);
             }
+
+            // add ordered keys by KEY_SEQ (1..N)
+            for (int i=1; i<=aux.size(); i++)
+            {
+                DataMap dataMap = aux.get(i);
+
+                dbTable.addForeignKey(dataMap.get("foreignKeyName"),
+                                      true, // external
+                                      dataMap.get("dbTable"),
+                                      dataMap.get("dbColumn"),
+                                      dataMap.get("dbForeignTable"),
+                                      dataMap.get("dbForeignColumn"));
+            }
+
+            aux.clear();
         }
         finally
         {
