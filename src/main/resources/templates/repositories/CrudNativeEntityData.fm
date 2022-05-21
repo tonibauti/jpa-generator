@@ -1,7 +1,10 @@
 package ${BaseCrudNativeRepositoriesPackage};
 
 import org.hibernate.annotations.Type;
-
+<#if isJson>
+import com.hispanobretoncantabria.persistence2.Json;
+import com.hispanobretoncantabria.persistence2.JsonType;
+</#if>
 import javax.persistence.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -141,6 +144,26 @@ public class CrudNativeEntityData
     private boolean isNotEmpty(Object value)
     {
         return !isNullOrEmpty(value);
+    }
+
+
+    private boolean isJsonType(ColumnData columnData)
+    {
+        <#if isJson>
+        return (columnData != null && JsonType.TYPE.equals(columnData.columnType));
+        <#else>
+        return false;
+        </#if>
+    }
+
+
+    private Json getJson(String content)
+    {
+        <#if isJson>
+        return (content != null) ? Json.of(content) : null;
+        <#else>
+        return null;
+        </#if>
     }
 
 
@@ -344,7 +367,12 @@ public class CrudNativeEntityData
             if (i++ > 0)
                 selectAllColumns.append( ", " );
 
-            selectAllColumns.append( tableName + "." + columnData.columnName );
+            String columnName = columnData.columnName;
+
+            if (isJsonType(columnData))
+                columnName += "\\:\\:text";
+
+            selectAllColumns.append( tableName + "." + columnName );
         }
     }
 
@@ -442,7 +470,9 @@ public class CrudNativeEntityData
             if (isNullOrEmpty(column))
                 continue;
 
-            if (!columnDataMap.containsKey(column))
+            ColumnData columnData = columnDataMap.get(column);
+
+            if (columnData == null)
             {
                 if (strictMode)
                     throw new PersistenceException(entityClass.getName() + ": column name '" + column + "' not found");
@@ -452,6 +482,9 @@ public class CrudNativeEntityData
 
             if (keyColumnDataMap.containsKey(column) && !includeKeys)
                 continue;
+
+            if (isJsonType(columnData))
+                column += "\\:\\:text";
 
             result.add( column );
         }
@@ -468,8 +501,10 @@ public class CrudNativeEntityData
 
             tableName = (isNotEmpty(tableName)) ? (tableName + ".") : "";
 
+            List<String> validColumns = getValidColumns(columns, true, false);
+
             int i = 0;
-            for (String column : getValidColumns(columns, true, false))
+            for (String column : validColumns)
             {
                 if (i++ > 0)
                     selectColumns.append( ", " );
@@ -497,8 +532,10 @@ public class CrudNativeEntityData
         {
             StringBuilder updateColumns = new StringBuilder();
 
+            List<String> validColumns = getValidColumns(columns, false, true);
+
             int i = 0;
-            for (String column : getValidColumns(columns, false, true))
+            for (String column : validColumns)
             {
                 if (i++ > 0)
                     updateColumns.append( ", " );
@@ -655,12 +692,12 @@ public class CrudNativeEntityData
         {
             if (isNotEmpty(columns))
             {
-                List<String> columnList = getValidColumns(columns, includeKeys, true);
+                List<String> validColumns = getValidColumns(columns, includeKeys, true);
 
-                values = new Object[ columnList.size() ];
+                values = new Object[ validColumns.size() ];
 
                 int i = 0;
-                for (String column : columnList)
+                for (String column : validColumns)
                     values[i++] = columnDataMap.get(column).field.get(obj);
             }
             else
@@ -748,6 +785,12 @@ public class CrudNativeEntityData
                     else
                     if (fieldType.equals(Float.class))
                         value = ((BigDecimal)value).floatValue();
+                }
+                else
+                if (value instanceof String)
+                {
+                    if (isJsonType(columnData))
+                        value = getJson((String)value);
                 }
 
                 field.set(entity, value);

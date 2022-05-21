@@ -75,7 +75,7 @@ public class EntityTemplate extends AbstractTemplate
             return getWorkspace().getEntitiesDir() + TARGET[index].replace("${MultipleKey}", multipleKey);
         }
         else
-        if (TARGET[index].startsWith("Json") && !dbTable.hasJson())
+        if (TARGET[index].startsWith("Json") && !dbTable.isJson())
         {
             return null;
         }
