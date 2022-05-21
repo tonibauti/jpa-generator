@@ -13,6 +13,8 @@ import java.util.*;
 
 public class CrudRepositoryTestTemplate extends AbstractTemplate
 {
+    private boolean isJsonForDataTestFactory;
+
     private static final String[] SOURCE =
     {
         "templates/repositories/test/constraints/AbstractConstraints.fm",
@@ -184,6 +186,8 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
         {
             FieldData fieldData = getFieldData( dbColumn );
 
+            isJsonForDataTestFactory |= dbColumn.isJson();
+
             // filter
             if (super.isFilterType(dbColumn))
                 filterDataList.add( fieldData );
@@ -206,6 +210,7 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
         if (multipleKeyTableName != null)
         {
             DBTable dbTableMultiKey = super.getTable( multipleKeyTableName );
+
             if (dbTableMultiKey != null)
             {
                 pkFieldDataList.clear();
@@ -224,6 +229,7 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
         map.put("BaseRepositoriesTestPackage", getWorkspace().getBaseRepositoriesTestPackage());
         map.put("BaseConstraintsRepositoriesTestPackage", getWorkspace().getBaseConstraintsRepositoriesTestPackage());
         map.put("CrudRepositoriesPackage", getWorkspace().getCrudRepositoriesPackage());
+        map.put("PersistencePackage", getWorkspace().getPersistencePackage());
         map.put("DatabaseConstraints", getDatabaseConstraints());
         map.put("ConfigPackage", getWorkspace().getConfigPackage());
         map.put("JpaConfig", Strings.toClassName(getWorkspace().getDataSourceName())+"JpaConfig");
@@ -234,6 +240,7 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
         map.put("Key", keyType);
         map.put("isMultipleKey", dbTable.isMultipleKey());
         map.put("importList", importList);
+        map.put("isJsonForDataTestFactory", isJsonForDataTestFactory);
         map.put("fieldDataList", fieldDataList);
         map.put("filterDataList", filterDataList);
         map.put("pkFieldDataList", pkFieldDataList);
@@ -258,6 +265,8 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
     @Override
     public void generate() throws Exception
     {
+        this.isJsonForDataTestFactory = false;
+
         for (int index=0; index<SOURCE.length; index++)
             for (DBTable dbTable : getTables())
                 super.generate(index, dbTable);

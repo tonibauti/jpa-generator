@@ -99,12 +99,12 @@ public class ${Entity} implements Serializable
 
     public ${encodedData.type} ${encodedData.getter}()
     {
-        return ${encoder}.decode(${encodedData.property});
+        return ${encoder}.decode( ${encodedData.property} );
     }
 
     public void ${encodedData.setter}(${encodedData.type} ${encodedData.property})
     {
-        this.${encodedData.property} = ${encoder}.encode(${encodedData.property});
+        this.${encodedData.property} = ${encoder}.encode( ${encodedData.property} );
     }
     </#list>
 
@@ -116,7 +116,7 @@ public class ${Entity} implements Serializable
         <#list encodedDataList as encodedData>
         public ${Entity}Builder ${encodedData.property}(${encodedData.type} ${encodedData.property})
         {
-            this.${encodedData.property} = ${encoder}.encode(${encodedData.property});
+            this.${encodedData.property} = ${encoder}.encode( ${encodedData.property} );
             return this;
         }<#if encodedData_has_next>${lineSeparator()}</#if>
         </#list>

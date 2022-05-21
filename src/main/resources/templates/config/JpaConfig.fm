@@ -118,6 +118,14 @@ public class ${ClassName}JpaConfig
     }
 
 
+    @Bean(UNIT_NAME + "JpaProperties")
+    @ConfigurationProperties(prefix = "spring.jpa.${DataSourcePropertiesName}")
+    protected Properties getJpaProperties()
+    {
+        return new Properties();
+    }
+
+
     @Bean(DATASOURCE)
     public DataSource dataSource()
     {
@@ -158,14 +166,6 @@ public class ${ClassName}JpaConfig
     public JpaTransactionManager transactionManager()
     {
         return new JpaTransactionManager( entityManagerFactory() );
-    }
-
-
-    @Bean(UNIT_NAME + "JpaProperties")
-    @ConfigurationProperties(prefix = "spring.jpa.${DataSourcePropertiesName}")
-    protected Properties getJpaProperties()
-    {
-        return new Properties();
     }
 
 }

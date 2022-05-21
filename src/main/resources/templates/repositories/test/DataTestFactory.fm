@@ -61,10 +61,17 @@ public class DataTestFactory
     }
 
 
+    <#if isJsonForDataTestFactory>
+    public static ${PersistencePackage}.Json getJson()
+    {
+        return ${PersistencePackage}.Json.of( "{ \"k\": \"v\" }" );
+    }
+    <#else>
     public static String getJson()
     {
         return "{}";
     }
+    </#if>
 
 
     public static Boolean getBoolean()

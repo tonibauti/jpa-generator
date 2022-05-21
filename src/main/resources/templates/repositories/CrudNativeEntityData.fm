@@ -1,5 +1,7 @@
 package ${BaseCrudNativeRepositoriesPackage};
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -31,6 +33,7 @@ public class CrudNativeEntityData
     {
         private Field field;
         private String columnName;
+        private String columnType;
         private boolean isKey;
         private boolean isGenerated;
 
@@ -39,6 +42,7 @@ public class CrudNativeEntityData
             ColumnData columnData = new ColumnData();
             columnData.field = field;
             columnData.columnName = columnName;
+            columnData.columnType = columnType;
             columnData.isKey = isKey;
             columnData.isGenerated = isGenerated;
             return columnData;
@@ -171,11 +175,14 @@ public class CrudNativeEntityData
             if (isNullOrEmpty(columnAnnotation))
                 continue;
 
+            Type columnTypeAnnotation = field.getAnnotation(Type.class);
+
             field.setAccessible( true );
 
             ColumnData columnData  = new ColumnData();
             columnData.field       = field;
             columnData.columnName  = columnAnnotation.name();
+            columnData.columnType  = (isNotEmpty(columnTypeAnnotation)) ? columnTypeAnnotation.type() : null;
             columnData.isKey       = field.isAnnotationPresent(Id.class);
             columnData.isGenerated = field.isAnnotationPresent(GeneratedValue.class);
 

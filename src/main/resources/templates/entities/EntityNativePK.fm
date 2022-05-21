@@ -2,14 +2,10 @@ package ${EntitiesPackage};
 
 import lombok.*;
 import java.io.Serializable;
-<#if isJson>
+<#if isJsonPK>
 import ${PersistencePackage}.Json;
-import ${PersistencePackage}.JsonType;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 </#if>
-<#list importList as import>
+<#list importListPK as import>
 import ${import};
 </#list>
 
