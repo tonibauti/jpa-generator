@@ -200,7 +200,7 @@ public class DBColumn
     @JsonIgnore
     public boolean isJson()
     {
-        return ("json".equalsIgnoreCase(sqlTypeName) || "jsonb".equalsIgnoreCase(sqlTypeName));
+        return className.equals( DBConnection.JSON_CLASS_NAME );
     }
 
 }

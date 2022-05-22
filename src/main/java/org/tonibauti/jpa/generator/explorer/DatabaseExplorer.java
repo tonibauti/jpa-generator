@@ -367,7 +367,7 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
 
                 if (dbColumn.getClassName().equals(Object.class.getName()))
                 {
-                    if (dbColumn.isJson())
+                    if ("json".equalsIgnoreCase(sqlTypeName) || "jsonb".equalsIgnoreCase(sqlTypeName))
                     {
                         dbColumn.setClassName( DBConnection.JSON_CLASS_NAME );
                     }
