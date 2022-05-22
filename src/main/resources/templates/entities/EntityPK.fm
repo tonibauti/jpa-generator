@@ -25,7 +25,7 @@ import ${import};
 <#if isJsonPK>
 @TypeDefs
 ({
-    @TypeDef(name = JsonType.TYPE, typeClass = JsonType.class),
+    @TypeDef(typeClass = JsonType.class, defaultForType = Json.class)
 })
 </#if>
 public class ${Key} implements Serializable

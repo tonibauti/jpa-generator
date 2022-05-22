@@ -1,11 +1,10 @@
 package ${BaseCrudNativeRepositoriesPackage};
 
-import org.hibernate.annotations.Type;
-<#if isJson>
-import com.hispanobretoncantabria.persistence2.Json;
-import com.hispanobretoncantabria.persistence2.JsonType;
-</#if>
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
+
 import javax.persistence.*;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -16,19 +15,37 @@ import java.util.*;
 
 public class CrudNativeEntityData
 {
-    private static final Map<String, CrudNativeEntityData> entityDataCache = new HashMap<>();
+    private static final Map<String, CrudNativeEntityData> entityDataMap = new HashMap<>();
 
 
     protected static CrudNativeEntityData getEntityData(Class<?> entityClass)
     {
-        return (entityClass != null) ? entityDataCache.get( entityClass.getName() ) : null;
+        return (entityClass != null) ? entityDataMap.get( entityClass.getName() ) : null;
     }
 
 
     protected static void addEntityData(Class<?> entityClass, Class<?> keyClass)
     {
         if (entityClass != null && keyClass != null)
-            entityDataCache.put(entityClass.getName(), new CrudNativeEntityData(entityClass, keyClass));
+            entityDataMap.put(entityClass.getName(), new CrudNativeEntityData(entityClass, keyClass));
+    }
+
+
+    private static class UserTypeDef
+    {
+        private final String name;
+        private final Class<?> typeClass;
+        private final Class<?> defaultForType;
+
+        public UserTypeDef(String name, Class<?> typeClass, Class<?> defaultForType)
+        {
+            this.name = name;
+            this.typeClass = typeClass;
+            this.defaultForType = defaultForType;
+        }
+        public String getName() { return name; }
+        public Class<?> getTypeClass() { return typeClass; }
+        public Class<?> detDefaultForType() { return defaultForType; }
     }
 
 
@@ -36,7 +53,6 @@ public class CrudNativeEntityData
     {
         private Field field;
         private String columnName;
-        private String columnType;
         private boolean isKey;
         private boolean isGenerated;
 
@@ -45,7 +61,6 @@ public class CrudNativeEntityData
             ColumnData columnData = new ColumnData();
             columnData.field = field;
             columnData.columnName = columnName;
-            columnData.columnType = columnType;
             columnData.isKey = isKey;
             columnData.isGenerated = isGenerated;
             return columnData;
@@ -88,6 +103,7 @@ public class CrudNativeEntityData
     private String fullTableName;
     private String[] columnsName;
 
+    private final Map<Class<?>, UserTypeDef> usertypeDefMap = new LinkedHashMap<>();
     private final Map<String, ColumnData> columnDataMap = new LinkedHashMap<>();
     private final Map<String, ColumnData> keyColumnDataMap = new LinkedHashMap<>();
     private final Map<String, JoinData> joinDataMapByPropertyName = new LinkedHashMap<>();
@@ -109,6 +125,7 @@ public class CrudNativeEntityData
         this.keyClass    = keyClass;
 
         readTable();
+        readUserTypes();
         readColumns();
         readJoins();
 
@@ -147,22 +164,14 @@ public class CrudNativeEntityData
     }
 
 
-    private boolean isJsonType(ColumnData columnData)
+    private boolean isPostgresJsonType(ColumnData columnData)
     {
-        <#if isJson>
-        return (columnData != null && JsonType.TYPE.equals(columnData.columnType));
+        <#if isPostgresJson>
+        return (columnData != null
+                &&
+                columnData.field.getType().equals(${PersistencePackage}.Json.class));
         <#else>
         return false;
-        </#if>
-    }
-
-
-    private Json getJson(String content)
-    {
-        <#if isJson>
-        return (content != null) ? Json.of(content) : null;
-        <#else>
-        return null;
         </#if>
     }
 
@@ -189,6 +198,33 @@ public class CrudNativeEntityData
     }
 
 
+    private void readUserTypes()
+    {
+        TypeDefs typeDefsAnnotation = entityClass.getAnnotation(TypeDefs.class);
+        TypeDef  typeDefAnnotation  = entityClass.getAnnotation(TypeDef.class);
+
+        List<TypeDef> typeDefList = new ArrayList<>();
+
+        if (isNotEmpty(typeDefsAnnotation))
+            typeDefList.addAll( Arrays.asList(typeDefsAnnotation.value()) );
+
+        if (isNotEmpty(typeDefAnnotation))
+            typeDefList.add( typeDefAnnotation );
+
+        for (TypeDef typeDef : typeDefList)
+        {
+            if (isNullOrEmpty(typeDef.typeClass()))
+                throw new PersistenceException(entityClass.getName() + ": undefined 'typeClass' property in TypeDef");
+
+            if (typeDef.defaultForType().equals(void.class) || typeDef.defaultForType().equals(Void.class))
+                throw new PersistenceException(entityClass.getName() + ": undefined 'defaultForType' property in TypeDef");
+
+            usertypeDefMap.put(typeDef.defaultForType(),
+                               new UserTypeDef(typeDef.name(), typeDef.typeClass(), typeDef.defaultForType()));
+        }
+    }
+
+
     private void readColumns()
     {
         for (Field field : entityClass.getDeclaredFields())
@@ -198,14 +234,11 @@ public class CrudNativeEntityData
             if (isNullOrEmpty(columnAnnotation))
                 continue;
 
-            Type columnTypeAnnotation = field.getAnnotation(Type.class);
-
             field.setAccessible( true );
 
             ColumnData columnData  = new ColumnData();
             columnData.field       = field;
             columnData.columnName  = columnAnnotation.name();
-            columnData.columnType  = (isNotEmpty(columnTypeAnnotation)) ? columnTypeAnnotation.type() : null;
             columnData.isKey       = field.isAnnotationPresent(Id.class);
             columnData.isGenerated = field.isAnnotationPresent(GeneratedValue.class);
 
@@ -369,7 +402,7 @@ public class CrudNativeEntityData
 
             String columnName = columnData.columnName;
 
-            if (isJsonType(columnData))
+            if (isPostgresJsonType(columnData))
                 columnName += "\\:\\:text";
 
             selectAllColumns.append( tableName + "." + columnName );
@@ -483,7 +516,7 @@ public class CrudNativeEntityData
             if (keyColumnDataMap.containsKey(column) && !includeKeys)
                 continue;
 
-            if (isJsonType(columnData))
+            if (isPostgresJsonType(columnData))
                 column += "\\:\\:text";
 
             result.add( column );
@@ -725,6 +758,15 @@ public class CrudNativeEntityData
     }
 
 
+    private Object getUserTypeValue(Class<?> type, Object content) throws Exception
+    {
+        if (content instanceof String)
+            return type.getDeclaredConstructor(String.class).newInstance((String)content);
+        else
+            return null;
+    }
+
+
     public List<Object> readResultList(String[] columns, List<Object> results)
     {
         List<Object> list = new ArrayList<>();
@@ -787,10 +829,9 @@ public class CrudNativeEntityData
                         value = ((BigDecimal)value).floatValue();
                 }
                 else
-                if (value instanceof String)
+                if (usertypeDefMap.containsKey(field.getType()))
                 {
-                    if (isJsonType(columnData))
-                        value = getJson((String)value);
+                    value = getUserTypeValue(field.getType(), value);
                 }
 
                 field.set(entity, value);

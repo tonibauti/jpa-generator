@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class CrudNativeRepositoryTemplate extends AbstractTemplate
 {
-    private boolean isJson;
+    private boolean isPostgresJson;
 
     private static final String[] SOURCE =
     {
@@ -75,7 +75,7 @@ public class CrudNativeRepositoryTemplate extends AbstractTemplate
     {
         Map<String, Object> map = new HashMap<>();
 
-        this.isJson |= dbTable.isJson();
+        this.isPostgresJson |= (super.isPostgresDatabase()  && dbTable.isJson());
 
         String className  = Strings.toClassName( dbTable.getName() );
         //String objectName = Strings.toPropertyName( dbTable.getName() );
@@ -89,6 +89,7 @@ public class CrudNativeRepositoryTemplate extends AbstractTemplate
         map.put("CrudRepositoriesPackage", getWorkspace().getCrudRepositoriesPackage());
         map.put("BaseCrudNativeRepositoriesPackage", getWorkspace().getBaseCrudNativeRepositoriesPackage());
         map.put("ConfigPackage", getWorkspace().getConfigPackage());
+        map.put("PersistencePackage", getWorkspace().getPersistencePackage());
         map.put("JpaConfig", Strings.toClassName(getWorkspace().getDataSourceName())+"JpaConfig");
         map.put("EntitiesPackage", getWorkspace().getEntitiesPackage());
         map.put("CrudNativeRepository", className+"CrudNativeRepository");
@@ -96,7 +97,7 @@ public class CrudNativeRepositoryTemplate extends AbstractTemplate
         map.put("Key", keyType);
         map.put("isMultipleKey", dbTable.isMultipleKey());
         map.put("importList", importList);
-        map.put("isJson", isJson);
+        map.put("isPostgresJson", isPostgresJson);
 
         return map;
     }
@@ -105,7 +106,7 @@ public class CrudNativeRepositoryTemplate extends AbstractTemplate
     @Override
     public void generate() throws Exception
     {
-        this.isJson = false;
+        this.isPostgresJson = false;
 
         for (int index=0; index<SOURCE.length; index++)
             for (DBTable dbTable : getTables())

@@ -87,6 +87,12 @@ public abstract class AbstractTemplate extends AbstractComponent
     }
 
 
+    protected boolean isPostgresDatabase()
+    {
+        return "postgresql".equalsIgnoreCase(workspace.getDbConnection().getDatabaseProductName());
+    }
+
+
     protected String getDataSourcePropertiesName()
     {
         return workspace.getDataSourceName().replace("_","-").toLowerCase();
@@ -468,11 +474,13 @@ public abstract class AbstractTemplate extends AbstractComponent
 
         annotations.add( annotation.toString() );
 
+        /*
         //@Type(type = JsonType.TYPE)
         if (dbColumn.isJson())
         {
             annotations.add( "@Type(type = JsonType.TYPE)" );
         }
+        */
 
         // @ToString.Exclude
         if (dbColumn.isInvisible())
