@@ -120,7 +120,8 @@ public abstract class AbstractTemplate extends AbstractComponent
     protected boolean isFilterType(DBColumn dbColumn)
     {
         if (dbColumn.isJson())
-            return false;
+            //return false;
+            return true; // TODO: ??
         else
             return filterTypes.contains(dbColumn.getClassName());
     }

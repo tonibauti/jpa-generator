@@ -4,7 +4,6 @@ import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.*;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -173,6 +172,29 @@ public class CrudNativeEntityData
         <#else>
         return false;
         </#if>
+    }
+
+
+    private String getColumnName(ColumnData columnData)
+    {
+        String columnName = columnData.columnName;
+
+        if (isPostgresJsonType(columnData))
+            columnName += "\\:\\:text";
+
+        return columnName;
+    }
+
+
+    private Object getValue(Object obj, ColumnData columnData) throws Exception
+    {
+        Object value = columnData.field.get(obj);
+
+        if (value != null)
+            if (usertypeDefMap.containsKey(columnData.field.getType()))
+                value = value.toString();
+
+        return value;
     }
 
 
@@ -400,10 +422,7 @@ public class CrudNativeEntityData
             if (i++ > 0)
                 selectAllColumns.append( ", " );
 
-            String columnName = columnData.columnName;
-
-            if (isPostgresJsonType(columnData))
-                columnName += "\\:\\:text";
+            String columnName = getColumnName( columnData );
 
             selectAllColumns.append( tableName + "." + columnName );
         }
@@ -431,10 +450,15 @@ public class CrudNativeEntityData
             if (columnData.isKey)
                 continue;
 
+            String columName = columnData.columnName;
+
             if (i++ > 0)
                 updateAllColumns.append( ", " );
 
-            updateAllColumns.append( columnData.columnName ).append( " = ?" );
+            if (isPostgresJsonType(columnData))
+                updateAllColumns.append( columName ).append( " = to_json(?\\:\\:text)" );
+            else
+                updateAllColumns.append( columName ).append( " = ?" );
         }
     }
 
@@ -447,19 +471,25 @@ public class CrudNativeEntityData
             if (i++ > 0)
                 equalsKeyColumns.append( " AND " );
 
-            equalsKeyColumns.append( tableName + "." + columnData.columnName ).append( " = ?" );
+            String columnName = getColumnName( columnData );
+
+            equalsKeyColumns.append( tableName + "." + columnName ).append( " = ?" );
         }
     }
 
 
     private void prepareValuesColumns()
     {
-        for (int i=0; i<columnDataMap.size(); i++)
+        int i = 0;
+        for (ColumnData columnData : columnDataMap.values())
         {
-            if (i > 0)
+            if (i++ > 0)
                 valuesColumns.append( ", " );
 
-            valuesColumns.append( "?" );
+            if (isPostgresJsonType(columnData))
+                valuesColumns.append( "to_json(?\\:\\:text)" );
+            else
+                valuesColumns.append( "?" );
         }
     }
 
@@ -494,9 +524,9 @@ public class CrudNativeEntityData
     }
 
 
-    private List<String> getValidColumns(String[] columns, boolean includeKeys, boolean strictMode)
+    private List<ColumnData> getValidColumns(String[] columns, boolean includeKeys, boolean strictMode)
     {
-        List<String> result = new ArrayList<>();
+        List<ColumnData> validColumns = new ArrayList<>();
 
         for (String column : columns)
         {
@@ -516,13 +546,10 @@ public class CrudNativeEntityData
             if (keyColumnDataMap.containsKey(column) && !includeKeys)
                 continue;
 
-            if (isPostgresJsonType(columnData))
-                column += "\\:\\:text";
-
-            result.add( column );
+            validColumns.add( columnData );
         }
 
-        return result;
+        return validColumns;
     }
 
 
@@ -534,15 +561,17 @@ public class CrudNativeEntityData
 
             tableName = (isNotEmpty(tableName)) ? (tableName + ".") : "";
 
-            List<String> validColumns = getValidColumns(columns, true, false);
+            List<ColumnData> validColumns = getValidColumns(columns, true, false);
 
             int i = 0;
-            for (String column : validColumns)
+            for (ColumnData columnData : validColumns)
             {
                 if (i++ > 0)
                     selectColumns.append( ", " );
 
-                selectColumns.append( tableName ).append( column );
+                String columnName = getColumnName( columnData );
+
+                selectColumns.append( tableName ).append( columnName );
             }
 
             if (selectColumns.length() > 0)
@@ -565,15 +594,20 @@ public class CrudNativeEntityData
         {
             StringBuilder updateColumns = new StringBuilder();
 
-            List<String> validColumns = getValidColumns(columns, false, true);
+            List<ColumnData> validColumns = getValidColumns(columns, false, true);
 
             int i = 0;
-            for (String column : validColumns)
+            for (ColumnData columnData : validColumns)
             {
                 if (i++ > 0)
                     updateColumns.append( ", " );
 
-                updateColumns.append( column ).append( " = ?" );
+                String columnName = columnData.columnName;
+
+                if (isPostgresJsonType(columnData))
+                    updateColumns.append( columnName ).append( " = to_json(?\\:\\:text)" );
+                else
+                    updateColumns.append( columnName ).append( " = ?" );
             }
 
             if (updateColumns.length() > 0)
@@ -673,10 +707,14 @@ public class CrudNativeEntityData
             {
                 for (ColumnData columnData : columnDataMap.values())
                 {
-                    Object value = columnData.field.get( filter );
+                    Object value = getValue(filter, columnData);
 
-                    if (value != null)
-                        filterMap.put(columnData.columnName, value);
+                    if (value == null)
+                        continue;
+
+                    String columnName = getColumnName( columnData );
+
+                    filterMap.put(columnName, value);
                 }
             }
         }
@@ -700,12 +738,12 @@ public class CrudNativeEntityData
             if (obj.getClass().equals(keyClass))
             {
                 for (ColumnData columnData : keyColumnDataMap.values())
-                    values[i++] = columnData.field.get(obj);
+                    values[i++] = getValue(obj, columnData);
             }
             else
             {
                 for (String keyColumn : keyColumnDataMap.keySet())
-                    values[i++] = columnDataMap.get(keyColumn).field.get(obj);
+                    values[i++] = getValue(obj, columnDataMap.get(keyColumn));
             }
         }
         catch (Exception e)
@@ -725,13 +763,16 @@ public class CrudNativeEntityData
         {
             if (isNotEmpty(columns))
             {
-                List<String> validColumns = getValidColumns(columns, includeKeys, true);
+                List<ColumnData> validColumns = getValidColumns(columns, includeKeys, true);
 
                 values = new Object[ validColumns.size() ];
 
                 int i = 0;
-                for (String column : validColumns)
-                    values[i++] = columnDataMap.get(column).field.get(obj);
+                for (ColumnData columnData : validColumns)
+                {
+                    values[i++] = getValue(obj, columnData);
+                }
+
             }
             else
             {
@@ -745,7 +786,7 @@ public class CrudNativeEntityData
                     if (columnData.isKey && !includeKeys)
                         continue;
 
-                    values[i++] = columnData.field.get(obj);
+                    values[i++] = getValue(obj, columnData);
                 }
             }
         }
