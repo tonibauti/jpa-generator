@@ -1,6 +1,7 @@
 package ${BaseCrudNativeRepositoriesPackage};
 
 import ${ConfigPackage}.${JpaConfig};
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -229,6 +230,9 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         if (value instanceof Sort && ((Sort)value).isEmpty())
             return true;
 
+        if (value instanceof StringBuilder)
+            return (((StringBuilder)value).length() == 0);
+
         if (value instanceof String)
             return ((String)value).trim().isEmpty();
 
@@ -294,7 +298,9 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
             if (getEntityData().isMultipleKey())
             {
-                for (Object value : getKeyValues(id))
+                Object[] keyValues = getKeyValues( id );
+
+                for (Object value : keyValues)
                     query.setParameter(index++, value);
             }
             else
@@ -306,7 +312,9 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         {
             T entity = (T) obj;
 
-            for (Object value : getKeyValues(entity))
+            Object[] keyValues = getKeyValues( entity );
+
+            for (Object value : keyValues)
                 query.setParameter(index++, value);
         }
 
@@ -314,9 +322,9 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     }
 
 
-    protected int setValueParameters(int index, Query query, Object[] values)
+    protected int setValueParameters(int index, Query query, List<Object> values)
     {
-        if (values != null)
+        if (isNotEmpty(values))
             for (Object value : values)
                 query.setParameter(index++, value);
 
@@ -370,9 +378,9 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     }
 
 
-    protected Object[] getValues(Object entity, boolean includeKeys, String... columns)
+    protected List<Object> getValues(Object entity, boolean isNew, String... columns)
     {
-        return getEntityData().getValues(entity, includeKeys, columns);
+        return getEntityData().getValues(entity, isNew, columns);
     }
 
 
@@ -679,11 +687,16 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         if (isNullOrEmpty(entity))
             return 0;
 
+        StringBuilder updateColumns = getUpdateColumns(columns);
+
+        if (isNullOrEmpty(updateColumns))
+            return 0;
+
         final StringBuilder sql = new StringBuilder()
         .append( "UPDATE " )
         .append( getTableName() )
         .append( " SET " )
-        .append( getUpdateColumns(columns) )
+        .append( updateColumns )
         .append( " WHERE " )
         .append( getEqualsKeyColumns() )
         ;
@@ -706,11 +719,16 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         if (isNullOrEmpty(entity))
             return 0;
 
+        StringBuilder updateColumns = getUpdateColumns(columns);
+
+        if (isNullOrEmpty(updateColumns))
+            return 0;
+
         final StringBuilder sql = new StringBuilder()
         .append( "UPDATE " )
         .append( getTableName() )
         .append( " SET " )
-        .append( getUpdateColumns(columns) )
+        .append( updateColumns )
         ;
 
         Map<String, Object> filterMap = getFilterMap( filter );

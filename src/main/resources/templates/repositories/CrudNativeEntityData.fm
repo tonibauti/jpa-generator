@@ -110,9 +110,9 @@ public class CrudNativeEntityData
 
     private final StringBuilder selectAllColumns = new StringBuilder();
     private final StringBuilder insertColumns    = new StringBuilder();
+    private final StringBuilder valuesColumns    = new StringBuilder();
     private final StringBuilder updateAllColumns = new StringBuilder();
     private final StringBuilder equalsKeyColumns = new StringBuilder();
-    private final StringBuilder valuesColumns    = new StringBuilder();
 
 
     private CrudNativeEntityData() {}
@@ -130,9 +130,9 @@ public class CrudNativeEntityData
 
         prepareSelectAllColumns();
         prepareInsertColumns();
+        prepareValuesColumns();
         prepareUpdateColumns();
         prepareEqualsKeyColumns();
-        prepareValuesColumns();
     }
 
 
@@ -165,13 +165,13 @@ public class CrudNativeEntityData
 
     private boolean isPostgresJsonType(ColumnData columnData)
     {
-        <#if isPostgresJson>
-        return (columnData != null
-                &&
-                columnData.field.getType().equals(${PersistencePackage}.Json.class));
-        <#else>
-        return false;
-        </#if>
+    	<#if isPostgresJson>
+    	return (columnData != null
+    			&&
+    			columnData.field.getType().equals(${PersistencePackage}.Json.class));
+    	<#else>
+    	return false;
+    	</#if>
     }
 
 
@@ -183,6 +183,15 @@ public class CrudNativeEntityData
             columnName += "\\:\\:text";
 
         return columnName;
+    }
+
+
+    private String getColumnValue(ColumnData columnData)
+    {
+        if (isPostgresJsonType(columnData))
+            return "to_json(?\\:\\:text)";
+        else
+            return "?";
     }
 
 
@@ -434,10 +443,29 @@ public class CrudNativeEntityData
         int i = 0;
         for (ColumnData columnData : columnDataMap.values())
         {
+            if (columnData.isGenerated)
+                continue;
+
             if (i++ > 0)
                 insertColumns.append( ", " );
 
             insertColumns.append( columnData.columnName );
+        }
+    }
+
+
+    private void prepareValuesColumns()
+    {
+        int i = 0;
+        for (ColumnData columnData : columnDataMap.values())
+        {
+            if (columnData.isGenerated)
+                continue;
+
+            if (i++ > 0)
+                valuesColumns.append( ", " );
+
+            valuesColumns.append( getColumnValue(columnData) );
         }
     }
 
@@ -450,15 +478,10 @@ public class CrudNativeEntityData
             if (columnData.isKey)
                 continue;
 
-            String columName = columnData.columnName;
-
             if (i++ > 0)
                 updateAllColumns.append( ", " );
 
-            if (isPostgresJsonType(columnData))
-                updateAllColumns.append( columName ).append( " = to_json(?\\:\\:text)" );
-            else
-                updateAllColumns.append( columName ).append( " = ?" );
+            updateAllColumns.append( columnData.columnName ).append( " = " ).append( getColumnValue(columnData) );
         }
     }
 
@@ -474,22 +497,6 @@ public class CrudNativeEntityData
             String columnName = getColumnName( columnData );
 
             equalsKeyColumns.append( tableName + "." + columnName ).append( " = ?" );
-        }
-    }
-
-
-    private void prepareValuesColumns()
-    {
-        int i = 0;
-        for (ColumnData columnData : columnDataMap.values())
-        {
-            if (i++ > 0)
-                valuesColumns.append( ", " );
-
-            if (isPostgresJsonType(columnData))
-                valuesColumns.append( "to_json(?\\:\\:text)" );
-            else
-                valuesColumns.append( "?" );
         }
     }
 
@@ -543,7 +550,8 @@ public class CrudNativeEntityData
                     continue;
             }
 
-            if (keyColumnDataMap.containsKey(column) && !includeKeys)
+            // not keys
+            if (!includeKeys && keyColumnDataMap.containsKey(column))
                 continue;
 
             validColumns.add( columnData );
@@ -602,16 +610,10 @@ public class CrudNativeEntityData
                 if (i++ > 0)
                     updateColumns.append( ", " );
 
-                String columnName = columnData.columnName;
-
-                if (isPostgresJsonType(columnData))
-                    updateColumns.append( columnName ).append( " = to_json(?\\:\\:text)" );
-                else
-                    updateColumns.append( columnName ).append( " = ?" );
+                updateColumns.append( columnData.columnName ).append( " = " ).append( getColumnValue(columnData) );
             }
 
-            if (updateColumns.length() > 0)
-                return updateColumns;
+            return updateColumns;
         }
 
         return updateAllColumns;
@@ -738,12 +740,16 @@ public class CrudNativeEntityData
             if (obj.getClass().equals(keyClass))
             {
                 for (ColumnData columnData : keyColumnDataMap.values())
+                {
                     values[i++] = getValue(obj, columnData);
+                }
             }
             else
             {
                 for (String keyColumn : keyColumnDataMap.keySet())
+                {
                     values[i++] = getValue(obj, columnDataMap.get(keyColumn));
+                }
             }
         }
         catch (Exception e)
@@ -755,39 +761,33 @@ public class CrudNativeEntityData
     }
 
 
-    public Object[] getValues(Object obj, boolean includeKeys, String... columns)
+    public List<Object> getValues(Object obj, boolean isNew, String... columns)
     {
-        Object[] values;
+        List<Object> values = new ArrayList<>();
 
         try
         {
-            if (isNotEmpty(columns))
+            boolean includeKeys = isNew;
+            Collection<ColumnData> validColumns = isNotEmpty(columns)
+                                                    ? getValidColumns(columns, includeKeys, true)
+                                                    : columnDataMap.values();
+
+            for (ColumnData columnData : validColumns)
             {
-                List<ColumnData> validColumns = getValidColumns(columns, includeKeys, true);
-
-                values = new Object[ validColumns.size() ];
-
-                int i = 0;
-                for (ColumnData columnData : validColumns)
+                if (isNew)
                 {
-                    values[i++] = getValue(obj, columnData);
-                }
-
-            }
-            else
-            {
-                values = (!includeKeys)
-                            ? new Object[ columnDataMap.size() - keyColumnDataMap.size()]
-                            : new Object[ columnDataMap.size() ];
-
-                int i = 0;
-                for (ColumnData columnData : columnDataMap.values())
-                {
-                    if (columnData.isKey && !includeKeys)
+                    // not insert generated values
+                    if (columnData.isGenerated)
                         continue;
-
-                    values[i++] = getValue(obj, columnData);
                 }
+                else
+                {
+                    // not update keys
+                    if (columnData.isKey)
+                        continue;
+                }
+
+                values.add( getValue(obj, columnData) );
             }
         }
         catch (Exception e)
