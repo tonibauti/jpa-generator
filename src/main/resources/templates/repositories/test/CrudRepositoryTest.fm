@@ -160,6 +160,30 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
     }
 
 
+    <#if isPersistable>
+    @Test
+    public void create() throws Exception
+    {
+        logger.info("create");
+
+        ${Entity} entity = getEntity();
+        entity.setNew( true );
+        ${Entity} result = getRepository().save( entity );
+
+        logger.info("result: " + result);
+    }
+
+
+    @Test
+    public void update() throws Exception
+    {
+        logger.info("update");
+
+        ${Entity} result = getRepository().save( getEntity() );
+
+        logger.info("result: " + result);
+    }
+    <#else>
     @Test
     public void save() throws Exception
     {
@@ -169,6 +193,7 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
 
         logger.info("result: " + result);
     }
+    </#if>
 
 
     @Test

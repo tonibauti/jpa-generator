@@ -6,9 +6,11 @@ import java.io.Serializable;
 <#if isJson>
 import ${PersistencePackage}.Json;
 import ${PersistencePackage}.JsonType;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
+</#if>
+<#if isPersistable>
+import org.springframework.data.domain.Persistable;
 </#if>
 <#list importList as import>
 import ${import};
@@ -42,7 +44,7 @@ import ${import};
     @TypeDef(typeClass = JsonType.class, defaultForType = Json.class)
 })
 </#if>
-public class ${Entity} implements Serializable
+public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>Serializable
 {
     public static final String NAME    = "${entity}";
 
@@ -54,6 +56,10 @@ public class ${Entity} implements Serializable
     public static final String ${fieldData.column}_COLUMN = "${fieldData.name}";
     </#list>
 
+    <#if isPersistable>
+    private transient boolean isNew = false;
+
+    </#if>
     <#if isMultipleKey>
 
     @EmbeddedId // (<#list pkFieldDataList as pkFieldData>${pkFieldData.name}<#if pkFieldData_has_next>, </#if></#list>)

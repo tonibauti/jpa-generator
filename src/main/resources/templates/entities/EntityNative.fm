@@ -6,7 +6,6 @@ import java.io.Serializable;
 <#if isJson>
 import ${PersistencePackage}.Json;
 import ${PersistencePackage}.JsonType;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 </#if>

@@ -180,6 +180,8 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
         List<FieldData> filterDataList  = new ArrayList<>();
         List<FieldData> pkFieldDataList = new ArrayList<>();
 
+        boolean isPersistable = dbTable.isMultipleKey();
+
         List<String> importList = new ArrayList<>();
 
         for (DBColumn dbColumn : dbTable.getColumnList())
@@ -187,6 +189,9 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
             FieldData fieldData = getFieldData( dbColumn );
 
             isJsonForDataTestFactory |= dbColumn.isJson();
+
+            if (!isPersistable && "id".equals(fieldData.getProperty()))
+                isPersistable = true;
 
             // filter
             if (super.isFilterType(dbColumn))
@@ -238,6 +243,7 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
         map.put("objectName", objectName);
         map.put("Entity", className+"Entity");
         map.put("Key", keyType);
+        map.put("isPersistable", isPersistable);
         map.put("isMultipleKey", dbTable.isMultipleKey());
         map.put("importList", importList);
         map.put("isJsonForDataTestFactory", isJsonForDataTestFactory);
