@@ -214,9 +214,10 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
     {
         logger.info("create");
 
-        int result = getRepository().create( getEntity() );
+        ${Entity} entity = getEntity();
+        getRepository().create( entity );
 
-        logger.info("result: " + result);
+        logger.info("result: " + entity);
     }
 
 

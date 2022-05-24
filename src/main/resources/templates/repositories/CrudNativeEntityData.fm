@@ -1,5 +1,6 @@
 package ${BaseCrudNativeRepositoriesPackage};
 
+import org.apache.commons.lang3.ClassUtils;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
@@ -46,7 +47,6 @@ public class CrudNativeEntityData
         public Class<?> getTypeClass() { return typeClass; }
         public Class<?> detDefaultForType() { return defaultForType; }
     }
-
 
     private static class ColumnData
     {
@@ -101,18 +101,21 @@ public class CrudNativeEntityData
     private String tableName;
     private String fullTableName;
     private String[] columnsName;
+    private String[] keysColumnsName;
+    private final List<String> generatedColumnsName = new ArrayList<>();
 
-    private final Map<Class<?>, UserTypeDef> usertypeDefMap = new LinkedHashMap<>();
+    private final Map<Class<?>, UserTypeDef> userTypeDefMap = new LinkedHashMap<>();
     private final Map<String, ColumnData> columnDataMap = new LinkedHashMap<>();
     private final Map<String, ColumnData> keyColumnDataMap = new LinkedHashMap<>();
     private final Map<String, JoinData> joinDataMapByPropertyName = new LinkedHashMap<>();
     private final Map<String, List<JoinData>> joinDataMapByClassName = new LinkedHashMap<>();
 
-    private final StringBuilder selectAllColumns = new StringBuilder();
-    private final StringBuilder insertColumns    = new StringBuilder();
-    private final StringBuilder valuesColumns    = new StringBuilder();
-    private final StringBuilder updateAllColumns = new StringBuilder();
-    private final StringBuilder equalsKeyColumns = new StringBuilder();
+    private final StringBuilder selectAllColumns  = new StringBuilder();
+    private final StringBuilder selectKeysColumns = new StringBuilder();
+    private final StringBuilder insertColumns     = new StringBuilder();
+    private final StringBuilder valuesColumns     = new StringBuilder();
+    private final StringBuilder updateAllColumns  = new StringBuilder();
+    private final StringBuilder equalsKeyColumns  = new StringBuilder();
 
 
     private CrudNativeEntityData() {}
@@ -129,6 +132,7 @@ public class CrudNativeEntityData
         readJoins();
 
         prepareSelectAllColumns();
+        prepareSelectKeysColumns();
         prepareInsertColumns();
         prepareValuesColumns();
         prepareUpdateColumns();
@@ -149,6 +153,9 @@ public class CrudNativeEntityData
 
         if (value instanceof Map && ((Map<?,?>)value).isEmpty())
             return true;
+
+        if (value instanceof StringBuilder)
+            return (((StringBuilder)value).length() == 0);
 
         if (value instanceof String)
             return ((String)value).trim().isEmpty();
@@ -200,7 +207,7 @@ public class CrudNativeEntityData
         Object value = columnData.field.get(obj);
 
         if (value != null)
-            if (usertypeDefMap.containsKey(columnData.field.getType()))
+            if (userTypeDefMap.containsKey(columnData.field.getType()))
                 value = value.toString();
 
         return value;
@@ -250,7 +257,7 @@ public class CrudNativeEntityData
             if (typeDef.defaultForType().equals(void.class) || typeDef.defaultForType().equals(Void.class))
                 throw new PersistenceException(entityClass.getName() + ": undefined 'defaultForType' property in TypeDef");
 
-            usertypeDefMap.put(typeDef.defaultForType(),
+            userTypeDefMap.put(typeDef.defaultForType(),
                                new UserTypeDef(typeDef.name(), typeDef.typeClass(), typeDef.defaultForType()));
         }
     }
@@ -285,7 +292,13 @@ public class CrudNativeEntityData
             {
                 keyColumnDataMap.put(columnAnnotation.name(), columnData.copy());
             }
+
+            if (columnData.isKey)
+            {
+                generatedColumnsName.add( columnName );
+            }
         }
+
 
         if (isNullOrEmpty(columnDataMap))
             throw new PersistenceException(entityClass.getName() + ": undefined columns");
@@ -294,10 +307,8 @@ public class CrudNativeEntityData
             throw new PersistenceException(entityClass.getName() + ": undefined key columns");
 
 
-        int i = 0;
-        columnsName = new String[ columnDataMap.size() ];
-        for (String columName : columnDataMap.keySet())
-            columnsName[i++] = columName;
+        columnsName = columnDataMap.keySet().toArray(new String[0]);
+        keysColumnsName = keyColumnDataMap.keySet().toArray(new String[0]);
 
 
         if (isMultipleKey())
@@ -438,6 +449,21 @@ public class CrudNativeEntityData
     }
 
 
+    private void prepareSelectKeysColumns()
+    {
+        int i = 0;
+        for (ColumnData columnData : keyColumnDataMap.values())
+        {
+            if (i++ > 0)
+                selectKeysColumns.append( ", " );
+
+            String columnName = getColumnName( columnData );
+
+            selectKeysColumns.append( tableName + "." + columnName );
+        }
+    }
+
+
     private void prepareInsertColumns()
     {
         int i = 0;
@@ -531,6 +557,18 @@ public class CrudNativeEntityData
     }
 
 
+    public String[] getKeysColumnsName()
+    {
+        return keysColumnsName;
+    }
+
+
+    public List<String> getGeneratedColumnsName()
+    {
+        return generatedColumnsName;
+    }
+
+
     private List<ColumnData> getValidColumns(String[] columns, boolean includeKeys, boolean strictMode)
     {
         List<ColumnData> validColumns = new ArrayList<>();
@@ -587,6 +625,12 @@ public class CrudNativeEntityData
         }
 
         return selectAllColumns;
+    }
+
+
+    public StringBuilder getSelectKeysColumns()
+    {
+        return selectKeysColumns;
     }
 
 
@@ -808,6 +852,21 @@ public class CrudNativeEntityData
     }
 
 
+    public Object readKeyResult(Object result)
+    {
+        return readResult(keyClass, keyColumnDataMap, keysColumnsName, result);
+    }
+
+
+    public Object readResult(String[] columns, Object result)
+    {
+        if (isNullOrEmpty(columns))
+            columns = columnsName;
+
+        return readResult(entityClass, columnDataMap, columns, result);
+    }
+
+
     public List<Object> readResultList(String[] columns, List<Object> results)
     {
         List<Object> list = new ArrayList<>();
@@ -820,70 +879,90 @@ public class CrudNativeEntityData
     }
 
 
-    public Object readResult(String[] columns, Object result)
+    public void readResult(Object entity, String column, Object value)
     {
         try
         {
-            if (isNullOrEmpty(columns))
-                columns = columnsName;
-
-            Object[] values = (columns.length == 1) ? new Object[]{result} : (Object[]) result;
-
-            Object entity = entityClass.getDeclaredConstructor().newInstance();
-
-            int i = 0;
-            for (String column : columns)
-            {
-                ColumnData columnData = columnDataMap.get( column );
-
-                if (isNullOrEmpty(columnData))
-                    continue;
-
-                Field field  = columnData.field;
-                Object value = values[i++];
-
-                if (value instanceof BigInteger)
-                {
-                    Class<?> fieldType = field.getType();
-
-                    if (fieldType.equals(Long.class))
-                        value = ((BigInteger)value).longValue();
-                    else
-                    if (fieldType.equals(Integer.class))
-                        value = ((BigInteger)value).intValue();
-                    else
-                    if (fieldType.equals(Short.class))
-                        value = ((BigInteger)value).shortValue();
-                    else
-                    if (fieldType.equals(Byte.class))
-                        value = ((BigInteger)value).byteValue();
-                }
-                else
-                if (value instanceof BigDecimal)
-                {
-                    Class<?> fieldType = field.getType();
-
-                    if (fieldType.equals(Double.class))
-                        value = ((BigDecimal)value).doubleValue();
-                    else
-                    if (fieldType.equals(Float.class))
-                        value = ((BigDecimal)value).floatValue();
-                }
-                else
-                if (usertypeDefMap.containsKey(field.getType()))
-                {
-                    value = getUserTypeValue(field.getType(), value);
-                }
-
-                field.set(entity, value);
-            }
-
-            return entity;
+            readValue(entity, columnDataMap, column, value);
         }
         catch (Exception e)
         {
             throw new PersistenceException(e);
         }
+    }
+
+
+    private Object readResult(Class<?> targetClass, Map<String, ColumnData> columnDataMap, String[] columns, Object result)
+    {
+        try
+        {
+            if (ClassUtils.isPrimitiveWrapper(targetClass))
+                return readValue(targetClass, result);
+
+            Object target = targetClass.getDeclaredConstructor().newInstance();
+
+            Object[] values = (columns.length == 1) ? new Object[]{result} : (Object[]) result;
+
+            int i = 0;
+            for (String column : columns)
+            {
+                readValue(target, columnDataMap, column, values[i++]);
+            }
+
+            return target;
+        }
+        catch (Exception e)
+        {
+            throw new PersistenceException(e);
+        }
+    }
+
+
+    private void readValue(Object target, Map<String, ColumnData> columnDataMap, String column, Object value) throws Exception
+    {
+        ColumnData columnData = columnDataMap.get( column );
+
+        if (isNullOrEmpty(columnData))
+            return;
+
+        Field field  = columnData.field;
+        value = readValue(field.getType(), value);
+        field.set(target, value);
+    }
+
+
+    private Object readValue(Class<?> type, Object value) throws Exception
+    {
+        if (value instanceof BigInteger)
+        {
+            if (type.equals(Long.class))
+                value = ((BigInteger)value).longValue();
+            else
+            if (type.equals(Integer.class))
+                value = ((BigInteger)value).intValue();
+            else
+            if (type.equals(Short.class))
+                value = ((BigInteger)value).shortValue();
+            else
+            if (type.equals(Byte.class))
+                value = ((BigInteger)value).byteValue();
+        }
+        else
+        if (value instanceof BigDecimal)
+        {
+            if (type.equals(Double.class))
+                value = ((BigDecimal)value).doubleValue();
+            else
+            if (type.equals(Float.class))
+                value = ((BigDecimal)value).floatValue();
+        }
+        else
+        if (userTypeDefMap.containsKey(type))
+        {
+            value = getUserTypeValue(type, value);
+        }
+
+        return value;
     }
 
 }
