@@ -293,7 +293,7 @@ public class CrudNativeEntityData
                 keyColumnDataMap.put(columnAnnotation.name(), columnData.copy());
             }
 
-            if (columnData.isGenerated
+            if (columnData.isGenerated)
             {
                 generatedColumnsName.add( columnName );
             }
