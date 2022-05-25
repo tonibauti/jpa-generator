@@ -14,11 +14,11 @@ and generates the JPA persistence layer which includes:
 
 Currently, the following providers are supported:
 
-| Provider  | Component  |
-|-----------|------------|
-| hikari    | datasource |
-| hibernate | jpa        |
-| spring    | project    | 
+| Component  | Provider   |
+|------------|------------|
+| datasource | hikari     |
+| jpa        | hibernate  |
+| project    | spring     | 
 
 ### How to use:
 

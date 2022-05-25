@@ -14,11 +14,11 @@ y genera la capa de persistencia JPA que incluye:
 
 Actualmente, los proveedores soportados son los siguientes:
 
-| Proveedor | Componente |
-|-----------|------------|
-| hikari    | datasource |
-| hibernate | jpa        |
-| spring    | proyecto   |
+| Componente | Proveedor |
+|------------|-----------|
+| datasource | hikari    |
+| jpa        | hibernate |
+| proyecto   | spring    | 
 
 ### Forma de uso:
 
