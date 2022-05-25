@@ -1,6 +1,7 @@
 package org.tonibauti.jpa.generator.main;
 
 import org.tonibauti.jpa.generator.config.GeneratorConfig;
+import org.tonibauti.jpa.generator.config.ProjectConfig;
 import org.tonibauti.jpa.generator.explorer.metada.DBConnection;
 import org.tonibauti.jpa.generator.utils.Strings;
 
@@ -10,9 +11,6 @@ import java.util.Map;
 
 public class Workspace
 {
-    public static final String SPRING       = "spring";
-    public static final String QUARKUS      = "quarkus";
-    public static final String HIBERNATE    = "hibernate";
     public static final String SRC          = "src";
     public static final String MAIN         = "main";
     public static final String JAVA         = "java";
@@ -25,8 +23,9 @@ public class Workspace
     public static final String CATALOGS     = "catalogs";
     public static final String REPOSITORIES = "repositories";
     public static final String CRUD         = "crud";
-    public static final String CRUD_NATIVE  = "crud_native";
+    public static final String CUSTOM       = "custom";
     public static final String BASE         = "base";
+    public static final String CONSTRAINTS  = "constraints";
 
     private GeneratorConfig generatorConfig;
     private DBConnection dbConnection;
@@ -122,27 +121,39 @@ public class Workspace
     }
 
 
-    public boolean isCrudRepositories()
+    public boolean isSpringDataMode()
+    {
+        return GeneratorConfig.REPOSITORIES_MODE_SPRING_DATA.equalsIgnoreCase(generatorConfig.getGenerateMode());
+    }
+
+
+    public boolean isNativeSqlMode()
+    {
+        return GeneratorConfig.REPOSITORIES_MODE_NATIVE_SQL.equalsIgnoreCase(generatorConfig.getGenerateMode());
+    }
+
+
+    public boolean isEntities()
     {
         return bool(generatorConfig.getGenerateCrudRepositories());
+    }
+
+
+    public boolean isCrudRepositories()
+    {
+        return (bool(generatorConfig.getGenerateCrudRepositories()) && isSpringDataMode());
+    }
+
+
+    public boolean isCrudNativeRepositories()
+    {
+        return (bool(generatorConfig.getGenerateCrudRepositories()) && isNativeSqlMode());
     }
 
 
     public boolean isCrudRepositoriesTest()
     {
         return bool(generatorConfig.getGenerateCrudRepositoriesTest());
-    }
-
-
-    public boolean isCrudNativeRepositories()
-    {
-        return bool(generatorConfig.getGenerateCrudNativeRepositories());
-    }
-
-
-    public boolean isCrudNativeRepositoriesTest()
-    {
-        return bool(generatorConfig.getGenerateCrudNativeRepositoriesTest());
     }
 
 
@@ -178,13 +189,13 @@ public class Workspace
 
     public boolean isSpring()
     {
-        return SPRING.equalsIgnoreCase(getProjectType());
+        return ProjectConfig.PROJECT_TYPE_SPRING.equalsIgnoreCase(getProjectType());
     }
 
 
     public boolean isQuarkus()
     {
-        return QUARKUS.equalsIgnoreCase(getProjectType());
+        return ProjectConfig.PROJECT_TYPE_QUARKUS.equalsIgnoreCase(getProjectType());
     }
 
 
@@ -347,27 +358,27 @@ public class Workspace
     }
 
 
+    public String getCustomRepositoriesDir()
+    {
+        return getRepositoriesDir() + toJavaPath( CUSTOM );
+    }
+
+
     public String getCrudRepositoriesTestDir()
     {
         return getRepositoriesTestDir() + toJavaPath( CRUD );
     }
 
 
-    public String getCrudNativeRepositoriesDir()
+    public String getCustomRepositoriesTestDir()
     {
-        return getRepositoriesDir() + toJavaPath( CRUD_NATIVE );
-    }
-
-
-    public String getCrudNativeRepositoriesTestDir()
-    {
-        return getRepositoriesTestDir() + toJavaPath( CRUD_NATIVE );
+        return getRepositoriesTestDir() + toJavaPath( CUSTOM );
     }
 
 
     public String getBaseCrudNativeRepositoriesDir()
     {
-        return getRepositoriesDir() + toJavaPath( CRUD_NATIVE ) + toJavaPath( BASE );
+        return getCrudRepositoriesDir() + toJavaPath( BASE );
     }
 
 
@@ -379,7 +390,7 @@ public class Workspace
 
     public String getBaseConstraintsRepositoriesTestDir()
     {
-        return getBaseRepositoriesTestDir() + toJavaPath( "constraints" );
+        return getBaseRepositoriesTestDir() + toJavaPath( CONSTRAINTS );
     }
 
 
@@ -459,18 +470,6 @@ public class Workspace
     }
 
 
-    public String getCrudNativeRepositoriesPackage()
-    {
-        return getPackage( getCrudNativeRepositoriesDir() );
-    }
-
-
-    public String getCrudNativeRepositoriesTestPackage()
-    {
-        return getPackage( getCrudNativeRepositoriesTestDir() );
-    }
-
-
     public String getBaseCrudNativeRepositoriesPackage()
     {
         return getPackage( getBaseCrudNativeRepositoriesDir() );
@@ -506,30 +505,32 @@ public class Workspace
         //createDir( getPersistenceResourcesDir() );
 
         // entities
-        createDir( getEntitiesDir() );
+        if (isEntities())
+        {
+            createDir( getEntitiesDir() );
+        }
 
+        // entities / catalogs
         if (isCatalogConstants())
         {
             createDir( getCatalogConstantsDir() );
         }
 
-        // repositories
-        createDir( getRepositoriesDir() );
-
-        if (isCrudRepositories())
+        // crud repositories
+        if (isCrudRepositories() || isCrudNativeRepositories())
         {
+            createDir( getRepositoriesDir() );
+
             createDir( getCrudRepositoriesDir() );
+            createDir( getCustomRepositoriesDir() );
+
+            if (isCrudNativeRepositories())
+                createDir( getBaseCrudNativeRepositoriesDir() );
         }
 
-        if (isCrudNativeRepositories())
+        // test crud repositories
+        if (isCrudRepositoriesTest())
         {
-            createDir( getCrudNativeRepositoriesDir() );
-            createDir( getBaseCrudNativeRepositoriesDir() );
-        }
-
-        if (isCrudRepositoriesTest() || isCrudNativeRepositoriesTest())
-        {
-            // test
             createDir( getTestDir() );
             createDir( getJavaTestDir() );
             //createDir( getResourcesTestDir() );
@@ -538,15 +539,8 @@ public class Workspace
             createDir( getBaseRepositoriesTestDir() );
             createDir( getBaseConstraintsRepositoriesTestDir() );
 
-            if (isCrudRepositoriesTest())
-            {
-                createDir( getCrudRepositoriesTestDir());
-            }
-
-            if (isCrudNativeRepositoriesTest())
-            {
-                createDir( getCrudNativeRepositoriesTestDir() );
-            }
+            createDir( getCrudRepositoriesTestDir());
+            createDir( getCustomRepositoriesTestDir());
         }
     }
 

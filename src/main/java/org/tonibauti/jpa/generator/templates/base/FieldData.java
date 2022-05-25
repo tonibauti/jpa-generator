@@ -12,6 +12,7 @@ public class FieldData
     private String type;
     private String property;
     private String param;
+    private boolean pk;
     private boolean unique;
     private List<String> annotations;
     private String getter;
@@ -85,6 +86,16 @@ public class FieldData
     public void setParam(String param)
     {
         this.param = param;
+    }
+
+    public boolean isPk()
+    {
+        return pk;
+    }
+
+    public void setPk(boolean pk)
+    {
+        this.pk = pk;
     }
 
     public boolean isUnique()

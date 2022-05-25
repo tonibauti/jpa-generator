@@ -1,8 +1,8 @@
-package ${CrudNativeRepositoriesTestPackage};
+package ${CrudRepositoriesTestPackage};
 
 import ${BaseRepositoriesTestPackage}.AbstractRepositoryTest;
 import ${BaseRepositoriesTestPackage}.DataTestFactory;
-import ${CrudNativeRepositoriesPackage}.${ClassName}CrudNativeRepository;
+import ${CrudRepositoriesPackage}.${ClassName}CrudNativeRepository;
 import ${ConfigPackage}.${JpaConfig};
 import ${EntitiesPackage}.${Entity};
 <#if isMultipleKey>
@@ -11,10 +11,10 @@ import ${EntitiesPackage}.${Key};
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.sql.DataSource;
 import java.util.List;
 <#list importList as import>
@@ -146,7 +146,7 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
     {
         logger.info("find");
 
-        List<${Entity}> result = getRepository().find(getFilter(), PageRequest.of(0,20));
+        List<${Entity}> result = getRepository().find(getFilter(), PageRequest.of(0,10));
 
         logger.info("result: " + result);
     }
@@ -157,9 +157,33 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
     {
         logger.info("findAll");
 
-        List<${Entity}> result = getRepository().findAll( PageRequest.of(0,20) );
+        List<${Entity}> result = getRepository().findAll( PageRequest.of(0,10) );
 
         logger.info("result: " + result);
+    }
+
+
+    @Test
+    public void findPage() throws Exception
+    {
+        logger.info("findPage");
+
+        Page<${Entity}> page = getRepository().findPage(getFilter(), PageRequest.of(0,10));
+
+        logger.info("page {}/{} of {} elements: {}",
+                    page.getNumber(), page.getTotalPages(), page.getTotalElements(), page.toList());
+    }
+
+
+    @Test
+    public void findAllPage() throws Exception
+    {
+        logger.info("findAllPage");
+
+        Page<${Entity}> page = getRepository().findAllPage( PageRequest.of(0,10) );
+
+        logger.info("page {}/{} of {} elements: {}",
+                    page.getNumber(), page.getTotalPages(), page.getTotalElements(), page.toList());
     }
 
 
@@ -190,9 +214,10 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
     {
         logger.info("create");
 
-        int result = getRepository().create( getEntity() );
+        ${Entity} entity = getEntity();
+        getRepository().create( entity );
 
-        logger.info("result: " + result);
+        logger.info("result: " + entity);
     }
 
 
@@ -256,9 +281,10 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
     {
         logger.info("joinAll");
 
-        getRepository().joinAll( getEntity() );
+        ${Entity} entity = getEntity();
+        getRepository().joinAll( entity );
 
-        //logger.info("result: " + result);
+        logger.info("result: " + entity);
     }
 
 }

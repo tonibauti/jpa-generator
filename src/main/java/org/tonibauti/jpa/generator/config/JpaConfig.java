@@ -12,9 +12,11 @@ import java.util.Set;
 
 public class JpaConfig extends AbstractComponent
 {
+    public static final String PROVIDER_HIBERNATE = "hibernate";
+
     @JsonProperty("provider")
     @NotNull
-    @StringValues("hibernate")
+    @StringValues(PROVIDER_HIBERNATE)
     protected String provider;
 
     @JsonProperty("properties")

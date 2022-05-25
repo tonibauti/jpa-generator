@@ -5,16 +5,26 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.constraints.NotNull;
 import org.tonibauti.jpa.generator.main.AbstractComponent;
+import org.tonibauti.jpa.generator.validators.StringValues;
 
 import java.util.Set;
 
 
 public class GeneratorConfig extends AbstractComponent
 {
+    public static final String REPOSITORIES_MODE_SPRING_DATA = "spring-data";
+    public static final String REPOSITORIES_MODE_NATIVE_SQL  = "native-sql";
+
     @JsonProperty("generate-config")
     @JsonAlias("generateConfig")
     @NotNull
     protected Boolean generateConfig;
+
+    @JsonProperty("generate-mode")
+    @JsonAlias("generateMode")
+    @NotNull
+    @StringValues(REPOSITORIES_MODE_SPRING_DATA + "," + REPOSITORIES_MODE_NATIVE_SQL)
+    protected String generateMode;
 
     @JsonProperty("generate-entities")
     @JsonAlias("generateEntities")
@@ -30,16 +40,6 @@ public class GeneratorConfig extends AbstractComponent
     @JsonAlias("generateCrudRepositoriesTest")
     @NotNull
     protected Boolean generateCrudRepositoriesTest;
-
-    @JsonProperty("generate-crud-native-repositories")
-    @JsonAlias("generateCrudNativeRepositories")
-    @NotNull
-    protected Boolean generateCrudNativeRepositories;
-
-    @JsonProperty("generate-crud-native-repositories-test")
-    @JsonAlias("generateCrudNativeRepositoriesTest")
-    @NotNull
-    protected Boolean generateCrudNativeRepositoriesTest;
 
     @JsonProperty("generate-joins")
     @JsonAlias("generateJoins")
@@ -79,6 +79,16 @@ public class GeneratorConfig extends AbstractComponent
         this.generateConfig = generateConfig;
     }
 
+    public String getGenerateMode()
+    {
+        return generateMode;
+    }
+
+    public void setGenerateMode(String generateMode)
+    {
+        this.generateMode = generateMode;
+    }
+
     public Boolean getGenerateEntities()
     {
         return generateEntities;
@@ -107,26 +117,6 @@ public class GeneratorConfig extends AbstractComponent
     public void setGenerateCrudRepositoriesTest(Boolean generateCrudRepositoriesTest)
     {
         this.generateCrudRepositoriesTest = generateCrudRepositoriesTest;
-    }
-
-    public Boolean getGenerateCrudNativeRepositories()
-    {
-        return generateCrudNativeRepositories;
-    }
-
-    public void setGenerateCrudNativeRepositories(Boolean generateCrudNativeRepositories)
-    {
-        this.generateCrudNativeRepositories = generateCrudNativeRepositories;
-    }
-
-    public Boolean getGenerateCrudNativeRepositoriesTest()
-    {
-        return generateCrudNativeRepositoriesTest;
-    }
-
-    public void setGenerateCrudNativeRepositoriesTest(Boolean generateCrudNativeRepositoriesTest)
-    {
-        this.generateCrudNativeRepositoriesTest = generateCrudNativeRepositoriesTest;
     }
 
     public Boolean getGenerateJoins()

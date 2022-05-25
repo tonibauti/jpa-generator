@@ -95,7 +95,7 @@ public class Application
 @PropertySources
 ({
     @PropertySource("classpath:/${DatabaseResourcesDir}/${DataSourceName}_datasource.properties"),
-    @PropertySource("classpath:application.properties")
+    //@PropertySource("classpath:application.properties")
 })
 public class ${ClassName}JpaConfig
 {
@@ -115,6 +115,14 @@ public class ${ClassName}JpaConfig
     protected HikariConfig hikariConfig()
     {
         return new HikariConfig();
+    }
+
+
+    @Bean(UNIT_NAME + "JpaProperties")
+    @ConfigurationProperties(prefix = "spring.jpa.${DataSourcePropertiesName}")
+    protected Properties getJpaProperties()
+    {
+        return new Properties();
     }
 
 
@@ -158,14 +166,6 @@ public class ${ClassName}JpaConfig
     public JpaTransactionManager transactionManager()
     {
         return new JpaTransactionManager( entityManagerFactory() );
-    }
-
-
-    @Bean(UNIT_NAME + "JpaProperties")
-    @ConfigurationProperties(prefix = "spring.jpa.${DataSourcePropertiesName}")
-    protected Properties getJpaProperties()
-    {
-        return new Properties();
     }
 
 }

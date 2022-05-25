@@ -1,15 +1,16 @@
 package ${EntitiesPackage};
 
 import lombok.*;
+import javax.persistence.*;
 import java.io.Serializable;
-<#if isJson>
+<#if isJsonPK>
 import ${PersistencePackage}.Json;
 import ${PersistencePackage}.JsonType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 </#if>
-<#list importList as import>
+<#list importListPK as import>
 import ${import};
 </#list>
 
@@ -20,10 +21,59 @@ import ${import};
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Embeddable
+<#if isJsonPK>
+@TypeDefs
+({
+    @TypeDef(typeClass = JsonType.class, defaultForType = Json.class)
+})
+</#if>
 public class ${Key} implements Serializable
 {
     <#list pkFieldDataList as pkFieldData>
+    public static final String ${pkFieldData.column}_COLUMN = "${pkFieldData.name}";
+    </#list>
+
+    <#list pkFieldDataList as pkFieldData>
+
+    <#list pkFieldData.annotations as annotation>
+    ${annotation}
+    </#list>
     private ${pkFieldData.type} ${pkFieldData.property};
     </#list>
+    <#if encodedDataListPK?has_content>
+
+
+    //
+    // Encoded
+    //
+    <#list encodedDataListPK as encodedData>
+
+    public ${encodedData.type} ${encodedData.getter}()
+    {
+        return ${encoder}.decode( ${encodedData.property} );
+    }
+
+    public void ${encodedData.setter}(${encodedData.type} ${encodedData.property})
+    {
+        this.${encodedData.property} = ${encoder}.encode( ${encodedData.property} );
+    }
+    </#list>
+
+    </#if>
+    <#if builder && encodedDataListPK?has_content>
+
+    public static class ${Key}Builder
+    {
+        <#list encodedDataListPK as encodedData>
+        public ${Key}Builder ${encodedData.property}(${encodedData.type} ${encodedData.property})
+        {
+            this.${encodedData.property} = ${encoder}.encode( ${encodedData.property} );
+            return this;
+        }<#if encodedData_has_next>${lineSeparator()}</#if>
+        </#list>
+    }
+
+    </#if>
 }
 

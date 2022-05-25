@@ -1,0 +1,25 @@
+package ${EntitiesPackage};
+
+import lombok.*;
+import java.io.Serializable;
+<#if isJsonPK>
+import ${PersistencePackage}.Json;
+</#if>
+<#list importListPK as import>
+import ${import};
+</#list>
+
+
+<#if builder>
+@Builder
+</#if>
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ${Key} implements Serializable
+{
+    <#list pkFieldDataList as pkFieldData>
+    private ${pkFieldData.type} ${pkFieldData.property};
+    </#list>
+}
+

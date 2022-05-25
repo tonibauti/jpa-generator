@@ -206,7 +206,7 @@ public class DBTable
 
 
     @JsonIgnore
-    public boolean hasJson()
+    public boolean isJson()
     {
         for (DBColumn dbColumn : columns.values())
             if (dbColumn.isJson())

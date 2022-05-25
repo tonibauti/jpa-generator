@@ -1,6 +1,7 @@
 package ${BaseCrudNativeRepositoriesPackage};
 
 import ${ConfigPackage}.${JpaConfig};
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -152,6 +153,30 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     }
 
 
+    protected String[] getKeysColumnsName()
+    {
+        return getEntityData().getKeysColumnsName();
+    }
+
+
+    protected String[] getKeysColumnsName(Class<?> entityClass)
+    {
+        return getEntityData(entityClass).getKeysColumnsName();
+    }
+
+
+    protected List<String> getGeneratedColumnsName()
+    {
+        return getEntityData().getGeneratedColumnsName();
+    }
+
+
+    protected List<String> getGeneratedColumnsName(Class<?> entityClass)
+    {
+        return getEntityData(entityClass).getGeneratedColumnsName();
+    }
+
+
     protected StringBuilder getSelectColumns(String... columns)
     {
         return getEntityData().getSelectColumns(getTableName(), columns);
@@ -161,6 +186,18 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     protected StringBuilder getSelectColumns(Class<?> entityClass, String... columns)
     {
         return getEntityData(entityClass).getSelectColumns(getTableName(entityClass), columns);
+    }
+
+
+    protected StringBuilder getSelectKeysColumns()
+    {
+        return getEntityData().getSelectKeysColumns();
+    }
+
+
+    protected StringBuilder getSelectKeysColumns(Class<?> entityClass)
+    {
+        return getEntityData(entityClass).getSelectKeysColumns();
     }
 
 
@@ -229,6 +266,9 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         if (value instanceof Sort && ((Sort)value).isEmpty())
             return true;
 
+        if (value instanceof StringBuilder)
+            return (((StringBuilder)value).length() == 0);
+
         if (value instanceof String)
             return ((String)value).trim().isEmpty();
 
@@ -286,7 +326,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     }
 
 
-    protected int setKeyParameters(int index, Query query, Object obj)
+    protected int setKeyParameterValues(int index, Query query, Object obj)
     {
         if (obj.getClass().equals(getKeyClass()))
         {
@@ -294,7 +334,9 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
             if (getEntityData().isMultipleKey())
             {
-                for (Object value : getKeyValues(id))
+                Object[] keyValues = getKeyValues( id );
+
+                for (Object value : keyValues)
                     query.setParameter(index++, value);
             }
             else
@@ -306,7 +348,9 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         {
             T entity = (T) obj;
 
-            for (Object value : getKeyValues(entity))
+            Object[] keyValues = getKeyValues( entity );
+
+            for (Object value : keyValues)
                 query.setParameter(index++, value);
         }
 
@@ -314,9 +358,9 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     }
 
 
-    protected int setValueParameters(int index, Query query, Object[] values)
+    protected int setParameterValues(int index, Query query, List<Object> values)
     {
-        if (values != null)
+        if (isNotEmpty(values))
             for (Object value : values)
                 query.setParameter(index++, value);
 
@@ -370,15 +414,28 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     }
 
 
-    protected Object[] getValues(Object entity, boolean includeKeys, String... columns)
+    protected List<Object> getValues(Object entity, boolean isNew, String... columns)
     {
-        return getEntityData().getValues(entity, includeKeys, columns);
+        return getEntityData().getValues(entity, isNew, columns);
     }
 
 
     protected long readLongResult(Query query)
     {
         return ((Number) query.getSingleResult()).longValue();
+    }
+
+
+    protected Object readKeyResult(Query query)
+    {
+        return readKeyResult(getEntityClass(), query);
+    }
+
+
+    protected Object readKeyResult(Class<?> entityClass, Query query)
+    {
+        Object result = query.getSingleResult();
+        return getEntityData(entityClass).readKeyResult(result);
     }
 
 
@@ -390,8 +447,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
     protected Object readResult(Class<?> entityClass, Query query, String[] columns)
     {
-        Object result = query.getSingleResult();
-        return getEntityData(entityClass).readResult(columns, result);
+        return getEntityData(entityClass).readResult(columns, query.getSingleResult());
     }
 
 
@@ -403,8 +459,19 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
     protected List<Object> readResultList(Class<?> entityClass, Query query, String[] columns)
     {
-        List<Object> results = query.getResultList();
-        return getEntityData(entityClass).readResultList(columns, results);
+        return getEntityData(entityClass).readResultList(columns, query.getResultList());
+    }
+
+
+    protected void readResult(Object entity, Query query, String column)
+    {
+        readResult(getEntityClass(), entity, query, column);
+    }
+
+
+    protected void readResult(Class<?> entityClass, Object entity, Query query, String column)
+    {
+        getEntityData(entityClass).readResult(entity, column, query.getSingleResult());
     }
 
 
@@ -417,7 +484,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     {
         try
         {
-            final StringBuilder sql = new StringBuilder()
+            StringBuilder sql = new StringBuilder()
             .append( "SELECT COUNT(*) FROM " )
             .append( getTableName() )
             ;
@@ -442,7 +509,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     {
         try
         {
-            final StringBuilder sql = new StringBuilder()
+            StringBuilder sql = new StringBuilder()
             .append( "SELECT COUNT(*) FROM " )
             .append( getTableName() )
             ;
@@ -466,7 +533,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
         try
         {
-            final StringBuilder sql = new StringBuilder()
+            StringBuilder sql = new StringBuilder()
             .append( "SELECT COUNT(*) FROM " )
             .append( getTableName() )
             ;
@@ -498,7 +565,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
         try
         {
-            final StringBuilder sql = new StringBuilder()
+            StringBuilder sql = new StringBuilder()
             .append( "SELECT COUNT(*) FROM " )
             .append( getTableName() )
             .append( " WHERE " )
@@ -506,7 +573,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             ;
 
             Query query = getEntityManager().createNativeQuery( sql.toString() );
-            setKeyParameters(1, query, id);
+            setKeyParameterValues(1, query, id);
 
             return (readLongResult(query) > 0);
         }
@@ -522,7 +589,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     {
         try
         {
-            final StringBuilder sql = new StringBuilder()
+            StringBuilder sql = new StringBuilder()
             .append( "SELECT " )
             .append( getSelectColumns(columns) )
             .append( " FROM " )
@@ -593,7 +660,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
         try
         {
-            final StringBuilder sql = new StringBuilder()
+            StringBuilder sql = new StringBuilder()
             .append( "SELECT " )
             .append( getSelectColumns(columns) )
             .append( " FROM " )
@@ -627,7 +694,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
         try
         {
-            final StringBuilder sql = new StringBuilder()
+            StringBuilder sql = new StringBuilder()
             .append( "SELECT " )
             .append( getSelectColumns(columns) )
             .append( " FROM " )
@@ -637,7 +704,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             ;
 
             Query query = getEntityManager().createNativeQuery( sql.toString() );
-            setKeyParameters(1, query, id);
+            setKeyParameterValues(1, query, id);
 
             return (T) readResult(query, columns);
         }
@@ -654,7 +721,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         if (isNullOrEmpty(entity))
             return 0;
 
-        final StringBuilder sql = new StringBuilder()
+        StringBuilder sql = new StringBuilder()
         .append( "INSERT INTO " )
         .append( getTableName() )
         .append( "(" )
@@ -667,9 +734,33 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         ;
 
         Query query = getEntityManager().createNativeQuery( sql.toString() );
-        setValueParameters(1, query, getValues(entity, true));
+        setParameterValues(1, query, getValues(entity, true));
 
-        return query.executeUpdate();
+        int updated = query.executeUpdate();
+
+        if (updated > 0)
+        {
+            // generated values
+            for (String generatedColumn : getGeneratedColumnsName())
+            {
+                sql.delete(0, sql.length())
+                .append( "SELECT " )
+                .append( generatedColumn )
+                .append( " FROM " )
+                .append( getTableName() )
+                .append( " ORDER BY " )
+                .append( generatedColumn )
+                .append( " DESC" )
+                ;
+
+                query = getEntityManager().createNativeQuery( sql.toString() );
+                query.setMaxResults(1);
+
+                readResult(entity, query, generatedColumn);
+            }
+        }
+
+        return updated;
     }
 
 
@@ -679,11 +770,16 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         if (isNullOrEmpty(entity))
             return 0;
 
-        final StringBuilder sql = new StringBuilder()
+        StringBuilder updateColumns = getUpdateColumns(columns);
+
+        if (isNullOrEmpty(updateColumns))
+            return 0;
+
+        StringBuilder sql = new StringBuilder()
         .append( "UPDATE " )
         .append( getTableName() )
         .append( " SET " )
-        .append( getUpdateColumns(columns) )
+        .append( updateColumns )
         .append( " WHERE " )
         .append( getEqualsKeyColumns() )
         ;
@@ -691,10 +787,10 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         Query query = getEntityManager().createNativeQuery( sql.toString() );
 
         // values
-        int index = setValueParameters(1, query, getValues(entity, false, columns));
+        int index = setParameterValues(1, query, getValues(entity, false, columns));
 
         // keys
-        setKeyParameters(index, query, entity);
+        setKeyParameterValues(index, query, entity);
 
         return query.executeUpdate();
     }
@@ -706,11 +802,16 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         if (isNullOrEmpty(entity))
             return 0;
 
-        final StringBuilder sql = new StringBuilder()
+        StringBuilder updateColumns = getUpdateColumns(columns);
+
+        if (isNullOrEmpty(updateColumns))
+            return 0;
+
+        StringBuilder sql = new StringBuilder()
         .append( "UPDATE " )
         .append( getTableName() )
         .append( " SET " )
-        .append( getUpdateColumns(columns) )
+        .append( updateColumns )
         ;
 
         Map<String, Object> filterMap = getFilterMap( filter );
@@ -723,7 +824,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         Query query = getEntityManager().createNativeQuery( sql.toString() );
 
         // values
-        int index = setValueParameters(1, query, getValues(entity, false, columns));
+        int index = setParameterValues(1, query, getValues(entity, false, columns));
 
         // filter
         setFilterParameters(index, query, filterMap);
@@ -738,7 +839,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         if (isNullOrEmpty(filter))
             return 0;
 
-        final StringBuilder sql = new StringBuilder()
+        StringBuilder sql = new StringBuilder()
         .append( "DELETE FROM " )
         .append( getTableName() )
         ;
@@ -763,7 +864,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         if (isNullOrEmpty(id))
             return 0;
 
-        final StringBuilder sql = new StringBuilder()
+        StringBuilder sql = new StringBuilder()
         .append( "DELETE FROM " )
         .append( getTableName() )
         .append( " WHERE " )
@@ -771,7 +872,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         ;
 
         Query query = getEntityManager().createNativeQuery( sql.toString() );
-        setKeyParameters(1, query, id);
+        setKeyParameterValues(1, query, id);
 
         return query.executeUpdate();
     }
@@ -780,7 +881,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     @Override
     public int deleteAll()
     {
-        final StringBuilder sql = new StringBuilder()
+        StringBuilder sql = new StringBuilder()
         .append( "DELETE FROM " )
         .append( getTableName() )
         ;
@@ -856,7 +957,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             String referencedTableName = getTableName( referencedClass );
             List<CrudNativeEntityData.JoinRef> joinRefList = joinData.getJoinRefList();
 
-            final StringBuilder sql = new StringBuilder()
+            StringBuilder sql = new StringBuilder()
             .append( "SELECT " )
             .append( getSelectColumns(referencedClass, columns) )
             .append( " FROM " )
@@ -877,7 +978,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             Query query = getEntityManager().createNativeQuery( sql.toString() );
 
             // keys
-            setKeyParameters(1, query, entity);
+            setKeyParameterValues(1, query, entity);
 
             // results
             if (joinData.isMany())

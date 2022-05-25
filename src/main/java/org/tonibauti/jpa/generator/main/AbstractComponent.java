@@ -1,6 +1,8 @@
 package org.tonibauti.jpa.generator.main;
 
 import jakarta.validation.ConstraintViolation;
+import org.tonibauti.jpa.generator.utils.DataMap;
+import org.tonibauti.jpa.generator.utils.Triple;
 import org.tonibauti.jpa.generator.validators.Validator;
 
 import java.lang.reflect.Array;
@@ -121,6 +123,12 @@ public abstract class AbstractComponent
         if (value instanceof Map && ((Map<?,?>)value).isEmpty())
             return true;
 
+        if (value instanceof Triple && ((Triple<?,?,?>)value).isEmpty())
+            return true;
+
+        if (value instanceof DataMap && ((DataMap)value).isEmpty())
+            return true;
+
         if (value instanceof String)
             return ((String)value).trim().isEmpty();
 
@@ -187,6 +195,7 @@ public abstract class AbstractComponent
                         .map(item -> (T) ((item instanceof String) ? ((String)item).toLowerCase() : item))
                         .collect(Collectors.toList());
 
+                // to lower case
                 list2 = collection1
                         .stream()
                         .map(item -> (T) ((item instanceof String) ? ((String)item).toLowerCase() : item))

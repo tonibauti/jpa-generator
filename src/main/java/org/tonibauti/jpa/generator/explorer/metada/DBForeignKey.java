@@ -120,6 +120,16 @@ public class DBForeignKey
     }
 
     @JsonIgnore
+    public boolean isEqualsPrimaryKeyJoin()
+    {
+        return (primaryKey
+                &&
+                referencedPrimaryKey
+                &&
+                table.getPrimaryKeyList().equals(referencedTable.getPrimaryKeyList()));
+    }
+
+    @JsonIgnore
     public boolean isPrimaryKeyJoin()
     {
         return (primaryKey

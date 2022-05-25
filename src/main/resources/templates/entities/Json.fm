@@ -17,6 +17,12 @@ public class Json implements Serializable
     }
 
 
+    public static Json of(String content)
+    {
+        return new Json( content );
+    }
+
+
     public String getContent()
     {
         return content;

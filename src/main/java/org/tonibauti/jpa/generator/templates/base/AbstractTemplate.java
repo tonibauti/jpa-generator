@@ -76,6 +76,23 @@ public abstract class AbstractTemplate extends AbstractComponent
     }
 
 
+    protected DBTable getTable(String tableName)
+    {
+        if (tables != null)
+            for (DBTable dbTable : tables)
+                if (dbTable.getName().equals(tableName))
+                    return dbTable;
+
+        return null;
+    }
+
+
+    protected boolean isPostgresDatabase()
+    {
+        return "postgresql".equalsIgnoreCase(workspace.getDbConnection().getDatabaseProductName());
+    }
+
+
     protected String getDataSourcePropertiesName()
     {
         return workspace.getDataSourceName().replace("_","-").toLowerCase();
@@ -103,9 +120,41 @@ public abstract class AbstractTemplate extends AbstractComponent
     protected boolean isFilterType(DBColumn dbColumn)
     {
         if (dbColumn.isJson())
-            return false;
+            //return false;
+            return true; // TODO: ??
         else
             return filterTypes.contains(dbColumn.getClassName());
+    }
+
+
+    protected boolean isEmbeddable(DBTable dbTable)
+    {
+        return (workspace.isSpringDataMode() && dbTable.isMultipleKey());
+    }
+
+
+    protected List<DBForeignKey.DBForeignKeyRef> getMultipleKeyWithDifferentNames(DBTable dbTable)
+    {
+        if (workspace.isSpringDataMode())
+        {
+            if (dbTable.isMultipleKey() &&  !dbTable.getForeignKeyList().isEmpty())
+            {
+                for (DBForeignKey dbForeignKey : dbTable.getForeignKeyList())
+                {
+                    // primary key with same size --> same PK
+                    if (dbForeignKey.isPrimaryKeyJoin())
+                    {
+                        // different names
+                        if (!dbForeignKey.isEqualsPrimaryKeyJoin())
+                        {
+                            return dbForeignKey.getForeignKeyRefList();
+                        }
+                    }
+                }
+            }
+        }
+
+        return new ArrayList<>();
     }
 
 
@@ -116,75 +165,37 @@ public abstract class AbstractTemplate extends AbstractComponent
     }
 
 
-    protected String getMultipleKey(DBTable dbTable)
+    protected String getMultipleKeyTableName(DBTable dbTable)
     {
         if (!dbTable.isMultipleKey())
             return null;
 
         String table = dbTable.getName();
 
-        for (DBForeignKey dbForeignKey : dbTable.getForeignKeyList())
+        if (workspace.isSpringDataMode()) // TODO: in NativeMode??
         {
-            if (dbForeignKey.isPrimaryKeyJoin())
+            for (DBForeignKey dbForeignKey : dbTable.getForeignKeyList())
             {
-                table = dbForeignKey.getForeignTable();
-                break;
+                // primary key with same size --> same PK
+                if (dbForeignKey.isPrimaryKeyJoin())
+                {
+                    table = dbForeignKey.getForeignTable();
+                    break;
+                }
             }
         }
 
-        return Strings.toClassName( table ) + "PK";
+        return table;
     }
 
 
-    protected List<FieldData> getMultipleIndex(DBTable dbTable, boolean isTest, List<String> importList)
+    protected String getMultipleKey(DBTable dbTable)
     {
-        List<FieldData> indexDataList = new ArrayList<>();
+        String multipleKeyTableName = getMultipleKeyTableName( dbTable );
 
-        Set<String> aux = new HashSet<>();
-
-        for (DBIndex dbIndex : dbTable.getIndexList())
-        {
-            if (dbIndex.getColumns().size() <= 1)
-                continue;
-
-            if (!dbIndex.isUnique())
-                super.addToList(List.class.getName(), importList, false);
-
-            StringBuilder property = new StringBuilder();
-            StringBuilder param = new StringBuilder();
-
-            for (String column : dbIndex.getColumns())
-            {
-                DBColumn dbColumn = dbTable.getColumn( column );
-
-                if (property.length() > 0)
-                    property.append("And");
-
-                if (param.length() > 0)
-                    param.append(", ");
-
-                property.append( Strings.toClassName(column) );
-
-                if (isTest)
-                    param.append( "DataTestFactory.get" + getNormalizedType(dbColumn.getClassName(), importList) + "()" );
-                else
-                    param.append( getNormalizedType(dbColumn.getClassName(), importList) + " " + Strings.toPropertyName(column) );
-            }
-
-            if (aux.contains(property.toString()))
-                continue;
-
-            FieldData fieldData = new FieldData();
-            fieldData.setProperty( property.toString() );
-            fieldData.setParam( param.toString() );
-            fieldData.setUnique( dbIndex.isUnique() );
-
-            indexDataList.add( fieldData );
-
-            aux.add( property.toString() );
-        }
-
-        return indexDataList;
+        return (multipleKeyTableName != null)
+                ? Strings.toClassName( multipleKeyTableName ) + "PK"
+                : null;
     }
 
 
@@ -192,39 +203,122 @@ public abstract class AbstractTemplate extends AbstractComponent
     {
         List<FieldData> indexDataList = new ArrayList<>();
 
-        Set<String> aux = new HashSet<>();
+        for (DBIndex dbIndex : dbTable.getIndexList())
+        {
+            // is not simple
+            if (dbIndex.getColumns().size() != 1)
+                continue;
+
+            String column = dbIndex.getColumns().get(0);
+            DBColumn dbColumn = dbTable.getColumn(column);
+
+            String property = Strings.toClassName(column);
+            String param    = null;
+            boolean unique  = dbIndex.isUnique();
+
+            // partial key is not unique
+            if (dbColumn.isPrimaryKey())
+            {
+                if (dbTable.isMultipleKey())
+                {
+                    property = "Id"+property; // EmbeddedId
+                    unique = false;
+                }
+                else
+                    continue;
+            }
+
+            // param
+            if (!isTest)
+                param = getNormalizedType(dbColumn.getClassName(), importList) + " " + Strings.toPropertyName(column);
+            else
+                param = "DataTestFactory.get" + getNormalizedType(dbColumn.getClassName(), importList) + "()";
+
+            // unique
+            if (!unique)
+            {
+                super.addToList(List.class.getName(), importList, false);
+
+                if (!isTest)
+                {
+                    super.addToList("org.springframework.data.domain.Page", importList, false);
+                    super.addToList("org.springframework.data.domain.Pageable", importList, false);
+                }
+            }
+
+            FieldData indexData = new FieldData();
+
+            indexData.setProperty( property );
+            indexData.setParam( param );
+            indexData.setUnique( unique );
+
+            indexDataList.add( indexData );
+        }
+
+        return indexDataList;
+    }
+
+
+    protected List<FieldData> getMultipleIndex(DBTable dbTable, boolean isTest, List<String> importList)
+    {
+        List<FieldData> indexDataList = new ArrayList<>();
 
         for (DBIndex dbIndex : dbTable.getIndexList())
         {
+            // is not multiple
+            if (dbIndex.getColumns().size() <= 1)
+                continue;
+
+            // is the primary key
+            if (super.listContainsSameElements(dbIndex.getColumns(), dbTable.getPrimaryKeyList(), false))
+                continue;
+
+            StringBuilder property = new StringBuilder();
+            StringBuilder param    = new StringBuilder();
+            boolean unique         = dbIndex.isUnique();
+
+            // property and param
             for (String column : dbIndex.getColumns())
             {
-                if (aux.contains(column))
-                    continue;
-
                 DBColumn dbColumn = dbTable.getColumn( column );
 
-                if (dbColumn.isPrimaryKey() && !dbTable.isMultipleKey())
-                    continue;
+                if (property.length() > 0)
+                    property.append("And");
 
-                FieldData fieldData = new FieldData();
-                fieldData.setProperty( Strings.toPropertyName(dbColumn.getName()) );
-                fieldData.setUnique( dbIndex.isUnique() );
+                if (dbColumn.isPrimaryKey())
+                    property.append("Id");  // EmbeddedId
 
-                if (isTest)
-                    fieldData.setParam( " DataTestFactory.get" + getNormalizedType(dbColumn.getClassName(), importList) + "() " );
+                property.append( Strings.toClassName(column) );
+
+                if (param.length() > 0)
+                    param.append(", ");
+
+                if (!isTest)
+                    param.append( getNormalizedType(dbColumn.getClassName(), importList) + " " + Strings.toPropertyName(column) );
                 else
-                    fieldData.setParam( getNormalizedType(dbColumn.getClassName(), importList) + " " + fieldData.getProperty() );
-
-                if (!dbIndex.isUnique() || (dbIndex.getColumns().size() > 1))
-                {
-                    super.addToList(List.class.getName(), importList, false);
-                    fieldData.setUnique( false );
-                }
-
-                indexDataList.add( fieldData );
-
-                aux.add( column );
+                    param.append( "DataTestFactory.get" + getNormalizedType(dbColumn.getClassName(), importList) + "()" );
             }
+
+            // unique
+            if (!unique)
+            {
+                super.addToList(List.class.getName(), importList, false);
+
+                if (!isTest)
+                {
+                    super.addToList("org.springframework.data.domain.Page", importList, false);
+                    super.addToList("org.springframework.data.domain.Pageable", importList, false);
+                }
+            }
+
+            FieldData indexData = new FieldData();
+
+            indexData.setProperty( property.toString() );
+            indexData.setParam( param.toString() );
+            indexData.setUnique( unique );
+
+            indexDataList.add( indexData );
+
         }
 
         return indexDataList;
@@ -325,12 +419,12 @@ public abstract class AbstractTemplate extends AbstractComponent
     }
 
 
-    protected List<String> getJpaAnnotations(String column, DBColumn dbColumn)
+    protected List<String> getJpaAnnotations(String column, DBColumn dbColumn, DBTable dbTable)
     {
         List<String> annotations = new ArrayList<>();
 
         // @Id
-        if (dbColumn.isPrimaryKey())
+        if (dbColumn.isPrimaryKey() && !isEmbeddable(dbTable))
         {
             annotations.add( "@Id" );
         }
@@ -381,11 +475,13 @@ public abstract class AbstractTemplate extends AbstractComponent
 
         annotations.add( annotation.toString() );
 
+        /*
         //@Type(type = JsonType.TYPE)
         if (dbColumn.isJson())
         {
             annotations.add( "@Type(type = JsonType.TYPE)" );
         }
+        */
 
         // @ToString.Exclude
         if (dbColumn.isInvisible())
@@ -399,12 +495,12 @@ public abstract class AbstractTemplate extends AbstractComponent
 
     protected List<String> getJpaForeignKeyAnnotations(DBForeignKey dbForeignKey)
     {
+        List<String> foreignKeyAnnotations = new ArrayList<>();
+
         String tab = "";
 
         String joinColumns = dbForeignKey.isPrimaryKeyJoin() ? "@PrimaryKeyJoinColumns" : "@JoinColumns";
         String joinColumn  = dbForeignKey.isPrimaryKeyJoin() ? "@PrimaryKeyJoinColumn"  : "@JoinColumn";
-
-        List<String> foreignKeyAnnotations = new ArrayList<>();
 
         boolean isCompositeKey = (dbForeignKey.getForeignKeyRefList().size() > 1); // multi foreign key
 

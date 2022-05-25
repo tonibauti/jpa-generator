@@ -9,9 +9,6 @@ import ${PersistencePackage}.JsonType;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 </#if>
-<#if isPersistable>
-import org.springframework.data.domain.Persistable;
-</#if>
 <#list importList as import>
 import ${import};
 </#list>
@@ -44,7 +41,10 @@ import ${import};
     @TypeDef(typeClass = JsonType.class, defaultForType = Json.class)
 })
 </#if>
-public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>Serializable
+<#if isMultipleKey>
+@IdClass(${Key}.class)
+</#if>
+public class ${Entity} implements Serializable
 {
     public static final String NAME    = "${entity}";
 
@@ -56,32 +56,6 @@ public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>
     public static final String ${fieldData.column}_COLUMN = "${fieldData.name}";
     </#list>
 
-    <#if isPersistable>
-    private transient boolean isNew = false;
-
-    </#if>
-    <#if isMultipleKey>
-
-    @EmbeddedId // (<#list pkFieldDataList as pkFieldData>${pkFieldData.name}<#if pkFieldData_has_next>, </#if></#list>)
-    <#if multipleKeyWithDifferentNames?has_content>
-    @AttributeOverrides
-    ({
-        <#list multipleKeyWithDifferentNames as foreignKeyRef>
-        @AttributeOverride(name = "${asProperty(foreignKeyRef.referencedColumnName)}", column=@Column(name = ${asColumn(foreignKeyRef.columnName)}_COLUMN)),
-        </#list>
-    })
-    </#if>
-    private ${Key} id;
-    <#list fieldDataList as fieldData>
-    <#if !fieldData.pk>
-
-    <#list fieldData.annotations as annotation>
-    ${annotation}
-    </#list>
-    private ${fieldData.type} ${fieldData.property};
-    </#if>
-    </#list>
-    <#else>
     <#list fieldDataList as fieldData>
 
     <#list fieldData.annotations as annotation>
@@ -89,7 +63,6 @@ public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>
     </#list>
     private ${fieldData.type} ${fieldData.property};
     </#list>
-    </#if>
     <#if externalForeignKeyList?has_content>
     <#list externalForeignKeyList as externalForeignKey>
 

@@ -5,16 +5,23 @@ import ${EntitiesPackage}.${Entity};
 <#if isMultipleKey>
 import ${EntitiesPackage}.${Key};
 </#if>
+import org.springframework.stereotype.Repository;
 <#list importList as import>
 import ${import};
 </#list>
 
 
+@Repository
 public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}>
 {
 
     <#list indexDataList as indexData>
-    <#if indexData.unique>${Entity}<#else>List<${Entity}></#if> ${indexData.findBy}(${indexData.param});
+    <#if indexData.unique>
+    ${Entity} ${indexData.findBy}(${indexData.param});
+    <#else>
+    List<${Entity}> ${indexData.findBy}(${indexData.param});
+    Page<${Entity}> ${indexData.findBy}(${indexData.param}, Pageable pageable);
+    </#if>
 
     </#list>
 }

@@ -121,16 +121,36 @@ public class Generator extends AbstractComponent
 
         if (super.bool(generatorConfig.getGenerateEntities()))
         {
-            Console.out("Generating Entities...");
-            EntityTemplate entityTemplate = new EntityTemplate(workspace, tables);
-            entityTemplate.generate();
+            if (GeneratorConfig.REPOSITORIES_MODE_SPRING_DATA.equalsIgnoreCase(generatorConfig.getGenerateMode()))
+            {
+                Console.out("Generating Entities...");
+                EntityTemplate entityTemplate = new EntityTemplate(workspace, tables);
+                entityTemplate.generate();
+            }
+            else
+            if (GeneratorConfig.REPOSITORIES_MODE_NATIVE_SQL.equalsIgnoreCase(generatorConfig.getGenerateMode()))
+            {
+                Console.out("Generating Entities...");
+                EntityTemplate entityTemplate = new EntityTemplate(workspace, tables);
+                entityTemplate.generate();
+            }
         }
 
         if (super.bool(generatorConfig.getGenerateCrudRepositories()))
         {
-            Console.out("Generating Crud Repositories...");
-            CrudRepositoryTemplate crudRepositoryTemplate = new CrudRepositoryTemplate(workspace, tables);
-            crudRepositoryTemplate.generate();
+            if (GeneratorConfig.REPOSITORIES_MODE_SPRING_DATA.equalsIgnoreCase(generatorConfig.getGenerateMode()))
+            {
+                Console.out("Generating Crud Repositories...");
+                CrudRepositoryTemplate crudRepositoryTemplate = new CrudRepositoryTemplate(workspace, tables);
+                crudRepositoryTemplate.generate();
+            }
+            else
+            if (GeneratorConfig.REPOSITORIES_MODE_NATIVE_SQL.equalsIgnoreCase(generatorConfig.getGenerateMode()))
+            {
+                Console.out("Generating Crud Repositories...");
+                CrudNativeRepositoryTemplate crudNativeRepositoryTemplate = new CrudNativeRepositoryTemplate(workspace, tables);
+                crudNativeRepositoryTemplate.generate();
+            }
         }
 
         if (super.bool(generatorConfig.getGenerateCrudRepositoriesTest()))
@@ -138,20 +158,6 @@ public class Generator extends AbstractComponent
             Console.out("Generating Crud Repositories Test...");
             CrudRepositoryTestTemplate crudRepositoryTestTemplate = new CrudRepositoryTestTemplate(workspace, tables);
             crudRepositoryTestTemplate.generate();
-        }
-
-        if (super.bool(generatorConfig.getGenerateCrudNativeRepositories()))
-        {
-            Console.out("Generating Crud Native Repositories...");
-            CrudNativeRepositoryTemplate crudNativeRepositoryTemplate = new CrudNativeRepositoryTemplate(workspace, tables);
-            crudNativeRepositoryTemplate.generate();
-        }
-
-        if (super.bool(generatorConfig.getGenerateCrudNativeRepositoriesTest()))
-        {
-            Console.out("Generating Crud Native Repositories Test...");
-            CrudNativeRepositoryTestTemplate crudNativeRepositoryTestTemplate = new CrudNativeRepositoryTestTemplate(workspace, tables);
-            crudNativeRepositoryTestTemplate.generate();
         }
 
         if (super.bool(generatorConfig.getGenerateCatalogConstants()))

@@ -16,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.sql.DataSource;
 <#list importList as import>
 import ${import};
@@ -77,9 +76,18 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
     {
         ${Entity} entity = new ${Entity}();
 
+        <#if isMultipleKey>
+        entity.setId( getKey() );
+        <#list fieldDataList as fieldData>
+        <#if !fieldData.pk>
+        entity.${fieldData.setter}( DataTestFactory.get${fieldData.type}() );
+        </#if>
+        </#list>
+        <#else>
         <#list fieldDataList as fieldData>
         entity.${fieldData.setter}( DataTestFactory.get${fieldData.type}() );
         </#list>
+        </#if>
 
         return entity;
     }
@@ -89,9 +97,18 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
     {
         ${Entity} entity = new ${Entity}();
 
+        <#if isMultipleKey>
+        entity.setId( getKey() );
+        <#list filterDataList as filterData>
+        <#if !filterData.pk>
+        entity.${filterData.setter}( DataTestFactory.get${filterData.type}() );
+        </#if>
+        </#list>
+        <#else>
         <#list filterDataList as filterData>
         entity.${filterData.setter}( DataTestFactory.get${filterData.type}() );
         </#list>
+        </#if>
 
         return entity;
     }
@@ -125,9 +142,10 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
     {
         logger.info("findAll");
 
-        Page<${Entity}> result = getRepository().findAll( PageRequest.of(0,20) );
+        Page<${Entity}> page = getRepository().findAll( PageRequest.of(0,10) );
 
-        logger.info("result: " + result);
+        logger.info("page {}/{} of {} elements: {}",
+                    page.getNumber(), page.getTotalPages(), page.getTotalElements(), page.toList());
     }
 
 
@@ -142,6 +160,30 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
     }
 
 
+    <#if isPersistable>
+    @Test
+    public void create() throws Exception
+    {
+        logger.info("create");
+
+        ${Entity} entity = getEntity();
+        entity.setNew( true );
+        ${Entity} result = getRepository().save( entity );
+
+        logger.info("result: " + result);
+    }
+
+
+    @Test
+    public void update() throws Exception
+    {
+        logger.info("update");
+
+        ${Entity} result = getRepository().save( getEntity() );
+
+        logger.info("result: " + result);
+    }
+    <#else>
     @Test
     public void save() throws Exception
     {
@@ -151,6 +193,7 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
 
         logger.info("result: " + result);
     }
+    </#if>
 
 
     @Test
@@ -181,9 +224,16 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
     {
         logger.info("${indexData.findBy}");
 
-        <#if indexData.unique>${Entity}<#else>List<${Entity}></#if> result = getRepository().${indexData.findBy}(${indexData.param});
+        <#if indexData.unique>
+        ${Entity} result = getRepository().${indexData.findBy}(${indexData.param});
 
         logger.info("result: " + result);
+        <#else>
+        Page<${Entity}> page = getRepository().${indexData.findBy}(${indexData.param}, PageRequest.of(0,10));
+
+        logger.info("page {}/{} of {} elements: {}",
+                    page.getNumber(), page.getTotalPages(), page.getTotalElements(), page.toList());
+        </#if>
     }
     </#list>
 }

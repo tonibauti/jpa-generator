@@ -17,9 +17,11 @@ import java.util.Set;
 
 public class DataSourceConfig extends AbstractComponent
 {
+    public static final String PROVIDER_HIKARI = "hikari";
+
     @JsonProperty("provider")
     @NotNull
-    @StringValues("hikari")
+    @StringValues(PROVIDER_HIKARI)
     protected String provider;
 
     @JsonProperty("name")
