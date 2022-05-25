@@ -38,7 +38,7 @@ version: "1.0"
 
 generator:
   generate-config: true
-  generate-mode: "native-sql"  # spring-data | native-sql
+  generate-mode: "spring-data"  # spring-data | native-sql
   generate-entities: true
   generate-joins: true
   generate-crud-repositories: true
