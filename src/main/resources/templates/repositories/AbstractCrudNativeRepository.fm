@@ -447,8 +447,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
     protected Object readResult(Class<?> entityClass, Query query, String[] columns)
     {
-        Object result = query.getSingleResult();
-        return getEntityData(entityClass).readResult(columns, result);
+        return getEntityData(entityClass).readResult(columns, query.getSingleResult());
     }
 
 
@@ -460,20 +459,19 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
     protected List<Object> readResultList(Class<?> entityClass, Query query, String[] columns)
     {
-        List<Object> results = query.getResultList();
-        return getEntityData(entityClass).readResultList(columns, results);
+        return getEntityData(entityClass).readResultList(columns, query.getResultList());
     }
 
 
-    protected void readResult(Object entity, String column, Object value)
+    protected void readResult(Object entity, Query query, String column)
     {
-        readResult(getEntityClass(), entity, column, value);
+        readResult(getEntityClass(), entity, query, column);
     }
 
 
-    protected void readResult(Class<?> entityClass, Object entity, String column, Object value)
+    protected void readResult(Class<?> entityClass, Object entity, Query query, String column)
     {
-        getEntityData(entityClass).readResult(entity, column, value);
+        getEntityData(entityClass).readResult(entity, column, query.getSingleResult());
     }
 
 
@@ -758,7 +756,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
                 query = getEntityManager().createNativeQuery( sql.toString() );
                 query.setMaxResults(1);
 
-                readResult(entity, generatedColumn, query.getSingleResult());
+                readResult(entity, query, generatedColumn);
             }
         }
 
