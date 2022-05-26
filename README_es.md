@@ -12,6 +12,8 @@ y genera la capa de persistencia JPA que incluye:
 - Repositorios (tipo spring data o tipo sql nativo)
 - Tests de los Respositorios
 
+(Los tipos de datos "json" se han probado en bases de datos MySQL y PostgreSQL)
+
 Actualmente, los proveedores soportados son los siguientes:
 
 | Componente | Proveedor |
