@@ -200,7 +200,14 @@ public class DBColumn
     @JsonIgnore
     public boolean isJson()
     {
-        return className.equals( DBConnection.JSON_CLASS_NAME );
+        return ("json".equalsIgnoreCase(sqlTypeName) || "jsonb".equalsIgnoreCase(sqlTypeName));
+    }
+
+
+    @JsonIgnore
+    public boolean isUUID()
+    {
+        return "uuid".equalsIgnoreCase(sqlTypeName);
     }
 
 }

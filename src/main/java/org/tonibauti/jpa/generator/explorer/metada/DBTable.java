@@ -215,5 +215,16 @@ public class DBTable
         return false;
     }
 
+
+    @JsonIgnore
+    public boolean isUUID()
+    {
+        for (DBColumn dbColumn : columns.values())
+            if (dbColumn.isUUID())
+                return true;
+
+        return false;
+    }
+
 }
 

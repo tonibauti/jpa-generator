@@ -367,9 +367,15 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
 
                 if (dbColumn.getClassName().equals(Object.class.getName()))
                 {
-                    if ("json".equalsIgnoreCase(sqlTypeName) || "jsonb".equalsIgnoreCase(sqlTypeName))
+                    if (dbColumn.isJson())
                     {
                         dbColumn.setClassName( DBConnection.JSON_CLASS_NAME );
+                    }
+                    else
+                    if (dbColumn.isUUID())
+                    {
+                        dbColumn.setClassName( DBConnection.UUID_CLASS_NAME );
+                        dbColumn.setSize( 36 );
                     }
                 }
 

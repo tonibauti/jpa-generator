@@ -6,9 +6,12 @@ import java.io.Serializable;
 <#if isJsonPK>
 import ${PersistencePackage}.Json;
 import ${PersistencePackage}.JsonType;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
+</#if>
+<#if isUUIDPK>
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.GenericGenerators;
 </#if>
 <#list importListPK as import>
 import ${import};
@@ -26,6 +29,12 @@ import ${import};
 @TypeDefs
 ({
     @TypeDef(typeClass = JsonType.class, defaultForType = Json.class)
+})
+</#if>
+<#if isUUIDPK>
+@GenericGenerators
+({
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
 })
 </#if>
 public class ${Key} implements Serializable

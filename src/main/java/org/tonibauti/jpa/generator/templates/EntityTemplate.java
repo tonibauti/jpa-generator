@@ -183,10 +183,12 @@ public class EntityTemplate extends AbstractTemplate
         List<FieldData> encodedDataList = new ArrayList<>();
         List<String> importList = new ArrayList<>();
         boolean isJson = false;
+        boolean isUUID = false;
 
         List<FieldData> encodedDataListPK = new ArrayList<>();
         List<String> importListPK = new ArrayList<>();
         boolean isJsonPK = false;
+        boolean isUUIDPK = false;
 
         for (DBColumn dbColumn : dbTable.getColumnList())
         {
@@ -215,6 +217,7 @@ public class EntityTemplate extends AbstractTemplate
                 fieldData.setPk( true );
                 fieldData.setType( super.getNormalizedType(dbColumn.getClassName(), importListPK) );
                 isJsonPK |= dbColumn.isJson();
+                isUUIDPK |= dbColumn.isUUID();
 
                 if (dbColumn.isEncoded())
                     encodedDataListPK.add( fieldData );
@@ -223,6 +226,7 @@ public class EntityTemplate extends AbstractTemplate
             {
                 fieldData.setType( super.getNormalizedType(dbColumn.getClassName(), importList) );
                 isJson |= dbColumn.isJson();
+                isUUID |= dbColumn.isUUID();
 
                 if (dbColumn.isEncoded())
                     encodedDataList.add( fieldData );
@@ -237,6 +241,7 @@ public class EntityTemplate extends AbstractTemplate
             encodedDataList.addAll(0, encodedDataListPK);
             importList.addAll(0, importListPK);
             isJson |= isJsonPK;
+            isUUID |= isUUIDPK;
         }
 
 
@@ -273,9 +278,11 @@ public class EntityTemplate extends AbstractTemplate
         map.put("encodedDataList", encodedDataList);
         map.put("importList", importList);
         map.put("isJson", isJson);
+        map.put("isUUID", isUUID);
         map.put("encodedDataListPK", encodedDataListPK);
         map.put("importListPK", importListPK);
         map.put("isJsonPK", isJsonPK);
+        map.put("isUUIDPK", isUUIDPK);
         map.put("fieldDataList", fieldDataList);
         map.put("pkFieldDataList", pkFieldDataList);
         map.put("indexDataList", indexDataList);
