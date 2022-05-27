@@ -9,7 +9,7 @@ import ${PersistencePackage}.JsonType;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 </#if>
-<#if isUUID>
+<#if isUUID && !isMultipleKey>
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.GenericGenerators;
 </#if>
@@ -48,7 +48,7 @@ import ${import};
     @TypeDef(typeClass = JsonType.class, defaultForType = Json.class)
 })
 </#if>
-<#if isUUID>
+<#if isUUID && !isMultipleKey>
 @GenericGenerators
 ({
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")

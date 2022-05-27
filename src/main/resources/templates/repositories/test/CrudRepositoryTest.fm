@@ -168,11 +168,6 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
 
         ${Entity} entity = getEntity();
         entity.setNew( true );
-        <#list fieldDataList as fieldData>
-        <#if fieldData.generated>
-        entity.${fieldData.setter}( null );
-        </#if>
-        </#list>
         ${Entity} result = getRepository().save( entity );
 
         logger.info("result: " + result);
