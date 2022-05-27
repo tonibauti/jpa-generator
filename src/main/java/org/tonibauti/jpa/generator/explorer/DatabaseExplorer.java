@@ -18,6 +18,7 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 public class DatabaseExplorer extends AbstractComponent implements AbstractResultSet
@@ -367,14 +368,14 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
 
                 if (dbColumn.getClassName().equals(Object.class.getName()))
                 {
-                    if (dbColumn.isJson())
+                    if ("json".equalsIgnoreCase(sqlTypeName) || "jsonb".equalsIgnoreCase(sqlTypeName))
                     {
                         dbColumn.setClassName( DBConnection.JSON_CLASS_NAME );
                     }
                     else
-                    if (dbColumn.isUUID())
+                    if ("uuid".equalsIgnoreCase(sqlTypeName))
                     {
-                        dbColumn.setClassName( DBConnection.UUID_CLASS_NAME );
+                        dbColumn.setClassName( UUID.class.getName() );
                         dbColumn.setSize( 36 );
                     }
                 }

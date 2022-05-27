@@ -2,6 +2,8 @@ package org.tonibauti.jpa.generator.explorer.metada;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.UUID;
+
 
 public class DBColumn
 {
@@ -200,14 +202,14 @@ public class DBColumn
     @JsonIgnore
     public boolean isJson()
     {
-        return ("json".equalsIgnoreCase(sqlTypeName) || "jsonb".equalsIgnoreCase(sqlTypeName));
+        return className.equals( DBConnection.JSON_CLASS_NAME );
     }
 
 
     @JsonIgnore
     public boolean isUUID()
     {
-        return "uuid".equalsIgnoreCase(sqlTypeName);
+        return className.equals( UUID.class.getName() );
     }
 
 }

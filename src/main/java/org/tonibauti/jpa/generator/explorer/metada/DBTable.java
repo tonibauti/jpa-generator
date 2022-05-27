@@ -118,6 +118,9 @@ public class DBTable
 
         dbColumn.setPrimaryKey( true );
 
+        if (dbColumn.isUUID())
+            dbColumn.setGenerated( true );
+
         primaryKeyList.add( columnName );
     }
 

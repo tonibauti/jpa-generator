@@ -8,8 +8,6 @@ public class DBConnection
 {
     public static final String BYTE_ARRAY_CLASS_NAME = "byte[]";
     public static final String JSON_CLASS_NAME = "Json";
-    //public static final String UUID_CLASS_NAME = "java.util.UUID";
-    public static final String UUID_CLASS_NAME = "String";
 
     private String databaseType;
     private String databaseProductName;

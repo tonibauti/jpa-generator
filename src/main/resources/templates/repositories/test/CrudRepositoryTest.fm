@@ -168,6 +168,11 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
 
         ${Entity} entity = getEntity();
         entity.setNew( true );
+        <#list fieldDataList as fieldData>
+        <#if fieldData.generated>
+        entity.${fieldData.setter}( null );
+        </#if>
+        </#list>
         ${Entity} result = getRepository().save( entity );
 
         logger.info("result: " + result);
@@ -189,7 +194,13 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
     {
         logger.info("save");
 
-        ${Entity} result = getRepository().save( getEntity() );
+        ${Entity} entity = getEntity();
+        <#list fieldDataList as fieldData>
+        <#if fieldData.generated>
+        entity.${fieldData.setter}( null );
+        </#if>
+        </#list>
+        ${Entity} result = getRepository().save( entity );
 
         logger.info("result: " + result);
     }

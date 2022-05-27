@@ -14,6 +14,7 @@ public class FieldData
     private String param;
     private boolean pk;
     private boolean unique;
+    private boolean generated;
     private List<String> annotations;
     private String getter;
     private String setter;
@@ -24,15 +25,6 @@ public class FieldData
 
 
     public FieldData() {}
-
-
-    public FieldData(String name, String property, String column, String type)
-    {
-        setName( name );
-        setProperty( property );
-        setColumn( column );
-        setType( type );
-    }
 
 
     public String getName()
@@ -106,6 +98,16 @@ public class FieldData
     public void setUnique(boolean unique)
     {
         this.unique = unique;
+    }
+
+    public boolean isGenerated()
+    {
+        return generated;
+    }
+
+    public void setGenerated(boolean generated)
+    {
+        this.generated = generated;
     }
 
     public List<String> getAnnotations()
