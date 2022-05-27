@@ -880,7 +880,10 @@ public class CrudNativeEntityData
                             continue;
 
                         // UUID generator
-                        setValue(obj, columnData, UUID.randomUUID());
+                        if (obj instanceof UUID)
+                            setValue(obj, columnData, UUID.randomUUID());
+                        else
+                            setValue(obj, columnData, UUID.randomUUID().toString());
                     }
                 }
                 else
