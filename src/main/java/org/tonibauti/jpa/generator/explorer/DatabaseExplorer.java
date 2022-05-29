@@ -466,10 +466,7 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
                 if (dbColumn == null)
                     return;
 
-                if (dbColumn.isUUID())
-                    dbColumn.setGenerated( true );
-                else
-                if (dbColumn.isString() && dbColumn.getSize() == 36 && useVarchar36LikeUuid)
+                if (dbColumn.isUUID() || (dbColumn.isVarchar36() && useVarchar36LikeUuid))
                     dbColumn.setGenerated( true );
 
                 dbTable.addPrimaryKeyColumn( pkColumnName );

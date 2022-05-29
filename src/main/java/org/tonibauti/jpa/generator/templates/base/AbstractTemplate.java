@@ -444,7 +444,7 @@ public abstract class AbstractTemplate extends AbstractComponent
             map.put("insertable", "false");
             map.put("updatable", "false");
 
-            if (dbColumn.isUUID())
+            if (dbColumn.isUUID() || (dbColumn.isVarchar36() && workspace.isUseVarchar36LikeUuid()))
             {
                 // @GeneratedValue(generator = "UUID")
                 annotations.add( "@GeneratedValue(generator = \"UUID\")" );

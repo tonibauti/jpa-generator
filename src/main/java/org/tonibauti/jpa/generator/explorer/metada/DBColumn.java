@@ -201,9 +201,9 @@ public class DBColumn
 
 
     @JsonIgnore
-    public boolean isString()
+    public boolean isVarchar36()
     {
-        return className.equals( String.class.getName() );
+        return (className.equals(String.class.getName()) && size == 36);
     }
 
     @JsonIgnore
