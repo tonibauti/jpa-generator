@@ -89,7 +89,8 @@ generator:
     persistence-test-package: "org.myorganization.example.test.persistence"
     #encoder: "org.myorganization.example.utils.encoder.XOREncoder"
     use-builders: true
-    use-timestamps-like-dates: true
+    use-timestamp-like-date: true
+    use-varchar36-like-uuid: false
 
     tables:
       includes:
