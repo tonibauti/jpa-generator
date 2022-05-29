@@ -362,7 +362,7 @@ public abstract class AbstractTemplate extends AbstractComponent
         else
         if (java.sql.Date.class.getName().equals(type))
         {
-            if (workspace.isUseTimestampsLikeDates())
+            if (workspace.isUseTimestampLikeDate())
             {
                 type = java.util.Date.class.getSimpleName();
                 super.addToList(java.util.Date.class.getName(), importList, false);
@@ -378,7 +378,7 @@ public abstract class AbstractTemplate extends AbstractComponent
         else
         if (Timestamp.class.getName().equals(type))
         {
-            if (workspace.isUseTimestampsLikeDates())
+            if (workspace.isUseTimestampLikeDate())
             {
                 type = java.util.Date.class.getSimpleName();
                 super.addToList(java.util.Date.class.getName(), importList, false);
@@ -394,7 +394,7 @@ public abstract class AbstractTemplate extends AbstractComponent
         else
         if (Time.class.getName().equals(type))
         {
-            if (workspace.isUseTimestampsLikeDates())
+            if (workspace.isUseTimestampLikeDate())
             {
                 type = java.util.Date.class.getSimpleName();
                 super.addToList(java.util.Date.class.getName(), importList, false);

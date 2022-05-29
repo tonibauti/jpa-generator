@@ -199,17 +199,23 @@ public class DBColumn
         this.className = className;
     }
 
-    @JsonIgnore
-    public boolean isJson()
-    {
-        return className.equals( DBConnection.JSON_CLASS_NAME );
-    }
 
+    @JsonIgnore
+    public boolean isString()
+    {
+        return className.equals( String.class.getName() );
+    }
 
     @JsonIgnore
     public boolean isUUID()
     {
         return className.equals( UUID.class.getName() );
+    }
+
+    @JsonIgnore
+    public boolean isJson()
+    {
+        return className.equals( DBConnection.JSON_CLASS_NAME );
     }
 
 }

@@ -118,9 +118,6 @@ public class DBTable
 
         dbColumn.setPrimaryKey( true );
 
-        if (dbColumn.isUUID())
-            dbColumn.setGenerated( true );
-
         primaryKeyList.add( columnName );
     }
 
@@ -209,10 +206,10 @@ public class DBTable
 
 
     @JsonIgnore
-    public boolean isJson()
+    public boolean isUUID()
     {
         for (DBColumn dbColumn : columns.values())
-            if (dbColumn.isJson())
+            if (dbColumn.isUUID())
                 return true;
 
         return false;
@@ -220,10 +217,10 @@ public class DBTable
 
 
     @JsonIgnore
-    public boolean isUUID()
+    public boolean isJson()
     {
         for (DBColumn dbColumn : columns.values())
-            if (dbColumn.isUUID())
+            if (dbColumn.isJson())
                 return true;
 
         return false;
