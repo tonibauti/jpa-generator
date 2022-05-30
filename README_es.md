@@ -90,7 +90,7 @@ generator:
     #encoder: "org.myorganization.example.utils.encoder.XOREncoder"
     use-builders: true
     use-timestamp-like-date: true
-    use-varchar36-like-uuid: false    # "generador uuid" cuando no se soporta el tipo uuid
+    use-varchar36-like-uuid: true    # "generador uuid" cuando no se soporta el tipo uuid
 
     tables:
       includes:
