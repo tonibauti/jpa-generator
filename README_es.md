@@ -12,7 +12,7 @@ y genera la capa de persistencia JPA que incluye:
 - Repositorios (tipo spring data o tipo sql nativo)
 - Tests de los Respositorios
 
-(Los tipos de datos "json" se han probado en bases de datos MySQL y PostgreSQL)
+(Los tipos de datos "json" y "uuid" se han probado en bases de datos MySQL y PostgreSQL)
 
 Actualmente, los proveedores soportados son los siguientes:
 
@@ -90,7 +90,7 @@ generator:
     #encoder: "org.myorganization.example.utils.encoder.XOREncoder"
     use-builders: true
     use-timestamp-like-date: true
-    use-varchar36-like-uuid: false
+    use-varchar36-like-uuid: false    # "generador uuid" cuando no se soporta el tipo uuid
 
     tables:
       includes:

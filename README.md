@@ -12,7 +12,7 @@ and generates the JPA persistence layer which includes:
 - Repositories (spring data type or native sql type)
 - Repositories Tests
 
-(The "json" datatypes have been tested on MySQL and PostgreSQL databases)
+(The "json" and "uuid" data types have been tested on MySQL and PostgreSQL databases)
 
 Currently, the following providers are supported:
 
@@ -90,7 +90,7 @@ generator:
     #encoder: "org.myorganization.example.utils.encoder.XOREncoder"
     use-builders: true
     use-timestamp-like-date: true
-    use-varchar36-like-uuid: false
+    use-varchar36-like-uuid: false    # "uuid generator" when uuid type is not supported
 
     tables:
       includes:
