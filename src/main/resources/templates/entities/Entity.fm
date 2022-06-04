@@ -9,9 +9,8 @@ import ${PersistencePackage}.JsonType;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 </#if>
-<#if isUUID && !isMultipleKey>
+<#if isGenericGenerator>
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.GenericGenerators;
 </#if>
 <#if isPersistable>
 import org.springframework.data.domain.Persistable;
@@ -46,12 +45,6 @@ import ${import};
 @TypeDefs
 ({
     @TypeDef(typeClass = JsonType.class, defaultForType = Json.class)
-})
-</#if>
-<#if isUUID && !isMultipleKey>
-@GenericGenerators
-({
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
 })
 </#if>
 public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>Serializable

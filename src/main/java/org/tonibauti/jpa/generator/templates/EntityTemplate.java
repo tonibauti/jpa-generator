@@ -179,16 +179,15 @@ public class EntityTemplate extends AbstractTemplate
         //List<FieldData> generatedKeyDataList = new ArrayList<>();
 
         boolean isPersistable = dbTable.isMultipleKey();
+        boolean isGenericGenerator = false;
 
         List<FieldData> encodedDataList = new ArrayList<>();
         List<String> importList = new ArrayList<>();
         boolean isJson = false;
-        boolean isUUID = false;
 
         List<FieldData> encodedDataListPK = new ArrayList<>();
         List<String> importListPK = new ArrayList<>();
         boolean isJsonPK = false;
-        boolean isUUIDPK = false;
 
         for (DBColumn dbColumn : dbTable.getColumnList())
         {
@@ -209,8 +208,15 @@ public class EntityTemplate extends AbstractTemplate
             //    generatedKeyDataList.add( fieldData );
 
 
-            if (!isPersistable && "id".equals(fieldData.getProperty()))
-                isPersistable = true;
+            if (!isPersistable)
+                if ("id".equals(fieldData.getProperty()))
+                    isPersistable = true;
+
+            // isUUID && !isMultipleKey
+            if (!isGenericGenerator)
+                if (dbColumn.isUUID() || (dbColumn.isVarchar36() && workspace.isUseVarchar36LikeUuid()))
+                    if (!dbTable.isMultipleKey())
+                        isGenericGenerator = true;
 
 
             if (dbColumn.isPrimaryKey())
@@ -218,7 +224,6 @@ public class EntityTemplate extends AbstractTemplate
                 pkFieldDataList.add( fieldData );
                 fieldData.setType( super.getNormalizedType(dbColumn.getClassName(), importListPK) );
                 isJsonPK |= dbColumn.isJson();
-                isUUIDPK |= dbColumn.isUUID();
 
                 if (dbColumn.isEncoded())
                     encodedDataListPK.add( fieldData );
@@ -227,7 +232,6 @@ public class EntityTemplate extends AbstractTemplate
             {
                 fieldData.setType( super.getNormalizedType(dbColumn.getClassName(), importList) );
                 isJson |= dbColumn.isJson();
-                isUUID |= dbColumn.isUUID();
 
                 if (dbColumn.isEncoded())
                     encodedDataList.add( fieldData );
@@ -242,7 +246,6 @@ public class EntityTemplate extends AbstractTemplate
             encodedDataList.addAll(0, encodedDataListPK);
             importList.addAll(0, importListPK);
             isJson |= isJsonPK;
-            isUUID |= isUUIDPK;
         }
 
 
@@ -276,14 +279,13 @@ public class EntityTemplate extends AbstractTemplate
         map.put("entity", objectName+"Entity");
         map.put("Key", keyType);
         map.put("isPersistable", isPersistable);
+        map.put("isGenericGenerator", isGenericGenerator);
         map.put("encodedDataList", encodedDataList);
         map.put("importList", importList);
         map.put("isJson", isJson);
-        map.put("isUUID", isUUID);
         map.put("encodedDataListPK", encodedDataListPK);
         map.put("importListPK", importListPK);
         map.put("isJsonPK", isJsonPK);
-        map.put("isUUIDPK", isUUIDPK);
         map.put("fieldDataList", fieldDataList);
         map.put("pkFieldDataList", pkFieldDataList);
         map.put("indexDataList", indexDataList);
