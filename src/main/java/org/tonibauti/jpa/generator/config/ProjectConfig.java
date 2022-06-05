@@ -219,6 +219,11 @@ public class ProjectConfig extends AbstractComponent
         if (isNotEmpty(columnsConfig))
             constraintViolations.addAll( columnsConfig.validate() );
 
+
+        // validate encoded columns and encoder class
+
+        removeNullsAndBlanks( getColumnsConfig().getEncoded() );
+
         if (isNotEmpty(getColumnsConfig().getEncoded()))
             if (isNullOrEmpty(encoder))
                 Console.throwValidationException("columns encoded are defined but encoder class is undefined");
