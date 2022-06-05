@@ -135,7 +135,7 @@ public class Workspace
 
     public boolean isEntities()
     {
-        return bool(generatorConfig.getGenerateCrudRepositories());
+        return bool(generatorConfig.getGenerateEntities());
     }
 
 
