@@ -64,7 +64,7 @@ public class DataTestFactory
     <#if isJsonForDataTestFactory>
     public static ${PersistencePackage}.Json getJson()
     {
-        return ${PersistencePackage}.Json.of( "{ \"k\": \"v\" }" );
+        return ${PersistencePackage}.Json.fromString( "{ \"k\": \"v\" }" );
     }
     <#else>
     public static String getJson()
@@ -72,6 +72,12 @@ public class DataTestFactory
         return "{}";
     }
     </#if>
+
+
+    public static java.util.UUID getUUID()
+    {
+        return java.util.UUID.randomUUID();
+    }
 
 
     public static Boolean getBoolean()

@@ -18,6 +18,7 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 public class DatabaseExplorer extends AbstractComponent implements AbstractResultSet
@@ -188,7 +189,8 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
                 exploredColumns += nColumns;
 
                 // primary keys
-                explorePrimaryKeys(dbTable, dbMetaData);
+                boolean useVarchar36LikeUuid = super.bool(generatorConfig.getProjectConfig().getUseVarchar36LikeUuid());
+                explorePrimaryKeys(dbTable, dbMetaData, useVarchar36LikeUuid);
 
                 // indexes (unique keys)
                 exploreIndexes(dbTable, dbMetaData);
@@ -371,6 +373,12 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
                     {
                         dbColumn.setClassName( DBConnection.JSON_CLASS_NAME );
                     }
+                    else
+                    if ("uuid".equalsIgnoreCase(sqlTypeName))
+                    {
+                        dbColumn.setClassName( UUID.class.getName() );
+                        dbColumn.setSize( 36 );
+                    }
                 }
 
                 // encoded --> only strings
@@ -425,7 +433,7 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
     }
 
 
-    private void explorePrimaryKeys(DBTable dbTable, DatabaseMetaData dbMetaData) throws Exception
+    private void explorePrimaryKeys(DBTable dbTable, DatabaseMetaData dbMetaData, boolean useVarchar36LikeUuid) throws Exception
     {
         ResultSet rst = null;
 
@@ -451,8 +459,19 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
             // add ordered primary key by KEY_SEQ (1..N)
             for (int i=1; i<=aux.size(); i++)
             {
-                dbTable.addPrimaryKeyColumn( aux.get(i) );
+                String pkColumnName = aux.get(i);
+
+                DBColumn dbColumn = dbTable.getColumn( pkColumnName );
+
+                if (dbColumn == null)
+                    return;
+
+                if (dbColumn.isUUID() || (dbColumn.isVarchar36() && useVarchar36LikeUuid))
+                    dbColumn.setGenerated( true );
+
+                dbTable.addPrimaryKeyColumn( pkColumnName );
             }
+
 
             aux.clear();
 

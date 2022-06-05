@@ -17,7 +17,7 @@ public class Json implements Serializable
     }
 
 
-    public static Json of(String content)
+    public static Json fromString(String content)
     {
         return new Json( content );
     }

@@ -215,6 +215,11 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
         logger.info("create");
 
         ${Entity} entity = getEntity();
+        <#list fieldDataList as fieldData>
+        <#if fieldData.generated>
+        entity.${fieldData.setter}( null );
+        </#if>
+        </#list>
         getRepository().create( entity );
 
         logger.info("result: " + entity);

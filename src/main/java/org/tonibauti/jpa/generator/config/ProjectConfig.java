@@ -49,10 +49,15 @@ public class ProjectConfig extends AbstractComponent
     @NotNull
     protected Boolean useBuilders;
 
-    @JsonProperty("use-timestamps-like-dates")
-    @JsonAlias("useTimestampsLikeDates")
+    @JsonProperty("use-timestamp-like-date")
+    @JsonAlias("useTimestampLikeDate")
     @NotNull
-    protected Boolean useTimestampsLikeDates;
+    protected Boolean useTimestampLikeDate;
+
+    @JsonProperty("use-varchar36-like-uuid")
+    @JsonAlias("useVarchar36LikeUuid")
+    @NotNull
+    protected Boolean useVarchar36LikeUuid;
 
     @JsonAlias("encoder")
     protected String encoder;
@@ -144,14 +149,24 @@ public class ProjectConfig extends AbstractComponent
         this.useBuilders = useBuilders;
     }
 
-    public Boolean getUseTimestampsLikeDates()
+    public Boolean getUseTimestampLikeDate()
     {
-        return useTimestampsLikeDates;
+        return useTimestampLikeDate;
     }
 
-    public void setUseTimestampsLikeDates(Boolean useTimestampsLikeDates)
+    public void setUseTimestampLikeDate(Boolean useTimestampLikeDate)
     {
-        this.useTimestampsLikeDates = useTimestampsLikeDates;
+        this.useTimestampLikeDate = useTimestampLikeDate;
+    }
+
+    public Boolean getUseVarchar36LikeUuid()
+    {
+        return useVarchar36LikeUuid;
+    }
+
+    public void setUseVarchar36LikeUuid(Boolean useVarchar36LikeUuid)
+    {
+        this.useVarchar36LikeUuid = useVarchar36LikeUuid;
     }
 
     public String getEncoder()

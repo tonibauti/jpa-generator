@@ -169,9 +169,15 @@ public class Workspace
     }
 
 
-    public boolean isUseTimestampsLikeDates()
+    public boolean isUseTimestampLikeDate()
     {
-        return bool(generatorConfig.getProjectConfig().getUseTimestampsLikeDates());
+        return bool(generatorConfig.getProjectConfig().getUseTimestampLikeDate());
+    }
+
+
+    public boolean isUseVarchar36LikeUuid()
+    {
+        return bool(generatorConfig.getProjectConfig().getUseVarchar36LikeUuid());
     }
 
 

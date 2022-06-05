@@ -2,6 +2,8 @@ package org.tonibauti.jpa.generator.explorer.metada;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.UUID;
+
 
 public class DBColumn
 {
@@ -195,6 +197,19 @@ public class DBColumn
     public void setClassName(String className)
     {
         this.className = className;
+    }
+
+
+    @JsonIgnore
+    public boolean isVarchar36()
+    {
+        return (className.equals(String.class.getName()) && size == 36);
+    }
+
+    @JsonIgnore
+    public boolean isUUID()
+    {
+        return className.equals( UUID.class.getName() );
     }
 
     @JsonIgnore

@@ -9,6 +9,9 @@ import ${PersistencePackage}.JsonType;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 </#if>
+<#if isGenericGenerator>
+import org.hibernate.annotations.GenericGenerator;
+</#if>
 <#if isPersistable>
 import org.springframework.data.domain.Persistable;
 </#if>
