@@ -105,7 +105,7 @@ generator:
         - ""
       encoded:
         - ""
-      invisible:
+      invisible:  # not showing in logs
         - "*.password"
 ```
 
