@@ -98,7 +98,7 @@ generator:
       excludes:
         - ""
 
-    columns:    # formato: tabla.columna
+    columns:      # formato: tabla.columna
       includes:
         - "*"
       excludes:
