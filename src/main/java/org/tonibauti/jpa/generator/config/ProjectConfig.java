@@ -10,6 +10,8 @@ import org.tonibauti.jpa.generator.main.AbstractComponent;
 import org.tonibauti.jpa.generator.validators.CheckPath;
 import org.tonibauti.jpa.generator.validators.StringValues;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 
@@ -221,12 +223,14 @@ public class ProjectConfig extends AbstractComponent
 
 
         // validate encoded columns and encoder class
-
-        removeNullsAndBlanks( getColumnsConfig().getEncoded() );
-
         if (isNotEmpty(getColumnsConfig().getEncoded()))
-            if (isNullOrEmpty(encoder))
+        {
+            List<String> encodedList = new ArrayList<>( getColumnsConfig().getEncoded() );
+            removeNullsAndBlanks( encodedList );
+
+            if (isNotEmpty(encodedList) && isNullOrEmpty(encoder))
                 Console.throwValidationException("columns encoded are defined but encoder class is undefined");
+        }
 
         return constraintViolations;
     }
