@@ -170,6 +170,13 @@ public class Application
         <version>1.18.22</version>
         <scope>provided</scope>
     </dependency>
+  
+    <!-- Spring Test -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
 </dependencies>
 ```
 
