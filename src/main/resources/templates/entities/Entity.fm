@@ -30,8 +30,6 @@ import ${import};
 @Table
 (
     name = ${Entity}.TABLE,
-    schema = ${Entity}.SCHEMA,
-    catalog = ${Entity}.CATALOG,
     indexes =
     {
         <#list indexDataList as indexData>
@@ -49,11 +47,9 @@ import ${import};
 </#if>
 public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>Serializable
 {
-    public static final String NAME    = "${entity}";
+    public static final String NAME  = "${entity}";
 
-    public static final String TABLE   = "${Table}";
-    public static final String SCHEMA  = "${Schema}";
-    public static final String CATALOG = "${Catalog}";
+    public static final String TABLE = "${Table}";
 
     <#list fieldDataList as fieldData>
     public static final String ${fieldData.column}_COLUMN = "${fieldData.name}";

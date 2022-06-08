@@ -283,7 +283,7 @@ public class CrudNativeEntityData
         userTypeDefMap.add( UUID.class );
 
         TypeDefs typeDefsAnnotation = entityClass.getAnnotation( TypeDefs.class );
-        TypeDef typeDefAnnotation  = entityClass.getAnnotation( TypeDef.class );
+        TypeDef typeDefAnnotation   = entityClass.getAnnotation( TypeDef.class );
 
         List<TypeDef> typeDefList = new ArrayList<>();
 
