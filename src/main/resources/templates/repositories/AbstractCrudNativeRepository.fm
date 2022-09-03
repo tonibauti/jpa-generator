@@ -988,7 +988,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         }
         catch (NoResultException e)
         {
-            /* ignore */
+            /* ignored */
         }
         catch (Exception e)
         {

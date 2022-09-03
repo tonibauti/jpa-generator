@@ -24,8 +24,8 @@ public abstract class AbstractConstraints
 
     protected void close(Statement statement, ResultSet rs)
     {
-        try { if (rs != null) rs.close(); } catch (Exception e) { /* ignore */ }
-        try { if (statement != null) statement.close(); } catch (Exception e) { /* ignore */ }
+        try { if (rs != null) rs.close(); } catch (Exception e) { /* ignored */ }
+        try { if (statement != null) statement.close(); } catch (Exception e) { /* ignored */ }
     }
 
 

@@ -353,7 +353,7 @@ public abstract class AbstractComponent
                 if (!value.isEmpty())
                     list.add( value );
             }
-            catch (Exception ignored) { /**/ }
+            catch (Exception e) { /* ignored */ }
 
             // separator not found
             if (list.isEmpty())

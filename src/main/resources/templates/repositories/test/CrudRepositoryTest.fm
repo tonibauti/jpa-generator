@@ -211,7 +211,7 @@ public class ${ClassName}CrudRepositoryTest extends AbstractRepositoryTest
         {
             getRepository().deleteById( getKey() );
         }
-        catch (EmptyResultDataAccessException e) { /* ignore */ }
+        catch (EmptyResultDataAccessException e) { /* ignored */ }
     }
 
 
