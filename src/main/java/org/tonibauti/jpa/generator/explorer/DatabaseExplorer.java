@@ -677,12 +677,12 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
                         if (value instanceof String)
                             value = "\"" + value + "\"";
 
-                        dbTable.addCatalogConstantsData(column, (String)code, value);
+                        dbTable.addCatalogConstantsData(column, (String)code, value.toString());
                     }
                     else
                     {
                         String fieldName = dbTable.getName() + "." + catalogConstantsColumn;
-                        throw new ValidationException(prefix + "'" + fieldName + "' is not a String class");
+                        throw new ValidationException(prefix + "'" + fieldName + "' is not a String");
                     }
                 }
 
