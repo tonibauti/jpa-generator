@@ -319,7 +319,7 @@ public class CrudNativeEntityData
             ColumnData columnData  = new ColumnData();
             columnData.field       = field;
             columnData.columnName  = columnAnnotation.name();
-            columnData.isKey       = field.isAnnotationPresent(Id.class);
+            columnData.isKey       = field.isAnnotationPresent( Id.class );
 
             if (isNullOrEmpty(columnData.columnName))
                 throw new PersistenceException( entityClass.getName() +
