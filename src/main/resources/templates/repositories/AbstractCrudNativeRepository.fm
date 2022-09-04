@@ -957,21 +957,40 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             String referencedTableName = getTableName( referencedClass );
             List<CrudNativeEntityData.JoinRef> joinRefList = joinData.getJoinRefList();
 
+            boolean recursive = referencedTableName.equals( tableName );
+
             StringBuilder sql = new StringBuilder()
             .append( "SELECT " )
             .append( getSelectColumns(referencedClass, columns) )
             .append( " FROM " )
-            .append( referencedTableName + ", " + tableName )
+            .append( !recursive ? (referencedTableName + ", " + tableName) : referencedTableName )
             .append( " WHERE " );
-            for (CrudNativeEntityData.JoinRef joinRef : joinRefList)
+
+            if (!recursive)
             {
-                sql.append( referencedTableName + "." + joinRef.getReferencedColumnName() );
-                sql.append( " = " );
-                sql.append( tableName + "." + joinRef.getColumnName() );
-                sql.append( " AND " );
+                for (CrudNativeEntityData.JoinRef joinRef : joinRefList)
+                {
+                    sql.append( referencedTableName + "." + joinRef.getReferencedColumnName() );
+                    sql.append( " = " );
+                    sql.append( tableName + "." + joinRef.getColumnName() );
+                    sql.append( " AND " );
+                }
+
+                sql.append( getEqualsKeyColumns() )
+                ;
             }
-            sql.append( getEqualsKeyColumns() )
-            ;
+            else
+            {
+                int i = 0;
+                for (CrudNativeEntityData.JoinRef joinRef : joinRefList)
+                {
+                    if (i++ > 0)
+                        sql.append( " AND " );
+
+                    sql.append( referencedTableName + "." + joinRef.getReferencedColumnName() );
+                    sql.append( " = ?" );
+                }
+            }
 
             orderBy(referencedTableName, sql, pageable);
 
