@@ -972,18 +972,22 @@ public class CrudNativeEntityData
     {
         try
         {
-            if (ClassUtils.isPrimitiveWrapper(targetClass))
+            if (ClassUtils.isPrimitiveWrapper(targetClass)
+                ||
+                result instanceof BigInteger
+                ||
+                result instanceof BigDecimal)
+            {
                 return getValueByType(null, targetClass, result);
+            }
 
-            Object target = targetClass.getDeclaredConstructor().newInstance();
-
-            Object[] values = (columns.length == 1) ? new Object[]{result} : (Object[]) result;
+            Object target   = targetClass.getDeclaredConstructor().newInstance();
+            Object[] values = result.getClass().isArray() ? (Object[]) result : new Object[]{result};
 
             int i = 0;
-            for (String column : columns)
-            {
-                setValue(target, columnDataMap, column, values[i++]);
-            }
+            if (columns != null)
+                for (String column : columns)
+                    setValue(target, columnDataMap, column, values[i++]);
 
             return target;
         }

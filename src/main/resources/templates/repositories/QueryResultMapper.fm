@@ -1,0 +1,133 @@
+package ${BaseCrudNativeRepositoriesPackage};
+
+import org.apache.commons.lang3.ClassUtils;
+
+import javax.persistence.Query;
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
+
+@SuppressWarnings("unchecked")
+public class QueryResultMapper
+{
+    private QueryResultMapper() {}
+
+
+    public static <T> List<T> getResultList(Query query, Class<T> targetClass, String... fieldsName) throws Exception
+    {
+        List<T> list = new ArrayList<>();
+
+        if (fieldsName != null && fieldsName.length > 0)
+        {
+            List<Object> results = query.getResultList();
+
+            if (results != null)
+                for (Object result : results)
+                    list.add( (T) readResult(result, targetClass, fieldsName) );
+        }
+
+        return list;
+    }
+
+
+    public static <T> T getSingleResult(Query query, Class<T> targetClass) throws Exception
+    {
+        Object result = query.getSingleResult();
+        return (T) readResult(result, targetClass);
+    }
+
+
+    private static Object readResult(Object result, Class<?> targetClass, String... fieldsName) throws Exception
+    {
+        if (ClassUtils.isPrimitiveWrapper(targetClass)
+            ||
+            result instanceof BigInteger
+            ||
+            result instanceof BigDecimal)
+        {
+            return getValueByType(targetClass, result);
+        }
+
+        Object target   = targetClass.getDeclaredConstructor().newInstance();
+        Object[] values = result.getClass().isArray() ? (Object[]) result : new Object[]{result};
+
+        int i = 0;
+        if (fieldsName != null)
+            for (String fieldName : fieldsName)
+                setValue(target, fieldName, values[i++]);
+
+        return target;
+    }
+
+
+    private static void setValue(Object target, String fieldName, Object value) throws Exception
+    {
+        Field field;
+
+        try
+        {
+            field = target.getClass().getDeclaredField( fieldName );
+        }
+        catch (Exception e)
+        {
+            return;
+        }
+
+        value = getValueByType(field.getType(), value);
+        field.setAccessible( true );
+        field.set(target, value);
+    }
+
+
+    private static Object getValueByType(Class<?> type, Object value)
+    {
+        if (value instanceof BigInteger)
+        {
+            if (type.equals(Byte.class))
+                value = ((BigInteger)value).byteValue();
+            else
+            if (type.equals(Short.class))
+                value = ((BigInteger)value).shortValue();
+            else
+            if (type.equals(Integer.class))
+                value = ((BigInteger)value).intValue();
+            else
+            if (type.equals(Long.class))
+                value = ((BigInteger)value).longValue();
+            else
+            if (type.equals(Float.class))
+                value = ((BigInteger)value).floatValue();
+            else
+            if (type.equals(Double.class))
+                value = ((BigInteger)value).doubleValue();
+        }
+        else
+        if (value instanceof BigDecimal)
+        {
+            if (type.equals(Byte.class))
+                value = ((BigDecimal)value).byteValue();
+            else
+            if (type.equals(Short.class))
+                value = ((BigDecimal)value).shortValue();
+            else
+            if (type.equals(Integer.class))
+                value = ((BigDecimal)value).intValue();
+            else
+            if (type.equals(Long.class))
+                value = ((BigDecimal)value).longValue();
+            else
+            if (type.equals(Float.class))
+                value = ((BigDecimal)value).floatValue();
+            else
+            if (type.equals(Double.class))
+                value = ((BigDecimal)value).doubleValue();
+        }
+
+        return value;
+    }
+
+}
+
