@@ -9,37 +9,37 @@ public class DataTestFactory
 
     public static Byte getByte()
     {
-        return Byte.MIN_VALUE;
+        return -1;
     }
 
 
     public static Short getShort()
     {
-        return Short.MIN_VALUE;
+        return -1;
     }
 
 
     public static Integer getInteger()
     {
-        return Integer.MIN_VALUE;
+        return -1;
     }
 
 
     public static Long getLong()
     {
-        return Long.MIN_VALUE;
+        return -1L;
     }
 
 
     public static Float getFloat()
     {
-        return Float.MIN_VALUE;
+        return -1.0f;
     }
 
 
     public static Double getDouble()
     {
-        return Double.MIN_VALUE;
+        return -1.0;
     }
 
 
