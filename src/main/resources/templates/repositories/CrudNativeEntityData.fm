@@ -8,8 +8,6 @@ import javax.persistence.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.*;
 
 
@@ -928,13 +926,13 @@ public class CrudNativeEntityData
     }
 
 
-    public Object readKeyResult(Object result)
+    public Object readKeyResult(Object result) throws Exception
     {
         return readResult(keyClass, keyColumnDataMap, keysColumnsName, result);
     }
 
 
-    public Object readResult(String[] columns, Object result)
+    public Object readResult(String[] columns, Object result) throws Exception
     {
         if (isNullOrEmpty(columns))
             columns = columnsName;
@@ -943,7 +941,7 @@ public class CrudNativeEntityData
     }
 
 
-    public List<Object> readResultList(String[] columns, List<Object> results)
+    public List<Object> readResultList(String[] columns, List<Object> results) throws Exception
     {
         List<Object> list = new ArrayList<>();
 
@@ -955,45 +953,37 @@ public class CrudNativeEntityData
     }
 
 
-    public void readResult(Object entity, String column, Object value)
+    public void readResult(Object entity, String column, Object value) throws Exception
     {
-        try
-        {
-            setValue(entity, columnDataMap, column, value);
-        }
-        catch (Exception e)
-        {
-            throw new PersistenceException(e);
-        }
+        setValue(entity, columnDataMap, column, value);
     }
 
 
-    private Object readResult(Class<?> targetClass, Map<String, ColumnData> columnDataMap, String[] columns, Object result)
+    private Object readResult(Class<?> targetClass,
+                              Map<String, ColumnData> columnDataMap,
+                              String[] columns,
+                              Object result) throws Exception
     {
-        try
-        {
-            if (ClassUtils.isPrimitiveWrapper(targetClass)
-                ||
-                result instanceof BigInteger
-                ||
-                result instanceof BigDecimal)
-            {
-                return getValueByType(null, targetClass, result);
-            }
+        if (result == null)
+            return null;
 
+        if (!ClassUtils.isPrimitiveWrapper(targetClass))
+        {
+            // target is a custom object
             Object target   = targetClass.getDeclaredConstructor().newInstance();
             Object[] values = result.getClass().isArray() ? (Object[]) result : new Object[]{result};
 
-            int i = 0;
-            if (columns != null)
-                for (String column : columns)
-                    setValue(target, columnDataMap, column, values[i++]);
+            for (int i=0; i<columns.length && i<values.length; i++)
+            {
+                setValue(target, columnDataMap, columns[i], values[i]);
+            }
 
             return target;
         }
-        catch (Exception e)
+        else
         {
-            throw new PersistenceException(e);
+            // target is a primitive object
+            return getValueByType(null, targetClass, result);
         }
     }
 
@@ -1013,28 +1003,36 @@ public class CrudNativeEntityData
 
     private Object getValueByType(Object target, Class<?> type, Object value) throws Exception
     {
-        if (value instanceof BigInteger)
+        if (value == null)
+            return null;
+
+        if (value instanceof Number)
         {
-            if (type.equals(Long.class))
-                value = ((BigInteger)value).longValue();
-            else
-            if (type.equals(Integer.class))
-                value = ((BigInteger)value).intValue();
+            if (type.equals(Byte.class))
+                value = ((Number)value).byteValue();
             else
             if (type.equals(Short.class))
-                value = ((BigInteger)value).shortValue();
+                value = ((Number)value).shortValue();
             else
-            if (type.equals(Byte.class))
-                value = ((BigInteger)value).byteValue();
-        }
-        else
-        if (value instanceof BigDecimal)
-        {
-            if (type.equals(Double.class))
-                value = ((BigDecimal)value).doubleValue();
+            if (type.equals(Integer.class))
+                value = ((Number)value).intValue();
+            else
+            if (type.equals(Long.class))
+                value = ((Number)value).longValue();
             else
             if (type.equals(Float.class))
-                value = ((BigDecimal)value).floatValue();
+                value = ((Number)value).floatValue();
+            else
+            if (type.equals(Double.class))
+                value = ((Number)value).doubleValue();
+            else
+            if (type.equals(String.class))
+                value = ((Number)value).toString();
+        }
+        else
+        if (type.equals(String.class))
+        {
+            value = value.toString();
         }
         else
         if (userTypeDefMap.contains(type))

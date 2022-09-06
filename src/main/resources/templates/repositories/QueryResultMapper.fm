@@ -2,10 +2,9 @@ package ${BaseCrudNativeRepositoriesPackage};
 
 import org.apache.commons.lang3.ClassUtils;
 
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,53 +12,96 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public class QueryResultMapper
 {
+
     private QueryResultMapper() {}
+
+
+    private static String[] getFieldsName(Class<?> targetClass, String... fieldsName)
+    {
+        if (!ClassUtils.isPrimitiveWrapper(targetClass))
+        {
+            if (fieldsName == null || fieldsName.length == 0)
+            {
+                Field[] fields = targetClass.getDeclaredFields();
+                fieldsName = new String[ fields.length ];
+
+                for (int i=0; i<fields.length; i++)
+                    fieldsName[i] = fields[i].getName();
+            }
+        }
+
+        return fieldsName;
+    }
+
+
+    public static <T> T getSingleResult(Query query) throws Exception
+    {
+        try
+        {
+            return (T) query.getSingleResult();
+        }
+        catch (NoResultException e)
+        {
+            return null;
+        }
+    }
+
+
+    public static <T> T getSingleResult(Query query, Class<T> targetClass, String... fieldsName) throws Exception
+    {
+        try
+        {
+            Object result = query.getSingleResult();
+            return (T) readResult(result, targetClass, getFieldsName(targetClass, fieldsName));
+        }
+        catch (NoResultException e)
+        {
+            return null;
+        }
+    }
 
 
     public static <T> List<T> getResultList(Query query, Class<T> targetClass, String... fieldsName) throws Exception
     {
         List<T> list = new ArrayList<>();
 
-        if (fieldsName != null && fieldsName.length > 0)
-        {
-            List<Object> results = query.getResultList();
+        List<Object> resultList = query.getResultList();
 
-            if (results != null)
-                for (Object result : results)
-                    list.add( (T) readResult(result, targetClass, fieldsName) );
+        if (resultList != null && !resultList.isEmpty())
+        {
+            fieldsName = getFieldsName(targetClass, fieldsName);
+
+            for (Object result : resultList)
+                list.add( (T) readResult(result, targetClass, fieldsName) );
         }
 
         return list;
     }
 
 
-    public static <T> T getSingleResult(Query query, Class<T> targetClass) throws Exception
-    {
-        Object result = query.getSingleResult();
-        return (T) readResult(result, targetClass);
-    }
-
-
     private static Object readResult(Object result, Class<?> targetClass, String... fieldsName) throws Exception
     {
-        if (ClassUtils.isPrimitiveWrapper(targetClass)
-            ||
-            result instanceof BigInteger
-            ||
-            result instanceof BigDecimal)
+        if (result == null)
+            return null;
+
+        if (!ClassUtils.isPrimitiveWrapper(targetClass))
         {
-            return getValueByType(targetClass, result);
+            // target is a custom object
+            Object target   = targetClass.getDeclaredConstructor().newInstance();
+            Object[] values = result.getClass().isArray() ? (Object[]) result : new Object[]{result};
+
+            for (int i=0; i<fieldsName.length && i<values.length; i++)
+            {
+                setValue(target, fieldsName[i], values[i]);
+            }
+
+            return target;
         }
-
-        Object target   = targetClass.getDeclaredConstructor().newInstance();
-        Object[] values = result.getClass().isArray() ? (Object[]) result : new Object[]{result};
-
-        int i = 0;
-        if (fieldsName != null)
-            for (String fieldName : fieldsName)
-                setValue(target, fieldName, values[i++]);
-
-        return target;
+        else
+        {
+            // target is a primitive object
+            return getValueByTargetType(result, targetClass);
+        }
     }
 
 
@@ -76,54 +118,45 @@ public class QueryResultMapper
             return;
         }
 
-        value = getValueByType(field.getType(), value);
+        value = getValueByTargetType(value, field.getType());
+
         field.setAccessible( true );
         field.set(target, value);
     }
 
 
-    private static Object getValueByType(Class<?> type, Object value)
+    private static Object getValueByTargetType(Object value, Class<?> targetType)
     {
-        if (value instanceof BigInteger)
+        if (value == null)
+            return null;
+
+        if (value instanceof Number)
         {
-            if (type.equals(Byte.class))
-                value = ((BigInteger)value).byteValue();
+            if (targetType.equals(Byte.class))
+                value = ((Number)value).byteValue();
             else
-            if (type.equals(Short.class))
-                value = ((BigInteger)value).shortValue();
+            if (targetType.equals(Short.class))
+                value = ((Number)value).shortValue();
             else
-            if (type.equals(Integer.class))
-                value = ((BigInteger)value).intValue();
+            if (targetType.equals(Integer.class))
+                value = ((Number)value).intValue();
             else
-            if (type.equals(Long.class))
-                value = ((BigInteger)value).longValue();
+            if (targetType.equals(Long.class))
+                value = ((Number)value).longValue();
             else
-            if (type.equals(Float.class))
-                value = ((BigInteger)value).floatValue();
+            if (targetType.equals(Float.class))
+                value = ((Number)value).floatValue();
             else
-            if (type.equals(Double.class))
-                value = ((BigInteger)value).doubleValue();
+            if (targetType.equals(Double.class))
+                value = ((Number)value).doubleValue();
+            else
+            if (targetType.equals(String.class))
+                value = ((Number)value).toString();
         }
         else
-        if (value instanceof BigDecimal)
+        if (targetType.equals(String.class))
         {
-            if (type.equals(Byte.class))
-                value = ((BigDecimal)value).byteValue();
-            else
-            if (type.equals(Short.class))
-                value = ((BigDecimal)value).shortValue();
-            else
-            if (type.equals(Integer.class))
-                value = ((BigDecimal)value).intValue();
-            else
-            if (type.equals(Long.class))
-                value = ((BigDecimal)value).longValue();
-            else
-            if (type.equals(Float.class))
-                value = ((BigDecimal)value).floatValue();
-            else
-            if (type.equals(Double.class))
-                value = ((BigDecimal)value).doubleValue();
+            value = value.toString();
         }
 
         return value;
