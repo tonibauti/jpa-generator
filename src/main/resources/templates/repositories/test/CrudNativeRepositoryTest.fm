@@ -303,7 +303,7 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
         logger.info("result: " + result);
     }
 
-
+    <#if isGenerateJoins>
     @Test
     public void joinAll()
     {
@@ -314,6 +314,6 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
 
         logger.info("result: " + entity);
     }
-
+    </#if>
 }
 

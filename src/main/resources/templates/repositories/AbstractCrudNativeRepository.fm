@@ -1019,7 +1019,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         }
     }
 
-
+    <#if isGenerateJoins>
     @Override
     public void join(T entity, Class<?> referencedClass, String... columns)
     {
@@ -1143,6 +1143,6 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             throw new PersistenceException(e);
         }
     }
-
+    </#if>
 }
 

@@ -139,6 +139,12 @@ public class Workspace
     }
 
 
+    public boolean isGenerateJoins()
+    {
+        return bool(generatorConfig.getGenerateJoins());
+    }
+
+
     public boolean isCrudRepositories()
     {
         return (bool(generatorConfig.getGenerateCrudRepositories()) && isSpringDataMode());

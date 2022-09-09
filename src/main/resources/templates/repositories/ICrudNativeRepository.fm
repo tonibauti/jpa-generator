@@ -49,6 +49,7 @@ public interface CrudNativeRepository<T, ID>
 
     int deleteAll();
 
+    <#if isGenerateJoins>
     void join(T entity, Class<?> referencedClass, String... columns);
 
     void join(T entity, Class<?> referencedClass, Pageable pageable, String... columns);
@@ -58,6 +59,6 @@ public interface CrudNativeRepository<T, ID>
     void join(T entity, String propertyName, Pageable pageable, String... columns);
 
     void joinAll(T entity, String... columns);
-
+    </#if>
 }
 

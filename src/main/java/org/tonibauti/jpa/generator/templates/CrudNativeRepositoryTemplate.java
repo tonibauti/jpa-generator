@@ -100,6 +100,7 @@ public class CrudNativeRepositoryTemplate extends AbstractTemplate
         map.put("isMultipleKey", dbTable.isMultipleKey());
         map.put("importList", importList);
         map.put("isPostgresJson", isPostgresJson);
+        map.put("isGenerateJoins", getWorkspace().isGenerateJoins());
 
         return map;
     }

@@ -246,6 +246,7 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
         map.put("isMultipleKey", dbTable.isMultipleKey());
         map.put("importList", importList);
         map.put("isJsonForDataTestFactory", isJsonForDataTestFactory);
+        map.put("isGenerateJoins", getWorkspace().isGenerateJoins());
         map.put("fieldDataList", fieldDataList);
         map.put("filterDataList", filterDataList);
         map.put("pkFieldDataList", pkFieldDataList);
