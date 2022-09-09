@@ -733,6 +733,12 @@ public class CrudNativeEntityData
     }
 
 
+    public boolean isKey(String column)
+    {
+        return keyColumnDataMap.containsKey(column);
+    }
+
+
     public boolean isMultipleKey()
     {
         return (keyColumnDataMap.size() > 1);

@@ -9,7 +9,7 @@ import java.util.List;
 public interface CrudNativeRepository<T, ID>
 {
 
-    long count(T filter);
+    long count(T filter, boolean useLike);
 
     long countAll();
 
@@ -17,13 +17,21 @@ public interface CrudNativeRepository<T, ID>
 
     boolean existsById(ID id);
 
+    List<T> find(T filter, String... columns);
+
     List<T> find(T filter, Pageable pageable, String... columns);
 
     List<T> findAll(Pageable pageable, String... columns);
 
     Page<T> findPage(T filter, Pageable pageable, String... columns);
 
-    Page<T> findAllPage(Pageable pageable, String... columns);
+    Page<T> findAllPages(Pageable pageable, String... columns);
+
+    List<T> getList(T filter, String... columns);
+
+    List<T> getList(T filter, Pageable pageable, String... columns);
+
+    Page<T> getPage(T filter, Pageable pageable, String... columns);
 
     T get(T filter, String... columns);
 

@@ -102,7 +102,7 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
     {
         logger.info("count");
 
-        long result = getRepository().count( getFilter() );
+        long result = getRepository().count(getFilter(), false);
 
         logger.info("result: " + result);
     }
@@ -176,11 +176,34 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
 
 
     @Test
-    public void findAllPage() throws Exception
+    public void findAllPages() throws Exception
     {
-        logger.info("findAllPage");
+        logger.info("findAllPages");
 
-        Page<${Entity}> page = getRepository().findAllPage( PageRequest.of(0,10) );
+        Page<${Entity}> page = getRepository().findAllPages( PageRequest.of(0,10) );
+
+        logger.info("page {}/{} of {} elements: {}",
+                    page.getNumber(), page.getTotalPages(), page.getTotalElements(), page.toList());
+    }
+
+
+    @Test
+    public void getList() throws Exception
+    {
+        logger.info("getList");
+
+        List<${Entity}> result = getRepository().getList(getFilter(), PageRequest.of(0,10));
+
+        logger.info("result: " + result);
+    }
+
+
+    @Test
+    public void getPage() throws Exception
+    {
+        logger.info("getList");
+
+        Page<${Entity}> page = getRepository().getPage(getFilter(), PageRequest.of(0,10));
 
         logger.info("page {}/{} of {} elements: {}",
                     page.getNumber(), page.getTotalPages(), page.getTotalElements(), page.toList());

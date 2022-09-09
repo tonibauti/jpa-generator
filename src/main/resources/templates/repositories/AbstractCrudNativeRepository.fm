@@ -12,8 +12,8 @@ import javax.annotation.PostConstruct;
 import javax.persistence.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -21,8 +21,6 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeRepository<T, ID>
 {
-    protected final List<T> EMPTY_LIST = new ArrayList<>();
-
     private Class<T> entityClass;
     private Class<ID> keyClass;
 
@@ -282,7 +280,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     }
 
 
-    protected void whereByFilter(StringBuilder sql, Map<String, Object> filterMap, boolean isLike)
+    protected void whereByFilter(StringBuilder sql, Map<String, Object> filterMap, boolean useLike)
     {
         if (isNullOrEmpty(filterMap))
             return;
@@ -303,7 +301,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
                 sql.append(column + " is null");
             }
             else
-            if (value instanceof String && isLike)
+            if (value instanceof String && useLike)
             {
                 sql.append(column + " LIKE CONCAT('%',CONCAT(?,'%'))");
             }
@@ -480,7 +478,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     //
 
     @Override
-    public long count(T filter)
+    public long count(T filter, boolean useLike)
     {
         try
         {
@@ -490,7 +488,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             ;
 
             Map<String, Object> filterMap = getFilterMap( filter );
-            whereByFilter(sql, filterMap, true);
+            whereByFilter(sql, filterMap, useLike);
 
             Query query = getEntityManager().createNativeQuery( sql.toString() );
             setFilterParameters(1, query, filterMap);
@@ -601,6 +599,13 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
 
     @Override
+    public List<T> find(T filter, String... columns)
+    {
+        return find(filter, null, columns);
+    }
+
+
+    @Override
     public List<T> find(T filter, Pageable pageable, String... columns)
     {
         try
@@ -622,10 +627,6 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
             return (List<T>) readResultList(query, columns);
         }
-        catch (NoResultException e)
-        {
-            return EMPTY_LIST;
-        }
         catch (Exception e)
         {
             throw new PersistenceException(e);
@@ -643,7 +644,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     @Override
     public Page<T> findPage(T filter, Pageable pageable, String... columns)
     {
-        long count = count(filter);
+        long count = count(filter, true);
 
         if (count > 0)
         {
@@ -651,13 +652,13 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         }
         else
         {
-            return new PageImpl<>(EMPTY_LIST, pageable, 0);
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
         }
     }
 
 
     @Override
-    public Page<T> findAllPage(Pageable pageable, String... columns)
+    public Page<T> findAllPages(Pageable pageable, String... columns)
     {
         long count = countAll();
 
@@ -667,7 +668,65 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         }
         else
         {
-            return new PageImpl<>(EMPTY_LIST, pageable, 0);
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
+        }
+    }
+
+
+    @Override
+    public List<T> getList(T filter, String... columns)
+    {
+        return getList(filter, null, columns);
+    }
+
+
+    @Override
+    public List<T> getList(T filter, Pageable pageable, String... columns)
+    {
+        if (isNullOrEmpty(filter))
+            return Collections.emptyList();
+
+        try
+        {
+            StringBuilder sql = new StringBuilder()
+            .append( "SELECT " )
+            .append( getSelectColumns(columns) )
+            .append( " FROM " )
+            .append( getTableName() )
+            ;
+
+            Map<String, Object> filterMap = getFilterMap( filter );
+
+            if (isNullOrEmpty(filterMap)) // get all
+                return Collections.emptyList();
+
+            whereByFilter(sql, filterMap, false);
+            orderBy(getTableName(), sql, pageable);
+
+            Query query = getEntityManager().createNativeQuery( sql.toString() );
+            setFilterParameters(1, query, filterMap);
+
+            return (List<T>) readResultList(query, columns);
+        }
+        catch (Exception e)
+        {
+            throw new PersistenceException(e);
+        }
+    }
+
+
+    @Override
+    public Page<T> getPage(T filter, Pageable pageable, String... columns)
+    {
+        long count = count(filter, false);
+
+        if (count > 0)
+        {
+            return new PageImpl<>(getList(filter, pageable, columns), pageable, count);
+        }
+        else
+        {
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
         }
     }
 
