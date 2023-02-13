@@ -37,6 +37,10 @@ public interface CrudNativeRepository<T, ID>
 
     T getById(ID id, String... columns);
 
+    int execute(String sql);
+
+    int execute(String sql, T entity, String... columns);
+
     int create(T entity);
 
     int update(T entity, String... columns);

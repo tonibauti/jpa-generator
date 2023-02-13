@@ -803,6 +803,35 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
 
     @Override
+    public int execute(String sql)
+    {
+        return execute(sql, null);
+    }
+
+
+    @Override
+    public int execute(String sql, T entity, String... columns)
+    {
+        if (isNullOrEmpty(sql))
+            return 0;
+
+        try
+        {
+            Query query = getEntityManager().createNativeQuery( sql );
+
+            if (isNotEmpty(entity))
+                setParameterValues(1, query, getValues(entity, false, columns));
+
+            return query.executeUpdate();
+        }
+        catch (Exception e)
+        {
+            throw new PersistenceException(e);
+        }
+    }
+
+
+    @Override
     public int create(T entity)
     {
         if (isNullOrEmpty(entity))
