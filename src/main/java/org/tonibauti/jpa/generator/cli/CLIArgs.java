@@ -5,8 +5,8 @@ public class CLIArgs
 {
     private static final CLIArgs instance = new CLIArgs();
 
-    private String config;
-    private String environment;
+    private String configFileName;
+    private String environmentFileName;
     private boolean help;
     private boolean verbose;
 
@@ -23,26 +23,26 @@ public class CLIArgs
     }
 
 
-    public String getConfig()
+    public String getConfigFileName()
     {
-        return config;
+        return configFileName;
     }
 
 
-    public void setConfig(String config)
+    public void setConfigFileName(String configFileName)
     {
-        this.config = config;
+        this.configFileName = configFileName;
     }
 
 
-    public String getEnvironment()
+    public String getEnvironmentFileName()
     {
-        return environment;
+        return environmentFileName;
     }
 
-    public void setEnvironment(String environment)
+    public void setEnvironmentFileName(String environmentFileName)
     {
-        this.environment = environment;
+        this.environmentFileName = environmentFileName;
     }
 
 

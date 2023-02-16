@@ -88,13 +88,13 @@ public class CLI
             if (commandLine.hasOption(CONFIG_FILE_OPTION))
             {
                 String config = commandLine.getOptionValue(CONFIG_FILE_OPTION);
-                cliArgs.setConfig( config.trim() );
+                cliArgs.setConfigFileName( config.trim() );
             }
 
             if (commandLine.hasOption(ENV_FILE_OPTION))
             {
                 String environment = commandLine.getOptionValue(ENV_FILE_OPTION);
-                cliArgs.setEnvironment( environment.trim() );
+                cliArgs.setEnvironmentFileName( environment.trim() );
             }
 
             cliArgs.setHelp( commandLine.hasOption(HELP_OPTION) );
