@@ -237,7 +237,7 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
     {
         logger.info("getId");
 
-        ${Key} result = getRepository().getById( getFilter() );
+        ${Key} result = getRepository().getId( getFilter() );
 
         logger.info("result: " + result);
     }
