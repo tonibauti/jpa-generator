@@ -534,6 +534,9 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     @Override
     public boolean exists(T filter)
     {
+        return (get(filter, getKeysColumnsName()) != null);
+
+        /*
         if (isNullOrEmpty(filter))
             return false;
 
@@ -564,25 +567,24 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         {
             throw new PersistenceException(e);
         }
+        */
     }
 
 
     @Override
     public boolean existsById(ID id)
     {
+        return (getById(id, getKeysColumnsName()) != null);
+
+        /*
         if (isNullOrEmpty(id))
             return false;
 
         try
         {
-            StringBuilder sql = new StringBuilder()
-            .append( "SELECT COUNT(*) FROM " )
-            .append( getTableName() )
-            .append( " WHERE " )
-            .append( getEqualsKeyColumns() )
-            ;
+            String sql = "SELECT COUNT(*) FROM " + getTableName() + " WHERE " + getEqualsKeyColumns();
 
-            Query query = getEntityManager().createNativeQuery( sql.toString() );
+            Query query = getEntityManager().createNativeQuery(sql);
             setKeyParameterValues(1, query, id);
 
             return (readLongResult(query) > 0);
@@ -595,6 +597,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         {
             throw new PersistenceException(e);
         }
+        */
     }
 
 
@@ -803,26 +806,35 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
 
     @Override
-    public int execute(String sql)
+    public ID getId(T filter)
     {
-        return execute(sql, null);
-    }
-
-
-    @Override
-    public int execute(String sql, T entity, String... columns)
-    {
-        if (isNullOrEmpty(sql))
-            return 0;
+        if (isNullOrEmpty(filter))
+            return null;
 
         try
         {
-            Query query = getEntityManager().createNativeQuery( sql );
+            StringBuilder sql = new StringBuilder()
+            .append( "SELECT " )
+            .append( getSelectKeysColumns() )
+            .append( " FROM " )
+            .append( getTableName() )
+            ;
 
-            if (isNotEmpty(entity))
-                setParameterValues(1, query, getValues(entity, false, columns));
+            Map<String, Object> filterMap = getFilterMap( filter );
 
-            return query.executeUpdate();
+            if (isNullOrEmpty(filterMap)) // get all IDs
+                return null;
+
+            whereByFilter(sql, filterMap, false);
+
+            Query query = getEntityManager().createNativeQuery( sql.toString() );
+            setFilterParameters(1, query, filterMap);
+
+            return (ID) readResult(query, getKeysColumnsName());
+        }
+        catch (NoResultException e)
+        {
+            return null;
         }
         catch (Exception e)
         {
@@ -909,7 +921,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             .append( getEqualsKeyColumns() )
             ;
 
-            Query query = getEntityManager().createNativeQuery( sql.toString() );
+            Query query = getEntityManager().createNativeQuery(sql.toString() );
 
             // values
             int index = setParameterValues(1, query, getValues(entity, false, columns));

@@ -101,7 +101,7 @@ public class Generator extends AbstractComponent
             catalogConstantsTemplate.generate();
         }
 
-        Console.out("");
+        Console.separator();
     }
 
 }
