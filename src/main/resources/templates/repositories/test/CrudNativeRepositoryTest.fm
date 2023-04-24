@@ -233,6 +233,17 @@ public class ${ClassName}CrudNativeRepositoryTest extends AbstractRepositoryTest
 
 
     @Test
+    public void getId() throws Exception
+    {
+        logger.info("getId");
+
+        ${Key} result = getRepository().getById( getFilter() );
+
+        logger.info("result: " + result);
+    }
+
+
+    @Test
     public void create() throws Exception
     {
         logger.info("create");

@@ -830,7 +830,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             Query query = getEntityManager().createNativeQuery( sql.toString() );
             setFilterParameters(1, query, filterMap);
 
-            return (ID) readResult(query, getKeysColumnsName());
+            return (ID) readKeyResult( query );
         }
         catch (NoResultException e)
         {
