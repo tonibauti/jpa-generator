@@ -844,6 +844,35 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
 
     @Override
+    public int execute(String sql)
+    {
+        return execute(sql, null);
+    }
+
+
+    @Override
+    public int execute(String sql, T entity, String... columns)
+    {
+        if (isNullOrEmpty(sql))
+            return 0;
+
+        try
+        {
+            Query query = getEntityManager().createNativeQuery( sql );
+
+            if (isNotEmpty(entity))
+                setParameterValues(1, query, getValues(entity, false, columns));
+
+            return query.executeUpdate();
+        }
+        catch (Exception e)
+        {
+            throw new PersistenceException(e);
+        }
+    }
+
+
+    @Override
     public int create(T entity)
     {
         if (isNullOrEmpty(entity))
@@ -921,7 +950,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             .append( getEqualsKeyColumns() )
             ;
 
-            Query query = getEntityManager().createNativeQuery(sql.toString() );
+            Query query = getEntityManager().createNativeQuery( sql.toString() );
 
             // values
             int index = setParameterValues(1, query, getValues(entity, false, columns));
@@ -1060,6 +1089,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         }
     }
 
+
     <#if isGenerateJoins>
     @Override
     public void join(T entity, Class<?> referencedClass, String... columns)
@@ -1134,7 +1164,8 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             .append( getSelectColumns(referencedClass, columns) )
             .append( " FROM " )
             .append( !recursive ? (referencedTableName + ", " + tableName) : referencedTableName )
-            .append( " WHERE " );
+            .append( " WHERE " )
+            ;
 
             if (!recursive)
             {
