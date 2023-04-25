@@ -973,7 +973,12 @@ public class CrudNativeEntityData
         if (result == null)
             return null;
 
-        if (!ClassUtils.isPrimitiveWrapper(targetClass))
+        if (ClassUtils.isPrimitiveWrapper(targetClass) || targetClass.equals(String.class))
+        {
+            // target is a primitive object or string
+            return getValueByType(null, targetClass, result);
+        }
+        else
         {
             // target is a custom object
             Object target   = targetClass.getDeclaredConstructor().newInstance();
@@ -985,11 +990,6 @@ public class CrudNativeEntityData
             }
 
             return target;
-        }
-        else
-        {
-            // target is a primitive object
-            return getValueByType(null, targetClass, result);
         }
     }
 
