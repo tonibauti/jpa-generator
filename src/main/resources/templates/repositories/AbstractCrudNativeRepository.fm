@@ -339,7 +339,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             }
             else
             {
-                query.setParameter(1, id);
+                query.setParameter(index++, id);
             }
         }
         else
@@ -480,6 +480,8 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     @Override
     public long count(T filter, boolean useLike)
     {
+        Map<String, Object> filterMap = getFilterMap( filter );
+
         try
         {
             StringBuilder sql = new StringBuilder()
@@ -487,7 +489,6 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             .append( getTableName() )
             ;
 
-            Map<String, Object> filterMap = getFilterMap( filter );
             whereByFilter(sql, filterMap, useLike);
 
             Query query = getEntityManager().createNativeQuery( sql.toString() );
@@ -534,23 +535,44 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     @Override
     public boolean exists(T filter)
     {
-        return (get(filter, getKeysColumnsName()) != null);
+        Map<String, Object> filterMap = getFilterMap( filter );
+
+        if (isNullOrEmpty(filterMap))
+            throw new IllegalArgumentException("filter is empty");
+
+        try
+        {
+            StringBuilder sql = new StringBuilder()
+            .append( "SELECT " )
+            .append( getSelectKeysColumns() )
+            .append( " FROM " )
+            .append( getTableName() )
+            ;
+
+            whereByFilter(sql, filterMap, false);
+
+            Query query = getEntityManager().createNativeQuery( sql.toString() );
+            setFilterParameters(1, query, filterMap);
+            query.setMaxResults(1);
+
+            return (readKeyResult(query) != null);
+        }
+        catch (NoResultException e)
+        {
+            return false;
+        }
+        catch (Exception e)
+        {
+            throw new PersistenceException(e);
+        }
 
         /*
-        if (isNullOrEmpty(filter))
-            return false;
-
         try
         {
             StringBuilder sql = new StringBuilder()
             .append( "SELECT COUNT(*) FROM " )
             .append( getTableName() )
             ;
-
-            Map<String, Object> filterMap = getFilterMap( filter );
-
-            if (isNullOrEmpty(filterMap))
-                return false;
 
             whereByFilter(sql, filterMap, false);
 
@@ -574,15 +596,44 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     @Override
     public boolean existsById(ID id)
     {
-        return (getById(id, getKeysColumnsName()) != null);
-
-        /*
         if (isNullOrEmpty(id))
-            return false;
+            throw new IllegalArgumentException("id is empty");
 
         try
         {
-            String sql = "SELECT COUNT(*) FROM " + getTableName() + " WHERE " + getEqualsKeyColumns();
+            StringBuilder sql = new StringBuilder()
+            .append( "SELECT " )
+            .append( getSelectKeysColumns() )
+            .append( " FROM " )
+            .append( getTableName() )
+            .append( " WHERE " )
+            .append( getEqualsKeyColumns() )
+            ;
+
+            Query query = getEntityManager().createNativeQuery( sql.toString() );
+            setKeyParameterValues(1, query, id);
+            query.setMaxResults(1);
+
+            return (readKeyResult(query) != null);
+        }
+        catch (NoResultException e)
+        {
+            return false;
+        }
+        catch (Exception e)
+        {
+            throw new PersistenceException(e);
+        }
+
+        /*
+        try
+        {
+            StringBuilder sql = new StringBuilder()
+            .append( "SELECT COUNT(*) FROM " )
+            .append( getTableName() )
+            .append( " WHERE " )
+            .append( getEqualsKeyColumns() )
+            ;
 
             Query query = getEntityManager().createNativeQuery(sql);
             setKeyParameterValues(1, query, id);
@@ -611,6 +662,8 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     @Override
     public List<T> find(T filter, Pageable pageable, String... columns)
     {
+        Map<String, Object> filterMap = getFilterMap( filter );
+
         try
         {
             StringBuilder sql = new StringBuilder()
@@ -620,7 +673,6 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             .append( getTableName() )
             ;
 
-            Map<String, Object> filterMap = getFilterMap( filter );
             whereByFilter(sql, filterMap, true);
             orderBy(getTableName(), sql, pageable);
 
@@ -686,7 +738,9 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     @Override
     public List<T> getList(T filter, Pageable pageable, String... columns)
     {
-        if (isNullOrEmpty(filter))
+        Map<String, Object> filterMap = getFilterMap( filter );
+
+        if (isNullOrEmpty(filterMap)) // get all
             return Collections.emptyList();
 
         try
@@ -697,11 +751,6 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             .append( " FROM " )
             .append( getTableName() )
             ;
-
-            Map<String, Object> filterMap = getFilterMap( filter );
-
-            if (isNullOrEmpty(filterMap)) // get all
-                return Collections.emptyList();
 
             whereByFilter(sql, filterMap, false);
             orderBy(getTableName(), sql, pageable);
@@ -737,7 +786,9 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     @Override
     public T get(T filter, String... columns)
     {
-        if (isNullOrEmpty(filter))
+        Map<String, Object> filterMap = getFilterMap( filter );
+
+        if (isNullOrEmpty(filterMap)) // get all
             return null;
 
         try
@@ -748,11 +799,6 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             .append( " FROM " )
             .append( getTableName() )
             ;
-
-            Map<String, Object> filterMap = getFilterMap( filter );
-
-            if (isNullOrEmpty(filterMap)) // get all
-                return null;
 
             whereByFilter(sql, filterMap, false);
 
@@ -808,7 +854,9 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     @Override
     public ID getId(T filter)
     {
-        if (isNullOrEmpty(filter))
+        Map<String, Object> filterMap = getFilterMap( filter );
+
+        if (isNullOrEmpty(filterMap)) // get all IDs
             return null;
 
         try
@@ -819,11 +867,6 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             .append( " FROM " )
             .append( getTableName() )
             ;
-
-            Map<String, Object> filterMap = getFilterMap( filter );
-
-            if (isNullOrEmpty(filterMap)) // get all IDs
-                return null;
 
             whereByFilter(sql, filterMap, false);
 
@@ -903,13 +946,13 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
                 for (String autoGeneratedColumnsName : getAutoGeneratedColumnsName())
                 {
                     sql.delete(0, sql.length())
-                    .append( "SELECT " )
-                    .append( autoGeneratedColumnsName )
-                    .append( " FROM " )
-                    .append( getTableName() )
-                    .append( " ORDER BY " )
-                    .append( autoGeneratedColumnsName )
-                    .append( " DESC" )
+                            .append( "SELECT " )
+                            .append( autoGeneratedColumnsName )
+                            .append( " FROM " )
+                            .append( getTableName() )
+                            .append( " ORDER BY " )
+                            .append( autoGeneratedColumnsName )
+                            .append( " DESC" )
                     ;
 
                     query = getEntityManager().createNativeQuery( sql.toString() );
@@ -936,7 +979,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
         try
         {
-            StringBuilder updateColumns = getUpdateColumns(columns);
+            StringBuilder updateColumns = getUpdateColumns( columns );
 
             if (isNullOrEmpty(updateColumns))
                 return 0;
@@ -970,12 +1013,14 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     @Override
     public int update(T entity, T filter, String... columns)
     {
-        if (isNullOrEmpty(entity))
+        Map<String, Object> filterMap = getFilterMap( filter );
+
+        if (isNullOrEmpty(filterMap)) // update all
             return 0;
 
         try
         {
-            StringBuilder updateColumns = getUpdateColumns(columns);
+            StringBuilder updateColumns = getUpdateColumns( columns );
 
             if (isNullOrEmpty(updateColumns))
                 return 0;
@@ -986,11 +1031,6 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             .append( " SET " )
             .append( updateColumns )
             ;
-
-            Map<String, Object> filterMap = getFilterMap( filter );
-
-            if (isNullOrEmpty(filterMap)) // update all
-                return 0;
 
             whereByFilter(sql, filterMap, false);
 
@@ -1014,7 +1054,9 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     @Override
     public int delete(T filter)
     {
-        if (isNullOrEmpty(filter))
+        Map<String, Object> filterMap = getFilterMap( filter );
+
+        if (isNullOrEmpty(filterMap)) // delete all
             return 0;
 
         try
@@ -1023,11 +1065,6 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
             .append( "DELETE FROM " )
             .append( getTableName() )
             ;
-
-            Map<String, Object> filterMap = getFilterMap( filter );
-
-            if (isNullOrEmpty(filterMap)) // delete all
-                return 0;
 
             whereByFilter(sql, filterMap, false);
 

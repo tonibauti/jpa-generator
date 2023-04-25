@@ -236,7 +236,7 @@ public class CrudNativeEntityData
 
     private Object getValue(Object obj, ColumnData columnData) throws Exception
     {
-        Object value = columnData.field.get(obj);
+        Object value = columnData.field.get( obj );
 
         if (value != null)
         {
