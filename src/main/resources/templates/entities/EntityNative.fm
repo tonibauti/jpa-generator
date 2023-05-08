@@ -52,6 +52,13 @@ public class ${Entity} implements Serializable
     public static final String ${fieldData.column}_COLUMN = "${fieldData.name}";
     </#list>
 
+    public static final List<String> ALL_COLUMNS = List.of
+    (
+    <#list fieldDataList as fieldData>
+        ${fieldData.column}_COLUMN<#if fieldData_has_next>,</#if>
+    </#list>
+    );
+
     <#list fieldDataList as fieldData>
 
     <#list fieldData.annotations as annotation>

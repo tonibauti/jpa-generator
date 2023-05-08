@@ -11,8 +11,6 @@ public class Resources
     public static final String JAVA_VERSION = System.getProperty("java.version");
 
 
-
-
     private Resources() {}
 
 
