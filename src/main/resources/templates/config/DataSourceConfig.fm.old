@@ -1,6 +1,7 @@
 package ${ConfigPackage};
 
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -21,21 +22,18 @@ public class ${ClassName}DataSourceConfig
     public static final String DATASOURCE = NAME + "DataSource";
 
 
-    @ConfigurationProperties("spring.datasource.${DataSourcePropertiesName}")
-    @Bean(DATASOURCE + "Properties")
-    protected DataSourceProperties dataSourceProperties()
+    @Bean(NAME + "HikariConfig")
+    @ConfigurationProperties(prefix = "spring.hikari.datasource.${DataSourcePropertiesName}")
+    protected HikariConfig hikariConfig()
     {
-        return new DataSourceProperties();
+        return new HikariConfig();
     }
 
 
-    @ConfigurationProperties("spring.datasource.${DataSourcePropertiesName}.hikari")
-    @Bean(name=DATASOURCE, destroyMethod="close")
+    @Bean(DATASOURCE)
     public DataSource dataSource()
     {
-        return dataSourceProperties()
-                .initializeDataSourceBuilder()
-                .build();
+        return new HikariDataSource( hikariConfig() );
     }
 
 }
