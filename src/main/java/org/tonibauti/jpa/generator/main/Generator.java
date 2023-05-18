@@ -5,7 +5,12 @@ import org.tonibauti.jpa.generator.config.Config;
 import org.tonibauti.jpa.generator.config.GeneratorConfig;
 import org.tonibauti.jpa.generator.explorer.DatabaseExplorer;
 import org.tonibauti.jpa.generator.explorer.metada.DBTable;
-import org.tonibauti.jpa.generator.templates.*;
+import org.tonibauti.jpa.generator.templates.CatalogConstantsTemplate;
+import org.tonibauti.jpa.generator.templates.ConfigTemplate;
+import org.tonibauti.jpa.generator.templates.CrudNativeRepositoryTemplate;
+import org.tonibauti.jpa.generator.templates.CrudRepositoryTemplate;
+import org.tonibauti.jpa.generator.templates.CrudRepositoryTestTemplate;
+import org.tonibauti.jpa.generator.templates.EntityTemplate;
 
 import java.util.List;
 

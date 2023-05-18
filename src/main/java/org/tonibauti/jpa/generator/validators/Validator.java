@@ -11,7 +11,11 @@ import org.tonibauti.jpa.generator.cli.Console;
 import org.tonibauti.jpa.generator.config.Config;
 import org.tonibauti.jpa.generator.main.AbstractComponent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 
 public class Validator extends AbstractComponent

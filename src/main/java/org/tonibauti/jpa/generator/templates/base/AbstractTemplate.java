@@ -1,6 +1,10 @@
 package org.tonibauti.jpa.generator.templates.base;
 
-import org.tonibauti.jpa.generator.explorer.metada.*;
+import org.tonibauti.jpa.generator.explorer.metada.DBColumn;
+import org.tonibauti.jpa.generator.explorer.metada.DBConnection;
+import org.tonibauti.jpa.generator.explorer.metada.DBForeignKey;
+import org.tonibauti.jpa.generator.explorer.metada.DBIndex;
+import org.tonibauti.jpa.generator.explorer.metada.DBTable;
 import org.tonibauti.jpa.generator.main.AbstractComponent;
 import org.tonibauti.jpa.generator.main.Workspace;
 import org.tonibauti.jpa.generator.utils.Files;
@@ -11,7 +15,13 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 
 public abstract class AbstractTemplate extends AbstractComponent

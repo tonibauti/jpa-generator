@@ -14,6 +14,18 @@ public class Resources
     private Resources() {}
 
 
+    /*
+    public static void addToClassPath(String fileName) throws Exception
+    {
+        File f = new File(fileName);
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        Class<URLClassLoader> urlClass = URLClassLoader.class;
+        Method method = urlClass.getDeclaredMethod("addURL", URL.class);
+        method.setAccessible(true);
+        method.invoke(classLoader, f.toURL());
+    }
+    */
+
     public static void addToClassPath(String fileName) throws Exception
     {
         // run with vm options: --add-opens=java.base/jdk.internal.loader=ALL-UNNAMED
@@ -23,16 +35,6 @@ public class Resources
         Method method = classLoader.getClass().getDeclaredMethod("appendToClassPathForInstrumentation", String.class);
         method.setAccessible(true);
         method.invoke(classLoader, fileName);
-
-
-        /*
-        File f = new File(fileName);
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        Class<URLClassLoader> urlClass = URLClassLoader.class;
-        Method method = urlClass.getDeclaredMethod("addURL", URL.class);
-        method.setAccessible(true);
-        method.invoke(classLoader, f.toURL());
-        */
     }
 
 

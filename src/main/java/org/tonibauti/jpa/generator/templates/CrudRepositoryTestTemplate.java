@@ -8,7 +8,11 @@ import org.tonibauti.jpa.generator.templates.base.AbstractTemplate;
 import org.tonibauti.jpa.generator.templates.base.FieldData;
 import org.tonibauti.jpa.generator.utils.Strings;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class CrudRepositoryTestTemplate extends AbstractTemplate
