@@ -43,7 +43,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         }
         catch (ClassCastException e)
         {
-            // proxied class
+            // proxies class
             entityClass = ((Class<T>) ((ParameterizedType) (((Class<T>) getClass()
                                                                         .getAnnotatedSuperclass()
                                                                         .getType())

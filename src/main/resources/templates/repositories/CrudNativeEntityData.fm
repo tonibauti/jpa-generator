@@ -1,14 +1,32 @@
 package ${BaseCrudNativeRepositoriesPackage};
 
-import org.apache.commons.lang3.ClassUtils;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.PersistenceException;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.PrimaryKeyJoinColumns;
+import javax.persistence.Table;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 
 public class CrudNativeEntityData
@@ -926,127 +944,66 @@ public class CrudNativeEntityData
     }
 
 
-    private Object getUserTypeValue(Object obj, Class<?> type, Object value) throws Exception
+    public Object readKeyResult(Object querySingleResult) throws Exception
     {
-        return type.getDeclaredMethod("fromString", String.class).invoke(obj, (String)value);
+        return readResult(keyClass, keyColumnDataMap, keysColumnsName, querySingleResult);
     }
 
 
-    public Object readKeyResult(Object result) throws Exception
-    {
-        return readResult(keyClass, keyColumnDataMap, keysColumnsName, result);
-    }
-
-
-    public Object readResult(String[] columns, Object result) throws Exception
-    {
-        if (isNullOrEmpty(columns))
-            columns = columnsName;
-
-        return readResult(entityClass, columnDataMap, columns, result);
-    }
-
-
-    public List<Object> readResultList(String[] columns, List<Object> results) throws Exception
+    public List<Object> readResultList(String[] columns, List<Object> queryResultList) throws Exception
     {
         List<Object> list = new ArrayList<>();
 
-        if (results != null)
-            for (Object result : results)
-                list.add( readResult(columns, result) );
+        if (isNotEmpty(queryResultList))
+            for (Object row : queryResultList)
+                list.add( readResult(columns, row) );
 
         return list;
     }
 
 
-    public void readResult(Object entity, String column, Object value) throws Exception
+    public Object readResult(String[] columns, Object querySingleResult) throws Exception
     {
-        setValue(entity, columnDataMap, column, value);
+        if (isNullOrEmpty(columns))
+            columns = columnsName;
+
+        return readResult(entityClass, columnDataMap, columns, querySingleResult);
     }
 
 
-    private Object readResult(Class<?> targetClass,
-                              Map<String, ColumnData> columnDataMap,
-                              String[] columns,
-                              Object result) throws Exception
-    {
-        if (result == null)
-            return null;
-
-        if (ClassUtils.isPrimitiveWrapper(targetClass) || targetClass.equals(String.class))
-        {
-            // target is a primitive object or string
-            return getValueByType(null, targetClass, result);
-        }
-        else
-        {
-            // target is a custom object
-            Object target   = targetClass.getDeclaredConstructor().newInstance();
-            Object[] values = result.getClass().isArray() ? (Object[]) result : new Object[]{result};
-
-            for (int i=0; i<columns.length && i<values.length; i++)
-            {
-                setValue(target, columnDataMap, columns[i], values[i]);
-            }
-
-            return target;
-        }
-    }
-
-
-    private void setValue(Object target, Map<String, ColumnData> columnDataMap, String column, Object value) throws Exception
+    public void readResult(Object entity, String column, Object querySingleResult) throws Exception
     {
         ColumnData columnData = columnDataMap.get( column );
 
         if (isNullOrEmpty(columnData))
             return;
 
-        value = getValueByType(target, columnData.field.getType(), value);
-
-        setValue(target, columnData, value);
+        QueryResultMapper.setRowValue(entity, columnData.field, querySingleResult, userTypeDefMap);
     }
 
 
-    private Object getValueByType(Object target, Class<?> type, Object value) throws Exception
+    private Field[] getFields(Map<String, ColumnData> columnDataMap, String[] columns)
     {
-        if (value == null)
-            return null;
+        List<Field> fields = new ArrayList<>();
 
-        if (value instanceof Number)
+        for (String column : columns)
         {
-            if (type.equals(Byte.class))
-                value = ((Number)value).byteValue();
-            else
-            if (type.equals(Short.class))
-                value = ((Number)value).shortValue();
-            else
-            if (type.equals(Integer.class))
-                value = ((Number)value).intValue();
-            else
-            if (type.equals(Long.class))
-                value = ((Number)value).longValue();
-            else
-            if (type.equals(Float.class))
-                value = ((Number)value).floatValue();
-            else
-            if (type.equals(Double.class))
-                value = ((Number)value).doubleValue();
-            else
-            if (type.equals(String.class))
-                value = ((Number)value).toString();
-        }
-        else
-        if (type.equals(String.class))
-        {
-            value = value.toString();
-        }
-        else
-        if (userTypeDefMap.contains(type))
-        {
-            value = getUserTypeValue(target, type, value);
+            ColumnData columnData = columnDataMap.get( column );
+
+            if (isNotEmpty(columnData))
+                fields.add( columnData.field );
         }
 
-        return value;
+        return fields.toArray(new Field[0]);
+    }
+
+    private Object readResult(Class<?> targetClass,
+                              Map<String, ColumnData> columnDataMap,
+                              String[] columns,
+                              Object result) throws Exception
+    {
+        Field[] fields = getFields(columnDataMap, columns);
+        return QueryResultMapper.readResult(result, targetClass, fields, userTypeDefMap);
     }
 
 }
