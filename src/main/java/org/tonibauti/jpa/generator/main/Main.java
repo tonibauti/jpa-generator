@@ -4,18 +4,11 @@ import jakarta.validation.ValidationException;
 import org.tonibauti.jpa.generator.cli.CLI;
 import org.tonibauti.jpa.generator.cli.CLIArgs;
 import org.tonibauti.jpa.generator.cli.Console;
-
-import java.io.File;
+import org.tonibauti.jpa.generator.config.Config;
 
 
 public class Main
 {
-
-    private static boolean existsFile(File file)
-    {
-        return (file != null && file.exists() && file.isFile());
-    }
-
 
     public static void main(String[] args)
     {
@@ -34,29 +27,15 @@ public class Main
                 return;
             }
 
-            File configFile = new File( CLIArgs.getInstance().getConfig() );
+            // read config
+            Config config = Configurer
+                            .getInstance()
+                            .readConfig(CLIArgs.getInstance().getConfigFileName(),
+                                        CLIArgs.getInstance().getEnvironmentFileName());
 
-            if (!existsFile(configFile))
-            {
-                Console.fileNotFound( configFile );
-                return;
-            }
-
-            File environmentFile = null;
-
-            if (CLIArgs.getInstance().getEnvironment() != null)
-            {
-                environmentFile = new File( CLIArgs.getInstance().getEnvironment() );
-
-                if (!existsFile(environmentFile))
-                {
-                    Console.fileNotFound( environmentFile );
-                    return;
-                }
-            }
-
+            // generate
             Generator generator = new Generator();
-            generator.generate(configFile, environmentFile);
+            generator.generate( config );
         }
         catch (ValidationException e)
         {

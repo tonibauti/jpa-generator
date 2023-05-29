@@ -1,5 +1,7 @@
 package ${CatalogConstantsPackage};
 
+import java.util.HashMap;
+import java.util.Map;
 <#list importList as import>
 import ${import};
 </#list>
@@ -14,6 +16,27 @@ public enum ${ClassName}
     </#list>
 
 
+    private final ${pkType} value;
+
+    ${ClassName}(${pkType} value) { this.value = value; }
+
+    public ${pkType} value() { return value; }
+
+
+    private static final Map<Object, ${ClassName}> cache = new HashMap<>();
+
+    static
+    {
+        for (${ClassName} e : values())
+            cache.put(e.value(), e);
+    }
+
+    public static ${ClassName} valueOf(Object value)
+    {
+        return (value != null) ? cache.get( value ) : null;
+    }
+
+
     public interface ${catalogColumn}
     {
         <#list catalogConstantsData as triple>
@@ -22,14 +45,16 @@ public enum ${ClassName}
         <#assign catalogValue  = triple.right>
         String ${asColumn(catalogCode)} = "${catalogCode}";
         </#list>
+
+        String Values =
+        <#list catalogConstantsData as triple>
+        <#assign catalogColumn = triple.left>
+        <#assign catalogCode   = triple.middle>
+        <#assign catalogValue  = triple.right>
+            ${asColumn(catalogCode)}
+            <#if triple_has_next>+ "," +<#else>;</#if>
+        </#list>
     }
-
-
-    private final ${pkType} value;
-
-    ${ClassName}(${pkType} value) { this.value = value; }
-
-    public ${pkType} value() { return value; }
 
 }
 

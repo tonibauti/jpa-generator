@@ -24,6 +24,7 @@ public class CrudNativeRepositoryTemplate extends AbstractTemplate
         "templates/repositories/AbstractCrudNativeRepository.fm",
         "templates/repositories/CrudNativeEntityData.fm",
         "templates/repositories/CrudNativeRepository.fm",
+        "templates/repositories/QueryResultMapper.fm",
     };
 
     private static final String[] TARGET =
@@ -32,6 +33,7 @@ public class CrudNativeRepositoryTemplate extends AbstractTemplate
         "AbstractCrudNativeRepository.java",
         "CrudNativeEntityData.java",
         "${ClassName}CrudNativeRepository.java",
+        "QueryResultMapper.java",
     };
 
 
@@ -98,6 +100,7 @@ public class CrudNativeRepositoryTemplate extends AbstractTemplate
         map.put("isMultipleKey", dbTable.isMultipleKey());
         map.put("importList", importList);
         map.put("isPostgresJson", isPostgresJson);
+        map.put("isGenerateJoins", getWorkspace().isGenerateJoins());
 
         return map;
     }

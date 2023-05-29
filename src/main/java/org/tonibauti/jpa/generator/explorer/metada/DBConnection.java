@@ -13,6 +13,7 @@ public class DBConnection
     private String databaseProductName;
     private String databaseProductVersion;
     private String quoteId;
+    private String sqlKeyWords;
     private String dataSource;
     private List<String> driverJarAndDependencies;
     private String driverClassName;
@@ -65,6 +66,16 @@ public class DBConnection
             this.quoteId = "\\\"";
         else
             this.quoteId = quoteId;
+    }
+
+    public String getSqlKeyWords()
+    {
+        return sqlKeyWords;
+    }
+
+    public void setSqlKeyWords(String sqlKeyWords)
+    {
+        this.sqlKeyWords = sqlKeyWords;
     }
 
     public String getDataSource()

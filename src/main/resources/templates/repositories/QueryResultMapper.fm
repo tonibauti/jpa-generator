@@ -1,0 +1,208 @@
+package ${BaseCrudNativeRepositoriesPackage};
+
+import org.apache.commons.lang3.ClassUtils;
+
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+
+@SuppressWarnings("unchecked")
+public class QueryResultMapper
+{
+
+    private QueryResultMapper() {}
+
+
+    protected static boolean isPrimitiveOrString(Class<?> targetClass)
+    {
+        return (ClassUtils.isPrimitiveWrapper(targetClass) || targetClass.equals(String.class));
+    }
+
+    protected static Field[] getFields(Class<?> targetClass, String... fieldsName) throws Exception
+    {
+        if (isPrimitiveOrString(targetClass))
+            return null;
+
+        if (fieldsName == null || fieldsName.length == 0)
+            return targetClass.getDeclaredFields();
+
+        Field[] fields = new Field[ fieldsName.length ];
+        for (int i=0; i<fieldsName.length; i++)
+            fields[i] = targetClass.getDeclaredField(fieldsName[i]);
+
+        return fields;
+    }
+
+    protected static Object getValue(Object target, Field field) throws Exception
+    {
+        if (field == null)
+            return null;
+
+        if (!field.canAccess(target))
+            field.setAccessible(true);
+
+        return field.get(target);
+    }
+
+    protected static void setValue(Object target, Field field, Object value) throws Exception
+    {
+        if (field == null)
+            return;
+
+        if (!field.canAccess(target))
+            field.setAccessible(true);
+
+        field.set(target, value);
+    }
+
+    protected static void setRowValue(Object target, Field field, Object value, Set<Class<?>> userTypeDefMap) throws Exception
+    {
+        if (field == null)
+            return;
+
+        Class<?> type = field.getType();
+
+        if (userTypeDefMap != null && userTypeDefMap.contains(type))
+        {
+            value = getUserTypeValue(target, type, value);
+        }
+        else
+        {
+            value = getValueByType(type, value);
+        }
+
+        setValue(target, field, value);
+    }
+
+    private static Object getUserTypeValue(Object obj, Class<?> type, Object value) throws Exception
+    {
+        if (value == null)
+            return null;
+
+        return type.getDeclaredMethod("fromString", String.class).invoke(obj, value);
+    }
+
+    private static Object getValueByType(Class<?> type, Object value)
+    {
+        if (value == null)
+            return null;
+
+        if (value instanceof Number)
+        {
+            if (type.equals(Byte.class))
+                value = ((Number)value).byteValue();
+            else
+            if (type.equals(Short.class))
+                value = ((Number)value).shortValue();
+            else
+            if (type.equals(Integer.class))
+                value = ((Number)value).intValue();
+            else
+            if (type.equals(Long.class))
+                value = ((Number)value).longValue();
+            else
+            if (type.equals(Float.class))
+                value = ((Number)value).floatValue();
+            else
+            if (type.equals(Double.class))
+                value = ((Number)value).doubleValue();
+            else
+            if (type.equals(String.class))
+                value = value.toString();
+        }
+        else
+        if (type.equals(String.class))
+        {
+            value = value.toString();
+        }
+
+        return value;
+    }
+
+    protected static <T> T readResult(Object row,
+                                      Class<?> targetClass,
+                                      Field[] fields,
+                                      Set<Class<?>> userTypeDefMap) throws Exception
+    {
+        if (row == null)
+            return null;
+
+        if (isPrimitiveOrString(targetClass))
+        {
+            // target is a primitive object or string
+            return (T) getValueByType(targetClass, row);
+        }
+        else
+        {
+            // target is an object
+            Object target = targetClass.getDeclaredConstructor().newInstance();
+
+            if (fields != null && fields.length > 0)
+            {
+                Object[] rowValues = row.getClass().isArray() ? (Object[]) row : new Object[]{row};
+
+                for (int i=0; i<fields.length && i<rowValues.length; i++)
+                {
+                    setRowValue(target, fields[i], rowValues[i], userTypeDefMap);
+                }
+            }
+
+            return (T) target;
+        }
+    }
+
+
+    public static <T> T getSingleResult(Query query) throws Exception
+    {
+        try
+        {
+            return (T) query.getSingleResult();
+        }
+        catch (NoResultException e)
+        {
+            return null;
+        }
+    }
+
+
+    public static <T> T getSingleResult(Query query, Class<T> targetClass, String... fieldsName) throws Exception
+    {
+        try
+        {
+            // fieldsName -> DTOs are not entities with column metadata
+            Object row = query.getSingleResult();
+            Field[] fields = getFields(targetClass, fieldsName);
+
+            return readResult(row, targetClass, fields, null);
+        }
+        catch (NoResultException e)
+        {
+            return null;
+        }
+    }
+
+
+    public static <T> List<T> getResultList(Query query, Class<T> targetClass, String... fieldsName) throws Exception
+    {
+        List<T> list = new ArrayList<>();
+
+        List<?> queryResultList = query.getResultList();
+
+        if (queryResultList != null && !queryResultList.isEmpty())
+        {
+            // fieldsName -> DTOs are not entities with column metadata
+            Field[] fields = getFields(targetClass, fieldsName);
+
+            for (Object row : queryResultList)
+                list.add( readResult(row, targetClass, fields, null) );
+        }
+
+        return list;
+    }
+
+}
+

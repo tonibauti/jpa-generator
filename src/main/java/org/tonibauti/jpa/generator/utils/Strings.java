@@ -1,5 +1,6 @@
 package org.tonibauti.jpa.generator.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -35,7 +36,7 @@ public class Strings
     }
 
 
-    public static boolean isValidIdentifier(String str)
+    public static boolean isValidIdentifier(String str, List<String> keyWords)
     {
         char[] chars = str.toCharArray();
 
@@ -43,7 +44,10 @@ public class Strings
             if (!Character.isLetterOrDigit(c) && c != '_')
                 return false;
 
-        return true;
+        if (keyWords != null && !keyWords.isEmpty())
+            return !keyWords.contains(str);
+        else
+            return true;
     }
 
 
@@ -104,7 +108,7 @@ public class Strings
                     while(!Character.isLetterOrDigit(chars[++i]));
                     result.append( "_" ).append( chars[i] );
                 }
-                catch (Exception e) { /*ignore */ }
+                catch (Exception e) { /*ignored */ }
             }
         }
 
@@ -163,6 +167,48 @@ public class Strings
     public static String toClassName(String str)
     {
         return capitalizeFirstChar( toPropertyName(str) );
+    }
+
+
+    public static List<String> toStringList(String str, String separator)
+    {
+        List<String> list = new ArrayList<>();
+
+        if (isNotEmpty(str))
+        {
+            try
+            {
+                int pos;
+                int act = 0;
+
+                String value;
+
+                while ( (pos=str.indexOf(separator,act)) >= 0 )
+                {
+                    value = str.substring(act,pos);
+                    value = value.trim();
+
+                    if (!value.isEmpty())
+                        list.add( value );
+
+                    act = pos + separator.length();
+                }
+
+                // resto despues del ultimo separador
+                value = str.substring(act);
+                value = value.trim();
+
+                if (!value.isEmpty())
+                    list.add( value );
+            }
+            catch(Exception e) { /* ignored */}
+
+            // no se encontro el separador
+            if (list.isEmpty())
+                list.add( str );
+        }
+
+        return list;
     }
 
 

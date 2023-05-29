@@ -9,7 +9,7 @@ import java.util.List;
 public interface CrudNativeRepository<T, ID>
 {
 
-    long count(T filter);
+    long count(T filter, boolean useLike);
 
     long countAll();
 
@@ -17,17 +17,31 @@ public interface CrudNativeRepository<T, ID>
 
     boolean existsById(ID id);
 
+    List<T> find(T filter, String... columns);
+
     List<T> find(T filter, Pageable pageable, String... columns);
 
     List<T> findAll(Pageable pageable, String... columns);
 
     Page<T> findPage(T filter, Pageable pageable, String... columns);
 
-    Page<T> findAllPage(Pageable pageable, String... columns);
+    Page<T> findAllPages(Pageable pageable, String... columns);
+
+    List<T> getList(T filter, String... columns);
+
+    List<T> getList(T filter, Pageable pageable, String... columns);
+
+    Page<T> getPage(T filter, Pageable pageable, String... columns);
 
     T get(T filter, String... columns);
 
     T getById(ID id, String... columns);
+
+    ID getId(T filter);
+
+    int execute(String sql);
+
+    int execute(String sql, T entity, String... columns);
 
     int create(T entity);
 
@@ -41,6 +55,7 @@ public interface CrudNativeRepository<T, ID>
 
     int deleteAll();
 
+    <#if isGenerateJoins>
     void join(T entity, Class<?> referencedClass, String... columns);
 
     void join(T entity, Class<?> referencedClass, Pageable pageable, String... columns);
@@ -50,6 +65,6 @@ public interface CrudNativeRepository<T, ID>
     void join(T entity, String propertyName, Pageable pageable, String... columns);
 
     void joinAll(T entity, String... columns);
-
+    </#if>
 }
 

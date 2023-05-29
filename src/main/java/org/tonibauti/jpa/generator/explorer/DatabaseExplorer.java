@@ -14,7 +14,11 @@ import org.tonibauti.jpa.generator.mapper.Mapper;
 import org.tonibauti.jpa.generator.utils.Resources;
 import org.tonibauti.jpa.generator.utils.Strings;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,9 +58,9 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
 
     private void close(Connection conn, Statement stmt, ResultSet rst)
     {
-        try { if (rst  != null) rst.close();  } catch (Exception e) { /* ignore */ }
-        try { if (stmt != null) stmt.close(); } catch (Exception e) { /* ignore */ }
-        try { if (conn != null) conn.close(); } catch (Exception e) { /* ignore */ }
+        try { if (rst  != null) rst.close();  } catch (Exception e) { /* ignored */ }
+        try { if (stmt != null) stmt.close(); } catch (Exception e) { /* ignored */ }
+        try { if (conn != null) conn.close(); } catch (Exception e) { /* ignored */ }
     }
 
 
@@ -102,6 +106,7 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
             database.getDBConnection().setDriverJarAndDependencies( generatorConfig.getDataSourceConfig().getDriverJarAndDependencies() );
             database.getDBConnection().setDriverClassName( generatorConfig.getDataSourceConfig().getDriverClassName() );
             database.getDBConnection().setQuoteId( dbMetaData.getIdentifierQuoteString() );
+            database.getDBConnection().setSqlKeyWords( dbMetaData.getSQLKeywords() );
             database.getDBConnection().setJdbcUrl( generatorConfig.getDataSourceConfig().getJdbcUrl() );
             database.getDBConnection().setUsername( generatorConfig.getDataSourceConfig().getUsername() );
             database.getDBConnection().setPassword( generatorConfig.getDataSourceConfig().getPassword() );
@@ -137,6 +142,8 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
                 4. TABLE_TYPE String    - table type
                 5. REMARKS String       - explanatory comment on the table
             */
+
+            List<String> sqlKeyWords = Strings.toStringList(database.getDBConnection().getSqlKeyWords().toLowerCase(), ",");
 
             String[] types = { "TABLE", "VIEW" };
             rst = dbMetaData.getTables(conn.getCatalog(), conn.getSchema(), "%", types);
@@ -175,8 +182,9 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
                 dbTable.setType( tableType );
                 dbTable.setSchema( tableSchema );
                 dbTable.setCatalog( tableCatalog );
+
                 // quoted
-                dbTable.setQuoted( !Strings.isValidIdentifier(tableName) );
+                dbTable.setQuoted( !Strings.isValidIdentifier(tableName.toLowerCase(), sqlKeyWords) );
 
                 // columns
                 int nColumns = exploreColumns(dbTable, dbMetaData, generatorConfig);
@@ -305,6 +313,8 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
 
         try
         {
+            List<String> sqlKeyWords = Strings.toStringList(database.getDBConnection().getSqlKeyWords().toLowerCase(), ",");
+
             List<String> includedColumnList  = generatorConfig.getProjectConfig().getColumnsConfig().getIncludes();
             List<String> excludedColumnList  = generatorConfig.getProjectConfig().getColumnsConfig().getExcludes();
             List<String> encodedColumnList   = generatorConfig.getProjectConfig().getColumnsConfig().getEncoded();
@@ -364,7 +374,7 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
                 dbColumn.setNullable( "YES".equalsIgnoreCase(isNullable) );
                 dbColumn.setAutoIncrement( "YES".equalsIgnoreCase(isAutoIncrement) );
                 dbColumn.setGenerated( "YES".equalsIgnoreCase(isGenerated) );
-                dbColumn.setQuoted( !Strings.isValidIdentifier(columnName) );
+                dbColumn.setQuoted( !Strings.isValidIdentifier(columnName.toLowerCase(), sqlKeyWords) );
                 dbColumn.setClassName( database.getDBConnection().getColumnClassName(sqlType, sqlTypeName) );
 
                 if (dbColumn.getClassName().equals(Object.class.getName()))
@@ -671,12 +681,12 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
                         if (value instanceof String)
                             value = "\"" + value + "\"";
 
-                        dbTable.addCatalogConstantsData(column, (String)code, value);
+                        dbTable.addCatalogConstantsData(column, (String)code, value.toString());
                     }
                     else
                     {
                         String fieldName = dbTable.getName() + "." + catalogConstantsColumn;
-                        throw new ValidationException(prefix + "'" + fieldName + "' is not a String class");
+                        throw new ValidationException(prefix + "'" + fieldName + "' is not a String");
                     }
                 }
 
@@ -688,7 +698,7 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
             }
             catch (Exception e)
             {
-                /* ignore */
+                /* ignored */
             }
             finally
             {

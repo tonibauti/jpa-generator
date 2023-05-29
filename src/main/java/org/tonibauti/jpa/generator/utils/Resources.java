@@ -11,10 +11,20 @@ public class Resources
     public static final String JAVA_VERSION = System.getProperty("java.version");
 
 
-
-
     private Resources() {}
 
+
+    /*
+    public static void addToClassPath(String fileName) throws Exception
+    {
+        File f = new File(fileName);
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        Class<URLClassLoader> urlClass = URLClassLoader.class;
+        Method method = urlClass.getDeclaredMethod("addURL", URL.class);
+        method.setAccessible(true);
+        method.invoke(classLoader, f.toURL());
+    }
+    */
 
     public static void addToClassPath(String fileName) throws Exception
     {

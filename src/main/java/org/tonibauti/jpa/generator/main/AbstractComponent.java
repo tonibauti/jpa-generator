@@ -6,7 +6,16 @@ import org.tonibauti.jpa.generator.utils.Triple;
 import org.tonibauti.jpa.generator.validators.Validator;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -353,7 +362,7 @@ public abstract class AbstractComponent
                 if (!value.isEmpty())
                     list.add( value );
             }
-            catch (Exception ignored) { /**/ }
+            catch (Exception e) { /* ignored */ }
 
             // separator not found
             if (list.isEmpty())
