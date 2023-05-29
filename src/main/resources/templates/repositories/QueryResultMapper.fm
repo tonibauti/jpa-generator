@@ -17,14 +17,14 @@ public class QueryResultMapper
     private QueryResultMapper() {}
 
 
-    protected static boolean isPrimitive(Class<?> targetClass)
+    protected static boolean isPrimitiveOrString(Class<?> targetClass)
     {
-        return ClassUtils.isPrimitiveWrapper(targetClass);
+        return (ClassUtils.isPrimitiveWrapper(targetClass) || targetClass.equals(String.class));
     }
 
     protected static Field[] getFields(Class<?> targetClass, String... fieldsName) throws Exception
     {
-        if (isPrimitive(targetClass))
+        if (isPrimitiveOrString(targetClass))
             return null;
 
         if (fieldsName == null || fieldsName.length == 0)
@@ -131,7 +131,12 @@ public class QueryResultMapper
         if (row == null)
             return null;
 
-        if (!isPrimitive(targetClass))
+        if (isPrimitiveOrString(targetClass))
+        {
+            // target is a primitive object or string
+            return (T) getValueByType(targetClass, row);
+        }
+        else
         {
             // target is an object
             Object target = targetClass.getDeclaredConstructor().newInstance();
@@ -147,11 +152,6 @@ public class QueryResultMapper
             }
 
             return (T) target;
-        }
-        else
-        {
-            // target is a primitive object
-            return (T) getValueByType(targetClass, row);
         }
     }
 
