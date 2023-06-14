@@ -67,6 +67,7 @@ public class CatalogConstantsTemplate extends AbstractTemplate
                         ? "int"
                         : super.getNormalizedType(pkColumn.getClassName(), importList);
 
+        map.put("javaPackage", super.getJavaPackage());
         map.put("CatalogConstantsPackage", getWorkspace().getCatalogConstantsPackage());
         map.put("ClassName", className);
         map.put("importList", importList);

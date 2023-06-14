@@ -1,6 +1,6 @@
 package ${PersistencePackage};
 
-import javax.persistence.Transient;
+import ${javaPackage}.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.domain.Persistable;
 

@@ -77,7 +77,7 @@ public class CLI
         String footer = ""; //""More info: " + Console.URL;
 
         //helpFormatter.printHelp(cmd + opts, options, false);
-        helpFormatter.printHelp( cmd + opts, header, options, footer, false);
+        helpFormatter.printHelp(cmd + opts, header, options, footer, false);
     }
 
 
@@ -85,7 +85,7 @@ public class CLI
     {
         try
         {
-            final boolean stopAtNonOption = true;
+            final boolean stopAtNonOption = false;
             CommandLine commandLine = parser.parse(options, args, stopAtNonOption);
 
             CLIArgs cliArgs = CLIArgs.getInstance();

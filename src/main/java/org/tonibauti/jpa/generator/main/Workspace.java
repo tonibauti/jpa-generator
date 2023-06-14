@@ -205,6 +205,12 @@ public class Workspace
     }
 
 
+    public boolean isSpring3()
+    {
+        return ProjectConfig.PROJECT_TYPE_SPRING_3.equalsIgnoreCase(getProjectType());
+    }
+
+
     public boolean isQuarkus()
     {
         return ProjectConfig.PROJECT_TYPE_QUARKUS.equalsIgnoreCase(getProjectType());

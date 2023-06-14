@@ -275,6 +275,7 @@ public class EntityTemplate extends AbstractTemplate
                             ? super.getMultipleKey( dbTable )
                             : super.getSimpleKey(dbTable, importList);
 
+        map.put("javaPackage", super.getJavaPackage());
         map.put("PersistencePackage", getWorkspace().getPersistencePackage());
         map.put("EntitiesPackage", getWorkspace().getEntitiesPackage());
         map.put("Table", tableName);

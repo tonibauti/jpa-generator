@@ -1,7 +1,7 @@
 package ${EntitiesPackage};
 
 import lombok.*;
-import javax.persistence.*;
+import ${javaPackage}.persistence.*;
 import java.io.Serializable;
 <#if isJsonPK>
 import ${PersistencePackage}.Json;

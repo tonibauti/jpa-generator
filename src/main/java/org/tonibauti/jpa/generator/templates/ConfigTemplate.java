@@ -83,6 +83,7 @@ public class ConfigTemplate extends AbstractTemplate
         String className      = Strings.toClassName( dataSourceName );
         String objectName     = Strings.toPropertyName( dataSourceName );
 
+        map.put("javaPackage", super.getJavaPackage());
         map.put("ConfigPackage", getWorkspace().getConfigPackage());
         map.put("RepositoriesPackage", getWorkspace().getRepositoriesPackage());
         map.put("EntitiesPackage", getWorkspace().getEntitiesPackage());

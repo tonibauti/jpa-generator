@@ -74,6 +74,7 @@ public class CrudRepositoryTemplate extends AbstractTemplate
                             ? super.getMultipleKey( dbTable )
                             : super.getSimpleKey(dbTable, importList);
 
+        map.put("javaPackage", super.getJavaPackage());
         map.put("CrudRepositoriesPackage", getWorkspace().getCrudRepositoriesPackage());
         map.put("EntitiesPackage", getWorkspace().getEntitiesPackage());
         map.put("CrudRepository", className+"CrudRepository");

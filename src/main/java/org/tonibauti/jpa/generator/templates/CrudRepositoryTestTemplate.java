@@ -233,6 +233,7 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
             }
         }
 
+        map.put("javaPackage", super.getJavaPackage());
         map.put("CrudRepositoriesTestPackage", getWorkspace().getCrudRepositoriesTestPackage());
         map.put("BaseRepositoriesTestPackage", getWorkspace().getBaseRepositoriesTestPackage());
         map.put("BaseConstraintsRepositoriesTestPackage", getWorkspace().getBaseConstraintsRepositoriesTestPackage());
