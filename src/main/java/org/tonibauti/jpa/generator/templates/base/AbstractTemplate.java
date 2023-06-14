@@ -143,6 +143,12 @@ public abstract class AbstractTemplate extends AbstractComponent
     }
 
 
+    protected String getJavaPackage()
+    {
+        return workspace.isSpring3() ? "jakarta" : "javax";
+    }
+
+
     protected List<DBForeignKey.DBForeignKeyRef> getMultipleKeyWithDifferentNames(DBTable dbTable)
     {
         if (workspace.isSpringDataMode())

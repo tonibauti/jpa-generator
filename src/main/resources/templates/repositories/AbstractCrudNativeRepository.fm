@@ -8,8 +8,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import javax.annotation.PostConstruct;
-import javax.persistence.*;
+import ${javaPackage}.annotation.PostConstruct;
+import ${javaPackage}.persistence.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collection;

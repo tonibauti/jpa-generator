@@ -2,8 +2,8 @@ package ${BaseCrudNativeRepositoriesPackage};
 
 import org.apache.commons.lang3.ClassUtils;
 
-import javax.persistence.NoResultException;
-import javax.persistence.Query;
+import ${javaPackage}.persistence.NoResultException;
+import ${javaPackage}.persistence.Query;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
