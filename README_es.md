@@ -82,7 +82,7 @@ generator:
       #javax.persistence.schema-generation.scripts.create-target: "example.sql"
 
   project:
-    type: "spring"
+    type: "spring3"  # spring | spring3
     path: "/myprojects/example"
     config-package: "org.myorganization.example.config.database"
     persistence-package: "org.myorganization.example.persistence"
