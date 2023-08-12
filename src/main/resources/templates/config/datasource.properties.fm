@@ -5,7 +5,7 @@
 spring.datasource.${DataSourcePropertiesName}.url = ${jdbcUrl}
 spring.datasource.${DataSourcePropertiesName}.username = ${username}
 spring.datasource.${DataSourcePropertiesName}.password = ${password}
-spring.datasource.${DataSourcePropertiesName}.driver-class-name = ${driverClassName}
+spring.datasource.${DataSourcePropertiesName}.driverClassName = ${driverClassName}
 
 #
 # Hikari

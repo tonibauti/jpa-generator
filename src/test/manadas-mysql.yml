@@ -1,0 +1,73 @@
+version: "1.0"
+#version: {{ version }}   # myconfig.env --> version = 1.0
+
+generator:
+  generate-config: true
+  generate-mode: "spring-data"  # spring-data | native-sql
+  generate-entities: true
+  generate-joins: true
+  generate-crud-repositories: true
+  generate-crud-repositories-test: true
+  
+  datasource:
+    provider: "hikari"
+    name: "manadas"
+    driver-jar-and-dependencies:
+      - "./libs/mysql/mysql-connector-java-8.0.23.jar"
+    driver-class-name: "com.mysql.cj.jdbc.Driver"
+    jdbc-url: "jdbc:mysql://localhost:3306/manadas"
+    username: "manadas"
+    password: "manadas"
+    properties:
+      autoCommit: false
+      readOnly: false
+      minimumIdle: 2
+      maximumPoolSize: 4
+      connectionTimeout: 30000
+      idleTimeout: 600000
+      maxLifetime: 1800000
+      dataSourceProperties.cachePrepStmts: true
+      dataSourceProperties.prepStmtCacheSize: 250
+      dataSourceProperties.prepStmtCacheSqlLimit: 2048
+
+  jpa:
+    provider: "hibernate"
+    properties:
+      open-in-view: false
+      hibernate.format_sql: true
+      hibernate.show_sql: true
+      hibernate.use_sql_comments: false
+      hibernate.connection.charSet: "UTF-8"
+      hibernate.hbm2ddl.delimiter: ";"
+      hibernate.hbm2ddl.auto: "none"
+      hibernate.dialect: "org.hibernate.dialect.MySQL57Dialect"
+      #javax.persistence.schema-generation.create-source: "metadata"
+      #javax.persistence.schema-generation.scripts.action: "create"
+      #javax.persistence.schema-generation.scripts.create-target: "example.sql"
+
+  project:
+    type: "spring3"  # spring | spring3
+    path: "c:/temp/jpa-generator/manadas"
+    config-package: "com.hispanobretoncantabria.config.database"
+    persistence-package: "com.hispanobretoncantabria.persistence"
+    persistence-test-package: "com.hispanobretoncantabria.test.persistence"
+    #encoder: "com.hispanobretoncantabria.utils.encoder.XOREncoder"
+    use-builders: true
+    use-timestamp-like-date: true
+    use-varchar36-like-uuid: true    # "uuid generator" when uuid type is not supported
+
+    tables:
+      includes:
+        - "*"
+      excludes:
+        - ""
+
+    columns:      # format: table.column
+      includes:
+        - "*"
+      excludes:
+        - ""
+      encoded:
+        - ""
+      invisible:  # not showing in logs
+        - "*.password"
