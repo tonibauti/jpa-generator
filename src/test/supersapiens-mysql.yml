@@ -2,22 +2,22 @@ version: "1.0"
 #version: {{ version }}   # myconfig.env --> version = 1.0
 
 generator:
-  generate-config: true
+  generate-config: false
   generate-mode: "spring-data"  # spring-data | native-sql
   generate-entities: true
   generate-joins: true
   generate-crud-repositories: true
   generate-crud-repositories-test: true
-  
+
   datasource:
     provider: "hikari"
-    name: "manadas"
+    name: "superpsapiens"
     driver-jar-and-dependencies:
       - "./libs/mysql/mysql-connector-java-8.0.23.jar"
     driver-class-name: "com.mysql.cj.jdbc.Driver"
-    jdbc-url: "jdbc:mysql://localhost:3306/manadas"
-    username: "manadas"
-    password: "manadas"
+    jdbc-url: "jdbc:mysql://localhost:3307/supersapiens"
+    username: "supersapiens"
+    password: "supersapiens"
     properties:
       autoCommit: false
       readOnly: false
@@ -47,16 +47,16 @@ generator:
 
   project:
     type: "spring3"  # spring | spring3
-    path: "c:/temp/jpa-generator/manadas"
-    config-package: "com.hispanobretoncantabria.config.database"
-    persistence-package: "com.hispanobretoncantabria.persistence"
-    persistence-test-package: "com.hispanobretoncantabria.test.persistence"
+    path: "c:/temp/jpa-generator/ss"
+    config-package: "tech.supersapiens.backend.config"
+    persistence-package: "tech.supersapiens.backend.persistence" # native
+    persistence-test-package: "tech.supersapiens.backend.persistence"
 
-    entities-package: "com.hispanobretoncantabria.persistence.manadas.entities"
-    repositories-package: "com.hispanobretoncantabria.persistence.manadas.respository"
+    # register module
+    entities-package: "tech.supersapiens.backend.modules.register.entities"
+    repositories-package: "tech.supersapiens.backend.modules.register.respository"
 
-    #encoder: "com.hispanobretoncantabria.utils.encoder.XOREncoder"
-    use-auditing: false  # (created_at, updated_at)
+    use-auditing: true  # (created_at, updated_at)
     use-builders: true
     use-timestamp-like-date: true
     use-varchar36-like-uuid: true    # "uuid generator" when uuid type is not supported
@@ -76,3 +76,4 @@ generator:
         - ""
       invisible:  # not showing in logs
         - "*.password"
+

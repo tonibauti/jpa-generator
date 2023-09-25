@@ -466,9 +466,21 @@ public abstract class AbstractTemplate extends AbstractComponent
                 // @GeneratedValue(generator = "UUID")
 
                 if (workspace.isSpringDataMode())
-                    annotations.add( "@GenericGenerator(name = \"UUID\", strategy = \"uuid2\")" );
-
-                annotations.add( "@GeneratedValue(generator = \"UUID\")" );
+                {
+                    if (workspace.isSpring3())
+                    {
+                        annotations.add( "@UuidGenerator" );
+                    }
+                    else
+                    {
+                        annotations.add( "@GenericGenerator(name = \"UUID\", strategy = \"uuid2\")" );
+                        annotations.add( "@GeneratedValue(generator = \"UUID\")" );
+                    }
+                }
+                else
+                {
+                    annotations.add( "@GeneratedValue(generator = \"UUID\")" );
+                }
             }
             else
             {
@@ -519,6 +531,19 @@ public abstract class AbstractTemplate extends AbstractComponent
             annotations.add( "@Type(type = JsonType.TYPE)" );
         }
         */
+
+        if (workspace.isUseAuditing())
+        {
+            if ("created_at".equalsIgnoreCase(column))
+            {
+                annotations.add( "@CreatedDate" );
+            }
+            else
+            if ("updated_at".equalsIgnoreCase(column))
+            {
+                annotations.add( "@LastModifiedDate" );
+            }
+        }
 
         // @ToString.Exclude
         if (dbColumn.isInvisible())

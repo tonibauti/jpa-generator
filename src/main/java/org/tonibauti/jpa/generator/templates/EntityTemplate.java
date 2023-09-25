@@ -285,7 +285,8 @@ public class EntityTemplate extends AbstractTemplate
         map.put("entity", objectName+"Entity");
         map.put("Key", keyType);
         map.put("isPersistable", isPersistable);
-        map.put("isGenericGenerator", isGenericGenerator);
+        map.put("isGenericGenerator", isGenericGenerator && !workspace.isSpring3());
+        map.put("isUuidGenerator", isGenericGenerator && workspace.isSpring3());
         map.put("encodedDataList", encodedDataList);
         map.put("importList", importList);
         map.put("isJson", isJson);
@@ -301,6 +302,7 @@ public class EntityTemplate extends AbstractTemplate
 
         map.put("isMultipleKey", dbTable.isMultipleKey());
         map.put("multipleKeyWithDifferentNames", super.getMultipleKeyWithDifferentNames(dbTable));
+        map.put("auditing", getWorkspace().isUseAuditing());
         map.put("builder", getWorkspace().isUseBuilders());
         map.put("encoder", getWorkspace().getEncoder());
 

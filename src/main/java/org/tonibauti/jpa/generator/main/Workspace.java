@@ -19,7 +19,7 @@ public class Workspace
     public static final String DATABASE     = "database";
     public static final String DATA_SOURCE  = "datasource";
     public static final String PERSISTENCE  = "persistence";
-    public static final String ENTITIES     = "entities";
+    //public static final String ENTITIES     = "entities";
     public static final String CATALOGS     = "catalogs";
     public static final String REPOSITORIES = "repositories";
     public static final String CRUD         = "crud";
@@ -115,6 +115,18 @@ public class Workspace
     }
 
 
+    public String getEntitiesPackage()
+    {
+        return generatorConfig.getProjectConfig().getEntitiesPackage();
+    }
+
+
+    public String getRepositoriesPackage()
+    {
+        return generatorConfig.getProjectConfig().getRepositoriesPackage();
+    }
+
+
     public String getEncoder()
     {
         return generatorConfig.getProjectConfig().getEncoder();
@@ -166,6 +178,12 @@ public class Workspace
     public boolean isCatalogConstants()
     {
         return bool(generatorConfig.getGenerateCatalogConstants());
+    }
+
+
+    public boolean isUseAuditing()
+    {
+        return bool(generatorConfig.getProjectConfig().getUseAuditing());
     }
 
 
@@ -268,6 +286,18 @@ public class Workspace
     }
 
 
+    public String getEntitiesPackagePath()
+    {
+        return toJavaPath( packageToPath(getEntitiesPackage()) );
+    }
+
+
+    public String getRepositoriesPackagePath()
+    {
+        return toJavaPath( packageToPath(getRepositoriesPackage()) );
+    }
+
+
     public String getProjectDir()
     {
         return toJavaPath( getProjectPath() );
@@ -348,7 +378,8 @@ public class Workspace
 
     public String getEntitiesDir()
     {
-        return getDataSourcePersistenceDir() + toJavaPath( ENTITIES );
+        //return getDataSourcePersistenceDir() + toJavaPath( ENTITIES );
+        return getJavaDir() + getEntitiesPackagePath();
     }
 
 
@@ -360,7 +391,8 @@ public class Workspace
 
     public String getRepositoriesDir()
     {
-        return getDataSourcePersistenceDir() + toJavaPath( REPOSITORIES );
+        //return getDataSourcePersistenceDir() + toJavaPath( REPOSITORIES );
+        return getJavaDir() + getRepositoriesPackagePath();
     }
 
 
@@ -452,10 +484,12 @@ public class Workspace
     }
 
 
+    /*
     public String getEntitiesPackage()
     {
         return getPackage( getEntitiesDir() );
     }
+    */
 
 
     public String getCatalogConstantsPackage()
@@ -464,10 +498,12 @@ public class Workspace
     }
 
 
+    /*
     public String getRepositoriesPackage()
     {
         return getPackage( getRepositoriesDir() );
     }
+    */
 
 
     public String getRepositoriesTestPackage()

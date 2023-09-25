@@ -12,8 +12,16 @@ import org.hibernate.annotations.TypeDefs;
 <#if isGenericGenerator>
 import org.hibernate.annotations.GenericGenerator;
 </#if>
+<#if isUuidGenerator>
+import org.hibernate.annotations.UuidGenerator;
+</#if>
 <#if isPersistable>
 import org.springframework.data.domain.Persistable;
+</#if>
+<#if auditing>
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 </#if>
 <#list importList as import>
 import ${import};
@@ -44,6 +52,9 @@ import ${import};
 ({
     @TypeDef(typeClass = JsonType.class, defaultForType = Json.class)
 })
+</#if>
+<#if auditing>
+@EntityListeners(AuditingEntityListener.class)
 </#if>
 public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>Serializable
 {

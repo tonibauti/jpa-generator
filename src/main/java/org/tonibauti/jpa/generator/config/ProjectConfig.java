@@ -46,6 +46,21 @@ public class ProjectConfig extends AbstractComponent
     @NotBlank
     protected String persistenceTestPackage;
 
+    @JsonProperty("entities-package")
+    @JsonAlias("entitiesPackage")
+    @NotBlank
+    protected String entitiesPackage;
+
+    @JsonProperty("repositories-package")
+    @JsonAlias("repositoriesPackage")
+    @NotBlank
+    protected String repositoriesPackage;
+
+    @JsonProperty("use-auditing")
+    @JsonAlias("useAuditing")
+    @NotNull
+    protected Boolean useAuditing;
+
     @JsonProperty("use-builders")
     @JsonAlias("useBuilders")
     @NotNull
@@ -139,6 +154,34 @@ public class ProjectConfig extends AbstractComponent
     public void setPersistenceTestPackage(String persistenceTestPackage)
     {
         this.persistenceTestPackage = persistenceTestPackage;
+    }
+
+
+
+    public String getEntitiesPackage()
+    {
+        return entitiesPackage;
+    }
+
+    public void setEntitiesPackage(String entitiesPackage)
+    {
+        this.entitiesPackage = entitiesPackage;
+    }
+
+    public String getRepositoriesPackage()
+    {
+        return repositoriesPackage;
+    }
+
+    public void setRepositoriesPackage(String repositoriesPackage)
+    {
+        this.repositoriesPackage = repositoriesPackage;
+    }
+
+
+    public Boolean getUseAuditing()
+    {
+        return useAuditing;
     }
 
     public Boolean getUseBuilders()
