@@ -13,7 +13,6 @@ import org.hibernate.annotations.TypeDefs;
 import ${import};
 </#list>
 
-
 <#if builder>
 @Builder
 </#if>
@@ -75,4 +74,3 @@ public class ${Key} implements Serializable
 
     </#if>
 }
-

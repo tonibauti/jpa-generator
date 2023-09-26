@@ -27,7 +27,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import ${import};
 </#list>
 
-
 <#if builder>
 @Builder
 </#if>
@@ -160,4 +159,3 @@ public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>
 
     </#if>
 }
-
