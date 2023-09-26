@@ -56,7 +56,7 @@ public class CrudNativeRepositoryTemplate extends AbstractTemplate
         if (TARGET[index].contains("${ClassName}"))
         {
             String className = Strings.toClassName( dbTable.getName() );
-            return getWorkspace().getCrudRepositoriesDir() + TARGET[index].replace("${ClassName}", className);
+            return getWorkspace().getCrudNativeRepositoriesDir() + TARGET[index].replace("${ClassName}", className);
         }
         else
         {

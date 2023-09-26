@@ -21,7 +21,8 @@ public class CrudRepositoryTemplate extends AbstractTemplate
 
     private static final String[] TARGET =
     {
-        "${ClassName}CrudRepository.java",
+        //"${ClassName}CrudRepository.java",
+        "${ClassName}Repository.java",
     };
 
 

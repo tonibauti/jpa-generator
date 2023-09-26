@@ -34,7 +34,8 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
         "${DatabaseConstraints}.java",
         "DataTestFactory.java",
         "AbstractRepositoryTest.java",
-        "${ClassName}CrudRepositoryTest.java",
+        //"${ClassName}CrudRepositoryTest.java",
+        "${ClassName}RepositoryTest.java",
     };
 
     private static final Map<String, String> DatabaseConstraintsMaps = new LinkedHashMap<>();
