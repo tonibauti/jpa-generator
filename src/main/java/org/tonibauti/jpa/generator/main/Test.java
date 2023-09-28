@@ -10,9 +10,9 @@ public class Test
                 //"-h",
                 "-f",
 
-                "C:/Temp/jpa-generator/boyaca-mysql.yml",
+                //"C:/Temp/jpa-generator/boyaca-mysql.yml",
 
-                //"C:/Temp/jpa-generator/ss-mysql.yml",
+                "C:/Temp/jpa-generator/ss-mysql.yml",
 
                 //"C:/Temp/jpa-generator/manadas-access.yml",
                 //"C:/Temp/jpa-generator/manadas-mysql.yml",

@@ -18,9 +18,13 @@ public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}>
     <#list indexDataList as indexData>
     <#if indexData.unique>
     ${Entity} ${indexData.findBy}(${indexData.param});
+
+    void ${indexData.deleteBy}(${indexData.param});
     <#else>
     List<${Entity}> ${indexData.findBy}(${indexData.param});
     Page<${Entity}> ${indexData.findBy}(${indexData.param}, Pageable pageable);
+
+    void ${indexData.deleteBy}(${indexData.param});
     </#if>
 
     </#list>

@@ -19,6 +19,7 @@ public class FieldData
     private String getter;
     private String setter;
     private String findBy;
+    private String deleteBy;
     /*
     private String comment;
     */
@@ -68,6 +69,7 @@ public class FieldData
         this.getter   = "get"+Strings.capitalizeFirstChar(property);
         this.setter   = "set"+Strings.capitalizeFirstChar(property);
         this.findBy   = "findBy"+Strings.capitalizeFirstChar(property);
+        this.deleteBy = "deleteBy"+Strings.capitalizeFirstChar(property);
     }
 
     public String getParam()
@@ -133,6 +135,11 @@ public class FieldData
     public String getFindBy()
     {
         return findBy;
+    }
+
+    public String getDeleteBy()
+    {
+        return deleteBy;
     }
 
     /*
