@@ -144,6 +144,7 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
             */
 
             List<String> sqlKeyWords = Strings.toStringList(database.getDBConnection().getSqlKeyWords().toLowerCase(), ",");
+            sqlKeyWords.addAll( AnsiSqlKeyWords.RESERVED_KEYWORDS );
 
             String[] types = { "TABLE", "VIEW" };
             rst = dbMetaData.getTables(conn.getCatalog(), conn.getSchema(), "%", types);
@@ -314,6 +315,7 @@ public class DatabaseExplorer extends AbstractComponent implements AbstractResul
         try
         {
             List<String> sqlKeyWords = Strings.toStringList(database.getDBConnection().getSqlKeyWords().toLowerCase(), ",");
+            sqlKeyWords.addAll( AnsiSqlKeyWords.RESERVED_KEYWORDS );
 
             List<String> includedColumnList  = generatorConfig.getProjectConfig().getColumnsConfig().getIncludes();
             List<String> excludedColumnList  = generatorConfig.getProjectConfig().getColumnsConfig().getExcludes();
