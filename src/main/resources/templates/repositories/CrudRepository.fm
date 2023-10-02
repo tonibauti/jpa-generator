@@ -5,14 +5,13 @@ import ${EntitiesPackage}.${Entity};
 <#if isMultipleKey>
 import ${EntitiesPackage}.${Key};
 </#if>
-import org.springframework.stereotype.Repository;
+//import org.springframework.stereotype.Repository;
 <#list importList as import>
 import ${import};
 </#list>
 
-
-@Repository
-public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}>
+//@Repository
+public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}>, Custom${CrudRepository}
 {
 
     <#list indexDataList as indexData>
@@ -22,6 +21,7 @@ public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}>
     void ${indexData.deleteBy}(${indexData.param});
     <#else>
     List<${Entity}> ${indexData.findBy}(${indexData.param});
+    List<${Entity}> ${indexData.findBy}(${indexData.param}, Sort sort);
     Page<${Entity}> ${indexData.findBy}(${indexData.param}, Pageable pageable);
 
     void ${indexData.deleteBy}(${indexData.param});
@@ -29,4 +29,3 @@ public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}>
 
     </#list>
 }
-

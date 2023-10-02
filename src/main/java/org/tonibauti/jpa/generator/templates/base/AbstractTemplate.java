@@ -259,6 +259,7 @@ public abstract class AbstractTemplate extends AbstractComponent
                 {
                     super.addToList("org.springframework.data.domain.Page", importList, false);
                     super.addToList("org.springframework.data.domain.Pageable", importList, false);
+                    super.addToList("org.springframework.data.domain.Sort", importList, false);
                 }
             }
 
