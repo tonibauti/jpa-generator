@@ -5,12 +5,10 @@ import ${EntitiesPackage}.${Entity};
 <#if isMultipleKey>
 import ${EntitiesPackage}.${Key};
 </#if>
-//import org.springframework.stereotype.Repository;
 <#list importList as import>
 import ${import};
 </#list>
 
-//@Repository
 public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}> //, Custom${CrudRepository}
 {
 
