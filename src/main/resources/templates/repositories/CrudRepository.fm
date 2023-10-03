@@ -11,7 +11,7 @@ import ${import};
 </#list>
 
 //@Repository
-public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}>, Custom${CrudRepository}
+public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}> //, Custom${CrudRepository}
 {
 
     <#list indexDataList as indexData>
