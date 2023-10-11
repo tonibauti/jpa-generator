@@ -7,6 +7,7 @@ import org.tonibauti.jpa.generator.explorer.metada.DBIndex;
 import org.tonibauti.jpa.generator.explorer.metada.DBTable;
 import org.tonibauti.jpa.generator.main.AbstractComponent;
 import org.tonibauti.jpa.generator.main.Workspace;
+import org.tonibauti.jpa.generator.templates.EntityTemplate;
 import org.tonibauti.jpa.generator.utils.Files;
 import org.tonibauti.jpa.generator.utils.Resources;
 import org.tonibauti.jpa.generator.utils.Strings;
@@ -228,8 +229,9 @@ public abstract class AbstractTemplate extends AbstractComponent
             String column = dbIndex.getColumns().get(0);
             DBColumn dbColumn = dbTable.getColumn(column);
 
+            String type;
             String property = Strings.toClassName(column);
-            String param    = null;
+            String param;
             boolean unique  = dbIndex.isUnique();
 
             // partial key is not unique
@@ -244,11 +246,13 @@ public abstract class AbstractTemplate extends AbstractComponent
                     continue;
             }
 
+            type = getNormalizedType(dbColumn.getClassName(), importList);
+
             // param
             if (!isTest)
-                param = getNormalizedType(dbColumn.getClassName(), importList) + " " + Strings.toPropertyName(column);
+                param = type + " " + Strings.toPropertyName(column);
             else
-                param = "DataTestFactory.get" + getNormalizedType(dbColumn.getClassName(), importList) + "()";
+                param = "DataTestFactory.get" + type + "()";
 
             // unique
             if (!unique)
@@ -265,6 +269,7 @@ public abstract class AbstractTemplate extends AbstractComponent
 
             FieldData indexData = new FieldData();
 
+            indexData.setType( type );
             indexData.setProperty( property );
             indexData.setParam( param );
             indexData.setUnique( unique );
@@ -476,7 +481,10 @@ public abstract class AbstractTemplate extends AbstractComponent
     }
 
 
-    protected List<String> getJpaAnnotations(String column, DBColumn dbColumn, DBTable dbTable)
+    protected List<String> getJpaAnnotations(String columnName,
+                                             DBColumn dbColumn,
+                                             DBTable dbTable,
+                                             List<EntityTemplate.ForeignKey> foreignKeyList)
     {
         List<String> annotations = new ArrayList<>();
 
@@ -503,7 +511,18 @@ public abstract class AbstractTemplate extends AbstractComponent
                 {
                     if (workspace.isSpring3())
                     {
-                        annotations.add( "@UuidGenerator" );
+                        boolean oneToOne = false;
+                        for (EntityTemplate.ForeignKey foreignKey : foreignKeyList)
+                        {
+                            if (foreignKey.getFk().getColumn().equals(dbColumn.getName()))
+                                if (foreignKey.getFk().isPrimaryKeyJoin())
+                                    { oneToOne = true; break; }
+                        }
+
+                        if (oneToOne)
+                            annotations.add( "//@UuidGenerator // 1:1" );
+                        else
+                            annotations.add( "@UuidGenerator" );
                     }
                     else
                     {
@@ -552,7 +571,7 @@ public abstract class AbstractTemplate extends AbstractComponent
         }
 
         StringBuilder annotation = new StringBuilder();
-        annotation.append("@Column(name = " + column + "_COLUMN");
+        annotation.append("@Column(name = " + columnName + "_COLUMN");
         map.forEach((key, value) -> annotation.append(", " + key + " = " + value));
         annotation.append(")");
 
@@ -568,12 +587,12 @@ public abstract class AbstractTemplate extends AbstractComponent
 
         if (workspace.isUseAuditing())
         {
-            if ("created_at".equalsIgnoreCase(column))
+            if ("created_at".equalsIgnoreCase(columnName))
             {
                 annotations.add( "@CreatedDate" );
             }
             else
-            if ("updated_at".equalsIgnoreCase(column))
+            if ("updated_at".equalsIgnoreCase(columnName))
             {
                 annotations.add( "@LastModifiedDate" );
             }

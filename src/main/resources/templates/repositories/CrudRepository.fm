@@ -13,15 +13,14 @@ public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}> //, 
 {
 
     <#list indexDataList as indexData>
+    interface Projection${indexData.property} { ${indexData.type} ${indexData.getter}(); }
     <#if indexData.unique>
     ${Entity} ${indexData.findBy}(${indexData.param});
-
     void ${indexData.deleteBy}(${indexData.param});
     <#else>
     List<${Entity}> ${indexData.findBy}(${indexData.param});
     List<${Entity}> ${indexData.findBy}(${indexData.param}, Sort sort);
     Page<${Entity}> ${indexData.findBy}(${indexData.param}, Pageable pageable);
-
     void ${indexData.deleteBy}(${indexData.param});
     </#if>
 

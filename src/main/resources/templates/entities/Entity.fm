@@ -99,6 +99,7 @@ public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>
     private ${fieldData.type} ${fieldData.property};
     </#list>
     </#if>
+    <#if isGenerateJoins>
     <#if externalForeignKeyList?has_content>
     <#list externalForeignKeyList as externalForeignKey>
 
@@ -124,6 +125,8 @@ public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>
     private ${asClass(foreignKey.fk.foreignTable)}Entity ${asProperty(foreignKey.fk.foreignTable)}Entity${foreignKey.suffix};
     </#list>
     </#if>
+    </#if>
+
     <#if encodedDataList?has_content>
 
 
