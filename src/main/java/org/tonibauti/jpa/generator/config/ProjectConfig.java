@@ -71,6 +71,11 @@ public class ProjectConfig extends AbstractComponent
     @NotNull
     protected Boolean useTimestampLikeDate;
 
+    @JsonProperty("use-local-date-time")
+    @JsonAlias("useLocalDateTime")
+    @NotNull
+    protected Boolean useLocalDateTime;
+
     @JsonProperty("use-varchar36-like-uuid")
     @JsonAlias("useVarchar36LikeUuid")
     @NotNull
@@ -202,6 +207,16 @@ public class ProjectConfig extends AbstractComponent
     public void setUseTimestampLikeDate(Boolean useTimestampLikeDate)
     {
         this.useTimestampLikeDate = useTimestampLikeDate;
+    }
+
+    public Boolean getUseLocalDateTime()
+    {
+        return useLocalDateTime;
+    }
+
+    public void setUseLocalDateTime(Boolean useLocalDateTime)
+    {
+        this.useLocalDateTime = useLocalDateTime;
     }
 
     public Boolean getUseVarchar36LikeUuid()

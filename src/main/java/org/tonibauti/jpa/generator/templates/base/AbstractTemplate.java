@@ -372,8 +372,17 @@ public abstract class AbstractTemplate extends AbstractComponent
         else
         if (java.util.Date.class.getName().equals(type))
         {
-            type = java.util.Date.class.getSimpleName();
-            super.addToList(java.util.Date.class.getName(), importList, false);
+            if (workspace.isUseLocalDateTime())
+            {
+                type = java.time.LocalDateTime.class.getSimpleName();
+                super.addToList(java.time.LocalDateTime.class.getName(), importList, false);
+            }
+            else
+            {
+                type = java.util.Date.class.getSimpleName();
+                super.addToList(java.util.Date.class.getName(), importList, false);
+            }
+
             return type;
         }
         else
@@ -381,8 +390,16 @@ public abstract class AbstractTemplate extends AbstractComponent
         {
             if (workspace.isUseTimestampLikeDate())
             {
-                type = java.util.Date.class.getSimpleName();
-                super.addToList(java.util.Date.class.getName(), importList, false);
+                if (workspace.isUseLocalDateTime())
+                {
+                    type = java.time.LocalDateTime.class.getSimpleName();
+                    super.addToList(java.time.LocalDateTime.class.getName(), importList, false);
+                }
+                else
+                {
+                    type = java.util.Date.class.getSimpleName();
+                    super.addToList(java.util.Date.class.getName(), importList, false);
+                }
             }
             else
             {
@@ -397,8 +414,16 @@ public abstract class AbstractTemplate extends AbstractComponent
         {
             if (workspace.isUseTimestampLikeDate())
             {
-                type = java.util.Date.class.getSimpleName();
-                super.addToList(java.util.Date.class.getName(), importList, false);
+                if (workspace.isUseLocalDateTime())
+                {
+                    type = java.time.LocalDateTime.class.getSimpleName();
+                    super.addToList(java.time.LocalDateTime.class.getName(), importList, false);
+                }
+                else
+                {
+                    type = java.util.Date.class.getSimpleName();
+                    super.addToList(java.util.Date.class.getName(), importList, false);
+                }
             }
             else
             {
@@ -413,8 +438,16 @@ public abstract class AbstractTemplate extends AbstractComponent
         {
             if (workspace.isUseTimestampLikeDate())
             {
-                type = java.util.Date.class.getSimpleName();
-                super.addToList(java.util.Date.class.getName(), importList, false);
+                if (workspace.isUseLocalDateTime())
+                {
+                    type = java.time.LocalDateTime.class.getSimpleName();
+                    super.addToList(java.time.LocalDateTime.class.getName(), importList, false);
+                }
+                else
+                {
+                    type = java.util.Date.class.getSimpleName();
+                    super.addToList(java.util.Date.class.getName(), importList, false);
+                }
             }
             else
             {

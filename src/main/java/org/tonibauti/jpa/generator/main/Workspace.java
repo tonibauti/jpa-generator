@@ -199,6 +199,12 @@ public class Workspace
     }
 
 
+    public boolean isUseLocalDateTime()
+    {
+        return bool(generatorConfig.getProjectConfig().getUseLocalDateTime());
+    }
+
+
     public boolean isUseVarchar36LikeUuid()
     {
         return bool(generatorConfig.getProjectConfig().getUseVarchar36LikeUuid());
