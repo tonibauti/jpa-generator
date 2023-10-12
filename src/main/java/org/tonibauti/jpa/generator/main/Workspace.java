@@ -199,9 +199,9 @@ public class Workspace
     }
 
 
-    public boolean isUseLocalDateTime()
+    public boolean isUseJavaTime()
     {
-        return bool(generatorConfig.getProjectConfig().getUseLocalDateTime());
+        return bool(generatorConfig.getProjectConfig().getUseJavaTime());
     }
 
 

@@ -377,7 +377,7 @@ public abstract class AbstractTemplate extends AbstractComponent
         else
         if (java.util.Date.class.getName().equals(type))
         {
-            if (workspace.isUseLocalDateTime())
+            if (workspace.isUseJavaTime())
             {
                 type = java.time.LocalDateTime.class.getSimpleName();
                 super.addToList(java.time.LocalDateTime.class.getName(), importList, false);
@@ -393,72 +393,74 @@ public abstract class AbstractTemplate extends AbstractComponent
         else
         if (java.sql.Date.class.getName().equals(type))
         {
-            if (workspace.isUseTimestampLikeDate())
+            if (workspace.isUseJavaTime())
             {
-                if (workspace.isUseLocalDateTime())
-                {
-                    type = java.time.LocalDateTime.class.getSimpleName();
-                    super.addToList(java.time.LocalDateTime.class.getName(), importList, false);
-                }
-                else
+                type = java.time.LocalDate.class.getSimpleName();
+                super.addToList(java.time.LocalDate.class.getName(), importList, false);
+            }
+            else
+            {
+                if (workspace.isUseTimestampLikeDate())
                 {
                     type = java.util.Date.class.getSimpleName();
                     super.addToList(java.util.Date.class.getName(), importList, false);
                 }
-            }
-            else
-            {
-                type = java.sql.Date.class.getSimpleName();
-                super.addToList(java.sql.Date.class.getName(), importList, false);
+                else
+                {
+                    type = java.sql.Date.class.getSimpleName();
+                    super.addToList(java.sql.Date.class.getName(), importList, false);
+                }
             }
 
             return type;
         }
         else
-        if (Timestamp.class.getName().equals(type))
+        if (java.sql.Timestamp.class.getName().equals(type))
         {
-            if (workspace.isUseTimestampLikeDate())
+            if (workspace.isUseJavaTime())
             {
-                if (workspace.isUseLocalDateTime())
-                {
-                    type = java.time.LocalDateTime.class.getSimpleName();
-                    super.addToList(java.time.LocalDateTime.class.getName(), importList, false);
-                }
-                else
+                type = java.time.Instant.class.getSimpleName();
+                super.addToList(java.time.Instant.class.getName(), importList, false);
+            }
+            else
+            {
+                if (workspace.isUseTimestampLikeDate())
                 {
                     type = java.util.Date.class.getSimpleName();
                     super.addToList(java.util.Date.class.getName(), importList, false);
                 }
-            }
-            else
-            {
-                type = Timestamp.class.getSimpleName();
-                super.addToList(Timestamp.class.getName(), importList, false);
+                else
+                {
+                    type = java.sql.Timestamp.class.getSimpleName();
+                    super.addToList(Timestamp.class.getName(), importList, false);
+                }
             }
 
             return type;
         }
         else
-        if (Time.class.getName().equals(type))
+        if (java.sql.Time.class.getName().equals(type))
         {
-            if (workspace.isUseTimestampLikeDate())
+            if (workspace.isUseJavaTime())
             {
-                if (workspace.isUseLocalDateTime())
-                {
-                    type = java.time.LocalDateTime.class.getSimpleName();
-                    super.addToList(java.time.LocalDateTime.class.getName(), importList, false);
-                }
-                else
+                type = java.time.LocalTime.class.getSimpleName();
+                super.addToList(java.time.LocalTime.class.getName(), importList, false);
+            }
+            else
+            {
+                if (workspace.isUseTimestampLikeDate())
                 {
                     type = java.util.Date.class.getSimpleName();
                     super.addToList(java.util.Date.class.getName(), importList, false);
                 }
+                else
+                {
+                    type = java.sql.Time.class.getSimpleName();
+                    super.addToList(Time.class.getName(), importList, false);
+                }
             }
-            else
-            {
-                type = Time.class.getSimpleName();
-                super.addToList(Time.class.getName(), importList, false);
-            }
+
+            return type;
         }
         else
         if (java.sql.Clob.class.getName().equals(type)

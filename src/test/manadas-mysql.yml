@@ -59,7 +59,7 @@ generator:
     use-auditing: false  # (created_at, updated_at)
     use-builders: true
     use-timestamp-like-date: true
-    use-local-date-time: false
+    use-java-time: false
     use-varchar36-like-uuid: true    # "uuid generator" when uuid type is not supported
 
     tables:
