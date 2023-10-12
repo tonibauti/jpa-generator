@@ -419,8 +419,10 @@ public abstract class AbstractTemplate extends AbstractComponent
         {
             if (workspace.isUseJavaTime())
             {
-                type = java.time.Instant.class.getSimpleName();
-                super.addToList(java.time.Instant.class.getName(), importList, false);
+                //type = java.time.Instant.class.getSimpleName();
+                //super.addToList(java.time.Instant.class.getName(), importList, false);
+                type = java.time.LocalDateTime.class.getSimpleName();
+                super.addToList(java.time.LocalDateTime.class.getName(), importList, false);
             }
             else
             {

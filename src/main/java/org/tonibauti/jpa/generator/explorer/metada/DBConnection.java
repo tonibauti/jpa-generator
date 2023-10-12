@@ -211,6 +211,7 @@ public class DBConnection
             case Types.TIMESTAMP:
             case Types.TIMESTAMP_WITH_TIMEZONE:
             {
+                /*
                 if ("DATETIME".equalsIgnoreCase(sqlTypeName))
                 {
                     className = java.util.Date.class.getName();
@@ -219,6 +220,8 @@ public class DBConnection
                 {
                     className = java.sql.Timestamp.class.getName();
                 }
+                */
+                className = java.sql.Timestamp.class.getName();
                 break;
             }
 
