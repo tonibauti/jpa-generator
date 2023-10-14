@@ -13,7 +13,8 @@ public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}> //, 
 {
 
     <#list indexDataList as indexData>
-    interface Projection${indexData.property} { ${indexData.type} ${indexData.getter}(); }
+    interface ${indexData.property}Projection { ${indexData.type} ${indexData.getter}(); }
+    ${indexData.property}Projection find${indexData.property}ById(${Key} id);
     <#if indexData.unique>
     ${Entity} ${indexData.findBy}(${indexData.param});
     void ${indexData.deleteBy}(${indexData.param});
