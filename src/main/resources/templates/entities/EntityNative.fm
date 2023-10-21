@@ -19,10 +19,10 @@ import ${import};
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = ${Entity}.NAME)
+@Entity(name = ${Entity}.ENTITY_NAME)
 @Table
 (
-    name = ${Entity}.TABLE,
+    name = ${Entity}.TABLE_NAME,
     indexes =
     {
         <#list indexDataList as indexData>
@@ -43,9 +43,9 @@ import ${import};
 </#if>
 public class ${Entity} implements Serializable
 {
-    public static final String NAME  = "${entity}";
+    public static final String ENTITY_NAME = "${entity}";
 
-    public static final String TABLE = "${Table}";
+    public static final String TABLE_NAME = "${Table}";
 
     <#list fieldDataList as fieldData>
     public static final String ${fieldData.column}_COLUMN = "${fieldData.name}";
