@@ -29,7 +29,11 @@ public interface CrudNativeRepository<T, ID>
 
     List<T> getList(T filter, String... columns);
 
+    List<T> getDistinctList(T filter, String... columns);
+
     List<T> getList(T filter, Pageable pageable, String... columns);
+
+    List<T> getDistinctList(T filter, Pageable pageable, String... columns);
 
     Page<T> getPage(T filter, Pageable pageable, String... columns);
 

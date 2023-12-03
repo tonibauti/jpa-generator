@@ -728,15 +728,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     }
 
 
-    @Override
-    public List<T> getList(T filter, String... columns)
-    {
-        return getList(filter, null, columns);
-    }
-
-
-    @Override
-    public List<T> getList(T filter, Pageable pageable, String... columns)
+    private List<T> getList(T filter, boolean isDistinct, Pageable pageable, String... columns)
     {
         Map<String, Object> filterMap = getFilterMap( filter );
 
@@ -746,7 +738,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         try
         {
             StringBuilder sql = new StringBuilder()
-            .append( "SELECT " )
+            .append("SELECT").append(isDistinct ? " DISTINCT " : " ")
             .append( getSelectColumns(columns) )
             .append( " FROM " )
             .append( getTableName() )
@@ -764,6 +756,34 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         {
             throw new PersistenceException(e);
         }
+    }
+
+
+    @Override
+    public List<T> getList(T filter, String... columns)
+    {
+        return getList(filter, null, columns);
+    }
+
+
+    @Override
+    public List<T> getDistinctList(T filter, String... columns)
+    {
+        return getDistinctList(filter, null, columns);
+    }
+
+
+    @Override
+    public List<T> getList(T filter, Pageable pageable, String... columns)
+    {
+        return getLis(filter, false, pageable, columns);
+    }
+
+
+    @Override
+    public List<T> getDistinctList(T filter, Pageable pageable, String... columns)
+    {
+        return getLis(filter, true, pageable, columns);
     }
 
 
