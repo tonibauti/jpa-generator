@@ -37,6 +37,8 @@ public interface CrudNativeRepository<T, ID>
 
     Page<T> getPage(T filter, Pageable pageable, String... columns);
 
+    Page<T> getDistinctPage(T filter, Pageable pageable, String... columns);
+
     T get(T filter, String... columns);
 
     T getById(ID id, String... columns);
