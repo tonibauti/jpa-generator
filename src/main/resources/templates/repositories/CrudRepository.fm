@@ -17,6 +17,7 @@ public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}> //, 
     ${indexData.property}Projection find${indexData.property}ById(${Key} id);
     <#if indexData.unique>
     ${Entity} ${indexData.findBy}(${indexData.param});
+    ${Key} ${indexData.findIdBy}(${indexData.param});
     boolean ${indexData.existsBy}(${indexData.param});
     void ${indexData.deleteBy}(${indexData.param});
     <#else>
