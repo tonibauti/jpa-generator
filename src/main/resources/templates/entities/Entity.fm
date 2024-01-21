@@ -46,6 +46,7 @@ import ${import};
         </#list>
     }
 )
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 <#if isJson>
 @TypeDefs
 ({
