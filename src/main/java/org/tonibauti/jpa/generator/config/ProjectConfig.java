@@ -46,6 +46,21 @@ public class ProjectConfig extends AbstractComponent
     @NotBlank
     protected String persistenceTestPackage;
 
+    @JsonProperty("entities-package")
+    @JsonAlias("entitiesPackage")
+    @NotBlank
+    protected String entitiesPackage;
+
+    @JsonProperty("repositories-package")
+    @JsonAlias("repositoriesPackage")
+    @NotBlank
+    protected String repositoriesPackage;
+
+    @JsonProperty("use-auditing")
+    @JsonAlias("useAuditing")
+    @NotNull
+    protected Boolean useAuditing;
+
     @JsonProperty("use-builders")
     @JsonAlias("useBuilders")
     @NotNull
@@ -55,6 +70,11 @@ public class ProjectConfig extends AbstractComponent
     @JsonAlias("useTimestampLikeDate")
     @NotNull
     protected Boolean useTimestampLikeDate;
+
+    @JsonProperty("use-java-time")
+    @JsonAlias("useJavaTime")
+    @NotNull
+    protected Boolean useJavaTime;
 
     @JsonProperty("use-varchar36-like-uuid")
     @JsonAlias("useVarchar36LikeUuid")
@@ -141,6 +161,34 @@ public class ProjectConfig extends AbstractComponent
         this.persistenceTestPackage = persistenceTestPackage;
     }
 
+
+
+    public String getEntitiesPackage()
+    {
+        return entitiesPackage;
+    }
+
+    public void setEntitiesPackage(String entitiesPackage)
+    {
+        this.entitiesPackage = entitiesPackage;
+    }
+
+    public String getRepositoriesPackage()
+    {
+        return repositoriesPackage;
+    }
+
+    public void setRepositoriesPackage(String repositoriesPackage)
+    {
+        this.repositoriesPackage = repositoriesPackage;
+    }
+
+
+    public Boolean getUseAuditing()
+    {
+        return useAuditing;
+    }
+
     public Boolean getUseBuilders()
     {
         return useBuilders;
@@ -159,6 +207,16 @@ public class ProjectConfig extends AbstractComponent
     public void setUseTimestampLikeDate(Boolean useTimestampLikeDate)
     {
         this.useTimestampLikeDate = useTimestampLikeDate;
+    }
+
+    public Boolean getUseJavaTime()
+    {
+        return useJavaTime;
+    }
+
+    public void setUseJavaTime(Boolean useJavaTime)
+    {
+        this.useJavaTime = useJavaTime;
     }
 
     public Boolean getUseVarchar36LikeUuid()

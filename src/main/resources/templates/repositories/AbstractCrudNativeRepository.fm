@@ -728,15 +728,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
     }
 
 
-    @Override
-    public List<T> getList(T filter, String... columns)
-    {
-        return getList(filter, null, columns);
-    }
-
-
-    @Override
-    public List<T> getList(T filter, Pageable pageable, String... columns)
+    private List<T> getList(T filter, boolean isDistinct, Pageable pageable, String... columns)
     {
         Map<String, Object> filterMap = getFilterMap( filter );
 
@@ -746,7 +738,7 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
         try
         {
             StringBuilder sql = new StringBuilder()
-            .append( "SELECT " )
+            .append("SELECT").append(isDistinct ? " DISTINCT " : " ")
             .append( getSelectColumns(columns) )
             .append( " FROM " )
             .append( getTableName() )
@@ -768,18 +760,59 @@ public abstract class AbstractCrudNativeRepository<T, ID> implements CrudNativeR
 
 
     @Override
-    public Page<T> getPage(T filter, Pageable pageable, String... columns)
+    public List<T> getList(T filter, String... columns)
+    {
+        return getList(filter, null, columns);
+    }
+
+
+    @Override
+    public List<T> getDistinctList(T filter, String... columns)
+    {
+        return getDistinctList(filter, null, columns);
+    }
+
+
+    @Override
+    public List<T> getList(T filter, Pageable pageable, String... columns)
+    {
+        return getLis(filter, false, pageable, columns);
+    }
+
+
+    @Override
+    public List<T> getDistinctList(T filter, Pageable pageable, String... columns)
+    {
+        return getLis(filter, true, pageable, columns);
+    }
+
+
+    private Page<T> getPage(T filter, boolean isDistinct, Pageable pageable, String... columns)
     {
         long count = count(filter, false);
 
         if (count > 0)
         {
-            return new PageImpl<>(getList(filter, pageable, columns), pageable, count);
+            return new PageImpl<>(getList(filter, isDistinct, pageable, columns), pageable, count);
         }
         else
         {
             return new PageImpl<>(Collections.emptyList(), pageable, 0);
         }
+    }
+
+
+    @Override
+    public Page<T> getPage(T filter, Pageable pageable, String... columns)
+    {
+        return getPage(filter, false, pageable, columns);
+    }
+
+
+    @Override
+    public Page<T> getDistinctPage(T filter, Pageable pageable, String... columns)
+    {
+        return getPage(filter, true, pageable, columns);
     }
 
 

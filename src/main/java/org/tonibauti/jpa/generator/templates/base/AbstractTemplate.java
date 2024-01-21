@@ -7,6 +7,7 @@ import org.tonibauti.jpa.generator.explorer.metada.DBIndex;
 import org.tonibauti.jpa.generator.explorer.metada.DBTable;
 import org.tonibauti.jpa.generator.main.AbstractComponent;
 import org.tonibauti.jpa.generator.main.Workspace;
+import org.tonibauti.jpa.generator.templates.EntityTemplate;
 import org.tonibauti.jpa.generator.utils.Files;
 import org.tonibauti.jpa.generator.utils.Resources;
 import org.tonibauti.jpa.generator.utils.Strings;
@@ -228,8 +229,9 @@ public abstract class AbstractTemplate extends AbstractComponent
             String column = dbIndex.getColumns().get(0);
             DBColumn dbColumn = dbTable.getColumn(column);
 
+            String type;
             String property = Strings.toClassName(column);
-            String param    = null;
+            String param;
             boolean unique  = dbIndex.isUnique();
 
             // partial key is not unique
@@ -244,11 +246,13 @@ public abstract class AbstractTemplate extends AbstractComponent
                     continue;
             }
 
+            type = getNormalizedType(dbColumn.getClassName(), importList);
+
             // param
             if (!isTest)
-                param = getNormalizedType(dbColumn.getClassName(), importList) + " " + Strings.toPropertyName(column);
+                param = type + " " + Strings.toPropertyName(column);
             else
-                param = "DataTestFactory.get" + getNormalizedType(dbColumn.getClassName(), importList) + "()";
+                param = "DataTestFactory.get" + type + "()";
 
             // unique
             if (!unique)
@@ -259,11 +263,13 @@ public abstract class AbstractTemplate extends AbstractComponent
                 {
                     super.addToList("org.springframework.data.domain.Page", importList, false);
                     super.addToList("org.springframework.data.domain.Pageable", importList, false);
+                    super.addToList("org.springframework.data.domain.Sort", importList, false);
                 }
             }
 
             FieldData indexData = new FieldData();
 
+            indexData.setType( type );
             indexData.setProperty( property );
             indexData.setParam( param );
             indexData.setUnique( unique );
@@ -371,55 +377,92 @@ public abstract class AbstractTemplate extends AbstractComponent
         else
         if (java.util.Date.class.getName().equals(type))
         {
-            type = java.util.Date.class.getSimpleName();
-            super.addToList(java.util.Date.class.getName(), importList, false);
+            if (workspace.isUseJavaTime())
+            {
+                type = java.time.LocalDateTime.class.getSimpleName();
+                super.addToList(java.time.LocalDateTime.class.getName(), importList, false);
+            }
+            else
+            {
+                type = java.util.Date.class.getSimpleName();
+                super.addToList(java.util.Date.class.getName(), importList, false);
+            }
+
             return type;
         }
         else
         if (java.sql.Date.class.getName().equals(type))
         {
-            if (workspace.isUseTimestampLikeDate())
+            if (workspace.isUseJavaTime())
             {
-                type = java.util.Date.class.getSimpleName();
-                super.addToList(java.util.Date.class.getName(), importList, false);
+                type = java.time.LocalDate.class.getSimpleName();
+                super.addToList(java.time.LocalDate.class.getName(), importList, false);
             }
             else
             {
-                type = java.sql.Date.class.getSimpleName();
-                super.addToList(java.sql.Date.class.getName(), importList, false);
+                if (workspace.isUseTimestampLikeDate())
+                {
+                    type = java.util.Date.class.getSimpleName();
+                    super.addToList(java.util.Date.class.getName(), importList, false);
+                }
+                else
+                {
+                    type = java.sql.Date.class.getSimpleName();
+                    super.addToList(java.sql.Date.class.getName(), importList, false);
+                }
             }
 
             return type;
         }
         else
-        if (Timestamp.class.getName().equals(type))
+        if (java.sql.Timestamp.class.getName().equals(type))
         {
-            if (workspace.isUseTimestampLikeDate())
+            if (workspace.isUseJavaTime())
             {
-                type = java.util.Date.class.getSimpleName();
-                super.addToList(java.util.Date.class.getName(), importList, false);
+                //type = java.time.Instant.class.getSimpleName();
+                //super.addToList(java.time.Instant.class.getName(), importList, false);
+                type = java.time.LocalDateTime.class.getSimpleName();
+                super.addToList(java.time.LocalDateTime.class.getName(), importList, false);
             }
             else
             {
-                type = Timestamp.class.getSimpleName();
-                super.addToList(Timestamp.class.getName(), importList, false);
+                if (workspace.isUseTimestampLikeDate())
+                {
+                    type = java.util.Date.class.getSimpleName();
+                    super.addToList(java.util.Date.class.getName(), importList, false);
+                }
+                else
+                {
+                    type = java.sql.Timestamp.class.getSimpleName();
+                    super.addToList(Timestamp.class.getName(), importList, false);
+                }
             }
 
             return type;
         }
         else
-        if (Time.class.getName().equals(type))
+        if (java.sql.Time.class.getName().equals(type))
         {
-            if (workspace.isUseTimestampLikeDate())
+            if (workspace.isUseJavaTime())
             {
-                type = java.util.Date.class.getSimpleName();
-                super.addToList(java.util.Date.class.getName(), importList, false);
+                type = java.time.LocalTime.class.getSimpleName();
+                super.addToList(java.time.LocalTime.class.getName(), importList, false);
             }
             else
             {
-                type = Time.class.getSimpleName();
-                super.addToList(Time.class.getName(), importList, false);
+                if (workspace.isUseTimestampLikeDate())
+                {
+                    type = java.util.Date.class.getSimpleName();
+                    super.addToList(java.util.Date.class.getName(), importList, false);
+                }
+                else
+                {
+                    type = java.sql.Time.class.getSimpleName();
+                    super.addToList(Time.class.getName(), importList, false);
+                }
             }
+
+            return type;
         }
         else
         if (java.sql.Clob.class.getName().equals(type)
@@ -442,7 +485,10 @@ public abstract class AbstractTemplate extends AbstractComponent
     }
 
 
-    protected List<String> getJpaAnnotations(String column, DBColumn dbColumn, DBTable dbTable)
+    protected List<String> getJpaAnnotations(String columnName,
+                                             DBColumn dbColumn,
+                                             DBTable dbTable,
+                                             List<EntityTemplate.ForeignKey> foreignKeyList)
     {
         List<String> annotations = new ArrayList<>();
 
@@ -466,9 +512,32 @@ public abstract class AbstractTemplate extends AbstractComponent
                 // @GeneratedValue(generator = "UUID")
 
                 if (workspace.isSpringDataMode())
-                    annotations.add( "@GenericGenerator(name = \"UUID\", strategy = \"uuid2\")" );
+                {
+                    if (workspace.isSpring3())
+                    {
+                        boolean oneToOne = false;
+                        for (EntityTemplate.ForeignKey foreignKey : foreignKeyList)
+                        {
+                            if (foreignKey.getFk().getColumn().equals(dbColumn.getName()))
+                                if (foreignKey.getFk().isPrimaryKeyJoin())
+                                    { oneToOne = true; break; }
+                        }
 
-                annotations.add( "@GeneratedValue(generator = \"UUID\")" );
+                        if (oneToOne)
+                            annotations.add( "//@UuidGenerator // 1:1" );
+                        else
+                            annotations.add( "@UuidGenerator" );
+                    }
+                    else
+                    {
+                        annotations.add( "@GenericGenerator(name = \"UUID\", strategy = \"uuid2\")" );
+                        annotations.add( "@GeneratedValue(generator = \"UUID\")" );
+                    }
+                }
+                else
+                {
+                    annotations.add( "@GeneratedValue(generator = \"UUID\")" );
+                }
             }
             else
             {
@@ -506,7 +575,7 @@ public abstract class AbstractTemplate extends AbstractComponent
         }
 
         StringBuilder annotation = new StringBuilder();
-        annotation.append("@Column(name = " + column + "_COLUMN");
+        annotation.append("@Column(name = " + columnName + "_COLUMN");
         map.forEach((key, value) -> annotation.append(", " + key + " = " + value));
         annotation.append(")");
 
@@ -519,6 +588,19 @@ public abstract class AbstractTemplate extends AbstractComponent
             annotations.add( "@Type(type = JsonType.TYPE)" );
         }
         */
+
+        if (workspace.isUseAuditing())
+        {
+            if ("created_at".equalsIgnoreCase(columnName))
+            {
+                annotations.add( "@CreatedDate" );
+            }
+            else
+            if ("updated_at".equalsIgnoreCase(columnName))
+            {
+                annotations.add( "@LastModifiedDate" );
+            }
+        }
 
         // @ToString.Exclude
         if (dbColumn.isInvisible())

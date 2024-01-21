@@ -12,13 +12,20 @@ import org.hibernate.annotations.TypeDefs;
 <#if isGenericGenerator>
 import org.hibernate.annotations.GenericGenerator;
 </#if>
+<#if isUuidGenerator>
+import org.hibernate.annotations.UuidGenerator;
+</#if>
 <#if isPersistable>
 import org.springframework.data.domain.Persistable;
+</#if>
+<#if auditing>
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 </#if>
 <#list importList as import>
 import ${import};
 </#list>
-
 
 <#if builder>
 @Builder
@@ -26,10 +33,10 @@ import ${import};
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = ${Entity}.NAME)
+@Entity(name = ${Entity}.ENTITY_NAME)
 @Table
 (
-    name = ${Entity}.TABLE,
+    name = ${Entity}.TABLE_NAME,
     indexes =
     {
         <#list indexDataList as indexData>
@@ -39,17 +46,21 @@ import ${import};
         </#list>
     }
 )
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 <#if isJson>
 @TypeDefs
 ({
     @TypeDef(typeClass = JsonType.class, defaultForType = Json.class)
 })
 </#if>
+<#if auditing>
+@EntityListeners(AuditingEntityListener.class)
+</#if>
 public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>Serializable
 {
-    public static final String NAME  = "${entity}";
+    public static final String ENTITY_NAME = "${entity}";
 
-    public static final String TABLE = "${Table}";
+    public static final String TABLE_NAME = "${Table}";
 
     <#list fieldDataList as fieldData>
     public static final String ${fieldData.column}_COLUMN = "${fieldData.name}";
@@ -89,6 +100,7 @@ public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>
     private ${fieldData.type} ${fieldData.property};
     </#list>
     </#if>
+    <#if isGenerateJoins>
     <#if externalForeignKeyList?has_content>
     <#list externalForeignKeyList as externalForeignKey>
 
@@ -114,6 +126,8 @@ public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>
     private ${asClass(foreignKey.fk.foreignTable)}Entity ${asProperty(foreignKey.fk.foreignTable)}Entity${foreignKey.suffix};
     </#list>
     </#if>
+    </#if>
+
     <#if encodedDataList?has_content>
 
 
@@ -149,4 +163,3 @@ public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>
 
     </#if>
 }
-

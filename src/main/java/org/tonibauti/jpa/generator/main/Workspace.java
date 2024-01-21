@@ -19,7 +19,7 @@ public class Workspace
     public static final String DATABASE     = "database";
     public static final String DATA_SOURCE  = "datasource";
     public static final String PERSISTENCE  = "persistence";
-    public static final String ENTITIES     = "entities";
+    //public static final String ENTITIES     = "entities";
     public static final String CATALOGS     = "catalogs";
     public static final String REPOSITORIES = "repositories";
     public static final String CRUD         = "crud";
@@ -115,6 +115,18 @@ public class Workspace
     }
 
 
+    public String getEntitiesPackage()
+    {
+        return generatorConfig.getProjectConfig().getEntitiesPackage();
+    }
+
+
+    public String getRepositoriesPackage()
+    {
+        return generatorConfig.getProjectConfig().getRepositoriesPackage();
+    }
+
+
     public String getEncoder()
     {
         return generatorConfig.getProjectConfig().getEncoder();
@@ -169,6 +181,12 @@ public class Workspace
     }
 
 
+    public boolean isUseAuditing()
+    {
+        return bool(generatorConfig.getProjectConfig().getUseAuditing());
+    }
+
+
     public boolean isUseBuilders()
     {
         return bool(generatorConfig.getProjectConfig().getUseBuilders());
@@ -178,6 +196,12 @@ public class Workspace
     public boolean isUseTimestampLikeDate()
     {
         return bool(generatorConfig.getProjectConfig().getUseTimestampLikeDate());
+    }
+
+
+    public boolean isUseJavaTime()
+    {
+        return bool(generatorConfig.getProjectConfig().getUseJavaTime());
     }
 
 
@@ -268,6 +292,18 @@ public class Workspace
     }
 
 
+    public String getEntitiesPackagePath()
+    {
+        return toJavaPath( packageToPath(getEntitiesPackage()) );
+    }
+
+
+    public String getRepositoriesPackagePath()
+    {
+        return toJavaPath( packageToPath(getRepositoriesPackage()) );
+    }
+
+
     public String getProjectDir()
     {
         return toJavaPath( getProjectPath() );
@@ -348,7 +384,8 @@ public class Workspace
 
     public String getEntitiesDir()
     {
-        return getDataSourcePersistenceDir() + toJavaPath( ENTITIES );
+        //return getDataSourcePersistenceDir() + toJavaPath( ENTITIES );
+        return getJavaDir() + getEntitiesPackagePath();
     }
 
 
@@ -360,7 +397,8 @@ public class Workspace
 
     public String getRepositoriesDir()
     {
-        return getDataSourcePersistenceDir() + toJavaPath( REPOSITORIES );
+        //return getDataSourcePersistenceDir() + toJavaPath( REPOSITORIES );
+        return getJavaDir() + getRepositoriesPackagePath();
     }
 
 
@@ -372,7 +410,8 @@ public class Workspace
 
     public String getCrudRepositoriesDir()
     {
-        return getRepositoriesDir() + toJavaPath( CRUD );
+        //return getRepositoriesDir() + toJavaPath( CRUD );
+        return getRepositoriesDir();
     }
 
 
@@ -396,7 +435,7 @@ public class Workspace
 
     public String getBaseCrudNativeRepositoriesDir()
     {
-        return getCrudRepositoriesDir() + toJavaPath( BASE );
+        return getCrudNativeRepositoriesDir() + toJavaPath( BASE );
     }
 
 
@@ -409,6 +448,18 @@ public class Workspace
     public String getBaseConstraintsRepositoriesTestDir()
     {
         return getBaseRepositoriesTestDir() + toJavaPath( CONSTRAINTS );
+    }
+
+
+    public String getCrudNativeRepositoriesDir()
+    {
+        return getRepositoriesDir() + toJavaPath( CRUD );
+    }
+
+
+    public String getCustomNativeRepositoriesDir()
+    {
+        return getRepositoriesDir() + toJavaPath( CUSTOM );
     }
 
 
@@ -452,10 +503,12 @@ public class Workspace
     }
 
 
+    /*
     public String getEntitiesPackage()
     {
         return getPackage( getEntitiesDir() );
     }
+    */
 
 
     public String getCatalogConstantsPackage()
@@ -464,10 +517,12 @@ public class Workspace
     }
 
 
+    /*
     public String getRepositoriesPackage()
     {
         return getPackage( getRepositoriesDir() );
     }
+    */
 
 
     public String getRepositoriesTestPackage()
@@ -535,15 +590,20 @@ public class Workspace
         }
 
         // crud repositories
-        if (isCrudRepositories() || isCrudNativeRepositories())
+        if (isCrudRepositories())
         {
             createDir( getRepositoriesDir() );
-
             createDir( getCrudRepositoriesDir() );
             createDir( getCustomRepositoriesDir() );
+        }
 
-            if (isCrudNativeRepositories())
-                createDir( getBaseCrudNativeRepositoriesDir() );
+        // crud native repositories
+        if (isCrudNativeRepositories())
+        {
+            createDir( getRepositoriesDir() );
+            createDir( getCrudNativeRepositoriesDir() );
+            createDir( getCustomNativeRepositoriesDir() );
+            createDir( getBaseCrudNativeRepositoriesDir() );
         }
 
         // test crud repositories

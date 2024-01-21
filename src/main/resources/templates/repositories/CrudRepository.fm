@@ -5,24 +5,28 @@ import ${EntitiesPackage}.${Entity};
 <#if isMultipleKey>
 import ${EntitiesPackage}.${Key};
 </#if>
-import org.springframework.stereotype.Repository;
 <#list importList as import>
 import ${import};
 </#list>
 
-
-@Repository
-public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}>
+public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}> //, Custom${CrudRepository}
 {
 
     <#list indexDataList as indexData>
+    interface ${indexData.property}Projection { ${indexData.type} ${indexData.getter}(); }
+    ${indexData.property}Projection find${indexData.property}ById(${Key} id);
     <#if indexData.unique>
     ${Entity} ${indexData.findBy}(${indexData.param});
+    ${Key} ${indexData.findIdBy}(${indexData.param});
+    boolean ${indexData.existsBy}(${indexData.param});
+    void ${indexData.deleteBy}(${indexData.param});
     <#else>
     List<${Entity}> ${indexData.findBy}(${indexData.param});
+    List<${Entity}> ${indexData.findBy}(${indexData.param}, Sort sort);
     Page<${Entity}> ${indexData.findBy}(${indexData.param}, Pageable pageable);
+    boolean ${indexData.existsBy}(${indexData.param});
+    void ${indexData.deleteBy}(${indexData.param});
     </#if>
 
     </#list>
 }
-
