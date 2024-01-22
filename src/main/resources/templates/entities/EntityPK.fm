@@ -28,9 +28,12 @@ import ${import};
 </#if>
 public class ${Key} implements Serializable
 {
-    <#list pkFieldDataList as pkFieldData>
-    public static final String ${pkFieldData.column}_COLUMN = "${pkFieldData.name}";
-    </#list>
+    public interface Columns
+    {
+        <#list pkFieldDataList as pkFieldData>
+        String ${pkFieldData.column} = "${pkFieldData.name}";
+        </#list>
+    }
 
     <#list pkFieldDataList as pkFieldData>
 

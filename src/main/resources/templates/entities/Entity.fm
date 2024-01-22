@@ -42,7 +42,7 @@ import ${import};
         <#list indexDataList as indexData>
         @Index(name = "${indexData.name}",
                unique = ${indexData.unique?string},
-               columnList = ${Entity}.${indexData.column}_COLUMN),<#if indexData_has_next>${lineSeparator()}</#if>
+               columnList = ${Entity}.Columns.${indexData.column}),<#if indexData_has_next>${lineSeparator()}</#if>
         </#list>
     }
 )
@@ -62,9 +62,12 @@ public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>
 
     public static final String TABLE_NAME = "${Table}";
 
-    <#list fieldDataList as fieldData>
-    public static final String ${fieldData.column}_COLUMN = "${fieldData.name}";
-    </#list>
+    public interface Columns
+    {
+        <#list fieldDataList as fieldData>
+        String ${fieldData.column} = "${fieldData.name}";
+        </#list>
+    }
 
     <#if isPersistable>
     private transient boolean isNew = false;

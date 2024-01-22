@@ -492,7 +492,8 @@ public abstract class AbstractTemplate extends AbstractComponent
     {
         List<String> annotations = new ArrayList<>();
 
-        // @Column(name = USER_ID_COLUMN, nullable = false, unique = true, length = 32, precision = 0, scale = 0)
+        //// @Column(name = USER_ID_COLUMN, nullable = false, unique = true, length = 32, precision = 0, scale = 0)
+        // @Column(name = Columns.USER_ID, nullable = false, unique = true, length = 32, precision = 0, scale = 0)
         Map<String, String> map = new LinkedHashMap<>();
 
         // @Id
@@ -575,7 +576,8 @@ public abstract class AbstractTemplate extends AbstractComponent
         }
 
         StringBuilder annotation = new StringBuilder();
-        annotation.append("@Column(name = " + columnName + "_COLUMN");
+        //annotation.append("@Column(name = " + columnName + "_COLUMN");
+        annotation.append("@Column(name = Columns." + columnName);
         map.forEach((key, value) -> annotation.append(", " + key + " = " + value));
         annotation.append(")");
 
