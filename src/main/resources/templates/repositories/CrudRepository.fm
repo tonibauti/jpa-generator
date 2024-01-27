@@ -1,6 +1,7 @@
 package ${CrudRepositoriesPackage};
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import ${EntitiesPackage}.${Entity};
 <#if isMultipleKey>
 import ${EntitiesPackage}.${Key};
@@ -10,7 +11,8 @@ import ${import};
 </#list>
 
 public interface ${CrudRepository}
-       extends JpaRepository<${Entity}, ${Key}> //, Custom${CrudRepository}
+        extends JpaRepository<${Entity}, ${Key}>,
+                JpaSpecificationExecutor<${Entity}> //, Custom${CrudRepository}
 {
 
     <#list indexDataList as indexData>
@@ -34,5 +36,6 @@ public interface ${CrudRepository}
     Page<${Entity}> findByCreatedAtGreaterThanEqual(LocalDateTime startDate, Pageable pageable);
     Page<${Entity}> findByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
     Page<${Entity}> findByCreatedAtLessThanEqual(LocalDateTime endDate, Pageable pageable);
+
     </#if>
 }
