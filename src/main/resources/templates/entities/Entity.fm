@@ -80,7 +80,7 @@ public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>
     @AttributeOverrides
     ({
         <#list multipleKeyWithDifferentNames as foreignKeyRef>
-        @AttributeOverride(name = "${asProperty(foreignKeyRef.referencedColumnName)}", column=@Column(name = ${asColumn(foreignKeyRef.columnName)}_COLUMN)),
+        @AttributeOverride(name = "${asProperty(foreignKeyRef.referencedColumnName)}", column=@Column(name = ${asColumn(foreignKeyRef.columnName)})),
         </#list>
     })
     </#if>
