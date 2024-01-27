@@ -638,11 +638,13 @@ public abstract class AbstractTemplate extends AbstractComponent
         for (DBForeignKey.DBForeignKeyRef dbForeignKeyRef : dbForeignKey.getForeignKeyRefList())
         {
             String foreignEntity = Strings.toClassName(dbForeignKeyRef.getReferencedTableName()) + "Entity";
-            String foreignColumn = Strings.toColumnName(dbForeignKeyRef.getReferencedColumnName()) + "_COLUMN";
+            //String foreignColumn = Strings.toColumnName(dbForeignKeyRef.getReferencedColumnName()) + "_COLUMN";
+            String foreignColumn = "Columns."+Strings.toColumnName(dbForeignKeyRef.getReferencedColumnName());
 
             foreignKeyAnnotations.add( tab + joinColumn );
             foreignKeyAnnotations.add( tab + "(" );
-            foreignKeyAnnotations.add( tab + "    name = " + Strings.toColumnName(dbForeignKeyRef.getColumnName()) + "_COLUMN" + "," );
+            //foreignKeyAnnotations.add( tab + "    name = " + Strings.toColumnName(dbForeignKeyRef.getColumnName()) + "_COLUMN" + "," );
+            foreignKeyAnnotations.add( tab + "    name = " + "Columns."+Strings.toColumnName(dbForeignKeyRef.getColumnName()) + "," );
 
             if (!dbForeignKey.isPrimaryKeyJoin())
             {
