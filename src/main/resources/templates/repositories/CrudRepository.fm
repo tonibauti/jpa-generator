@@ -30,4 +30,9 @@ public interface ${CrudRepository}
     </#if>
 
     </#list>
+    <#if auditing>
+    Page<${Entity}> findByCreatedAtGreaterThanEqual(LocalDateTime startDate, Pageable pageable);
+    Page<${Entity}> findByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    Page<${Entity}> findByCreatedAtLessThanEqual(LocalDateTime endDate, Pageable pageable);
+    </#if>
 }
