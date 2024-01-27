@@ -9,7 +9,8 @@ import ${EntitiesPackage}.${Key};
 import ${import};
 </#list>
 
-public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}> //, Custom${CrudRepository}
+public interface ${CrudRepository}
+       extends JpaRepository<${Entity}, ${Key}> //, Custom${CrudRepository}
 {
 
     <#list indexDataList as indexData>
@@ -29,4 +30,9 @@ public interface ${CrudRepository} extends JpaRepository<${Entity}, ${Key}> //, 
     </#if>
 
     </#list>
+    <#if auditing>
+    Page<${Entity}> findByCreatedAtGreaterThanEqual(LocalDateTime startDate, Pageable pageable);
+    Page<${Entity}> findByCreatedAtBetween(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    Page<${Entity}> findByCreatedAtLessThanEqual(LocalDateTime endDate, Pageable pageable);
+    </#if>
 }

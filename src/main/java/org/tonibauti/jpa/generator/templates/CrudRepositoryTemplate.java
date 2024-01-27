@@ -85,6 +85,7 @@ public class CrudRepositoryTemplate extends AbstractTemplate
         map.put("isMultipleKey", dbTable.isMultipleKey());
         map.put("importList", importList);
         map.put("indexDataList", indexDataList);
+        map.put("auditing", getWorkspace().isUseAuditing());
 
         return map;
     }
