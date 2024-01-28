@@ -27,6 +27,7 @@ public class EntityTemplate extends AbstractTemplate
         "templates/entities/JsonType.fm",
         "templates/entities/Entity.fm",
         "templates/entities/EntityPK.fm",
+        "templates/entities/Dto.fm",
     };
 
     private static final String[] TARGET =
@@ -37,6 +38,7 @@ public class EntityTemplate extends AbstractTemplate
         "JsonType.java",
         "${ClassName}Entity.java",
         "${MultipleKey}.java", // EntityPK
+        "${ClassName}Dto.java",
     };
 
 
@@ -288,6 +290,7 @@ public class EntityTemplate extends AbstractTemplate
         map.put("Table", tableName);
         map.put("Catalog", Strings.getTrimNotNull(dbTable.getCatalog()));
         map.put("Schema", Strings.getTrimNotNull(dbTable.getSchema()));
+        map.put("Dto", className+"Dto");
         map.put("Entity", className+"Entity");
         map.put("entity", objectName+"Entity");
         map.put("Key", keyType);
