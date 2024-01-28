@@ -1,0 +1,19 @@
+package ${EntitiesPackage};
+
+import lombok.*;
+<#list importList as import>
+import ${import};
+</#list>
+
+<#if builder>
+@Builder
+</#if>
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ${Dto}
+{
+    <#list fieldDataList as fieldData>
+    private ${fieldData.type} ${fieldData.property};
+    </#list>
+}
