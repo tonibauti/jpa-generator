@@ -58,7 +58,7 @@ public class CrudRepositoryTemplate extends AbstractTemplate
     {
         Map<String, Object> map = new HashMap<>();
 
-        String className  = Strings.toClassName( dbTable.getName() );
+        String className = Strings.toClassName( dbTable.getName() );
         //String objectName = Strings.toPropertyName( dbTable.getName() );
         List<FieldData> indexDataList = new ArrayList<>();
 
@@ -69,6 +69,12 @@ public class CrudRepositoryTemplate extends AbstractTemplate
 
         // index multiple
         indexDataList.addAll( super.getMultipleIndex(dbTable, false, importList) );
+
+        // has unique
+        boolean hasUnique = false;
+        for (FieldData fieldData : indexDataList)
+            if (fieldData.isUnique())
+                { hasUnique = true; break; }
 
         // key
         String keyType = dbTable.isMultipleKey()
@@ -85,6 +91,7 @@ public class CrudRepositoryTemplate extends AbstractTemplate
         map.put("isMultipleKey", dbTable.isMultipleKey());
         map.put("importList", importList);
         map.put("indexDataList", indexDataList);
+        map.put("hasUnique", hasUnique);
         //map.put("auditing", getWorkspace().isUseAuditing());
         map.put("auditing", false);
 
