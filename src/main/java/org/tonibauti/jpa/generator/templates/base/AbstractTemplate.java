@@ -269,6 +269,8 @@ public abstract class AbstractTemplate extends AbstractComponent
 
             FieldData indexData = new FieldData();
 
+            indexData.setName( Strings.toPropertyName(column) );
+            indexData.setColumn( Strings.toColumnName(column) );
             indexData.setType( type );
             indexData.setProperty( property );
             indexData.setParam( param );

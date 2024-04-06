@@ -2,6 +2,8 @@ package ${CrudRepositoriesPackage};
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import ${EntitiesPackage}.${Entity};
 <#if isMultipleKey>
 import ${EntitiesPackage}.${Key};
@@ -25,12 +27,28 @@ public interface ${CrudRepository}
     ${Entity} ${indexData.findBy}(${indexData.param});
     IdProjection ${indexData.findIdBy}(${indexData.param});
     boolean ${indexData.existsBy}(${indexData.param});
+
+    @Modifying
+    @Query(nativeQuery = true,
+           value = "delete from "
+                    + ${Entity}.TABLE_NAME
+                    + " where "
+                    + ${Entity}.Columns.${indexData.column}
+                    + " = :${indexData.name}")
     void ${indexData.deleteBy}(${indexData.param});
     <#else>
     List<${Entity}> ${indexData.findBy}(${indexData.param});
     List<${Entity}> ${indexData.findBy}(${indexData.param}, Sort sort);
     Page<${Entity}> ${indexData.findBy}(${indexData.param}, Pageable pageable);
     boolean ${indexData.existsBy}(${indexData.param});
+
+    @Modifying
+    @Query(nativeQuery = true,
+           value = "delete from "
+                    + ${Entity}.TABLE_NAME
+                    + " where "
+                    + ${Entity}.Columns.${indexData.column}
+                    + " = :${indexData.name}")
     void ${indexData.deleteBy}(${indexData.param});
     </#if>
 
