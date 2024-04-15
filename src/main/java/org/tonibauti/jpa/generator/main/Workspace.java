@@ -115,15 +115,15 @@ public class Workspace
     }
 
 
-    public String getEntitiesPackage()
+    public String getEntityPackage()
     {
-        return generatorConfig.getProjectConfig().getEntitiesPackage();
+        return generatorConfig.getProjectConfig().getEntityPackage();
     }
 
 
-    public String getRepositoriesPackage()
+    public String getRepositoryPackage()
     {
-        return generatorConfig.getProjectConfig().getRepositoriesPackage();
+        return generatorConfig.getProjectConfig().getRepositoryPackage();
     }
 
 
@@ -292,15 +292,15 @@ public class Workspace
     }
 
 
-    public String getEntitiesPackagePath()
+    public String getEntityPackagePath()
     {
-        return toJavaPath( packageToPath(getEntitiesPackage()) );
+        return toJavaPath( packageToPath(getEntityPackage()) );
     }
 
 
-    public String getRepositoriesPackagePath()
+    public String getRepositoryPackagePath()
     {
-        return toJavaPath( packageToPath(getRepositoriesPackage()) );
+        return toJavaPath( packageToPath(getRepositoryPackage()) );
     }
 
 
@@ -385,7 +385,7 @@ public class Workspace
     public String getEntitiesDir()
     {
         //return getDataSourcePersistenceDir() + toJavaPath( ENTITIES );
-        return getJavaDir() + getEntitiesPackagePath();
+        return getJavaDir() + getEntityPackagePath();
     }
 
 
@@ -398,7 +398,7 @@ public class Workspace
     public String getRepositoriesDir()
     {
         //return getDataSourcePersistenceDir() + toJavaPath( REPOSITORIES );
-        return getJavaDir() + getRepositoriesPackagePath();
+        return getJavaDir() + getRepositoryPackagePath();
     }
 
 

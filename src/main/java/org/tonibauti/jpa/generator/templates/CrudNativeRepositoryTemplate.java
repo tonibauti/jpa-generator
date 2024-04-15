@@ -94,7 +94,7 @@ public class CrudNativeRepositoryTemplate extends AbstractTemplate
         map.put("ConfigPackage", getWorkspace().getConfigPackage());
         map.put("PersistencePackage", getWorkspace().getPersistencePackage());
         map.put("JpaConfig", Strings.toClassName(getWorkspace().getDataSourceName())+"JpaConfig");
-        map.put("EntitiesPackage", getWorkspace().getEntitiesPackage());
+        map.put("EntitiesPackage", getWorkspace().getEntityPackage());
         map.put("CrudNativeRepository", className+"CrudNativeRepository");
         map.put("Entity", className+"Entity");
         map.put("Key", keyType);

@@ -286,7 +286,7 @@ public class EntityTemplate extends AbstractTemplate
 
         map.put("javaPackage", super.getJavaPackage());
         map.put("PersistencePackage", getWorkspace().getPersistencePackage());
-        map.put("EntitiesPackage", getWorkspace().getEntitiesPackage());
+        map.put("EntitiesPackage", getWorkspace().getEntityPackage());
         map.put("Table", tableName);
         map.put("Catalog", Strings.getTrimNotNull(dbTable.getCatalog()));
         map.put("Schema", Strings.getTrimNotNull(dbTable.getSchema()));
