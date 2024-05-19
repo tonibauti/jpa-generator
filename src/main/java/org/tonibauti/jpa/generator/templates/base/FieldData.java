@@ -20,6 +20,7 @@ public class FieldData
     private String setter;
     private String findBy;
     private String findIdBy;
+    private String countBy;
     private String existsBy;
     private String deleteBy;
     /*
@@ -72,6 +73,7 @@ public class FieldData
         this.setter   = "set"+Strings.capitalizeFirstChar(property);
         this.findBy   = "findBy"+Strings.capitalizeFirstChar(property);
         this.findIdBy = "findIdBy"+Strings.capitalizeFirstChar(property);
+        this.countBy  = "countBy"+Strings.capitalizeFirstChar(property);
         this.existsBy = "existsBy"+Strings.capitalizeFirstChar(property);
         this.deleteBy = "deleteBy"+Strings.capitalizeFirstChar(property);
     }
@@ -144,6 +146,11 @@ public class FieldData
     public String getFindIdBy()
     {
         return findIdBy;
+    }
+
+    public String getCountBy()
+    {
+        return countBy;
     }
 
     public String getExistsBy()

@@ -26,6 +26,7 @@ public interface ${CrudRepository}
     <#if indexData.unique>
     ${Entity} ${indexData.findBy}(${indexData.param});
     IdProjection ${indexData.findIdBy}(${indexData.param});
+    long ${indexData.countBy}(${indexData.param});
     boolean ${indexData.existsBy}(${indexData.param});
 
     @Modifying
@@ -40,6 +41,7 @@ public interface ${CrudRepository}
     List<${Entity}> ${indexData.findBy}(${indexData.param});
     List<${Entity}> ${indexData.findBy}(${indexData.param}, Sort sort);
     Page<${Entity}> ${indexData.findBy}(${indexData.param}, Pageable pageable);
+    long ${indexData.countBy}(${indexData.param});
     boolean ${indexData.existsBy}(${indexData.param});
 
     @Modifying
