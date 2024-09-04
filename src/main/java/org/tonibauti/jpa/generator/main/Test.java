@@ -12,10 +12,11 @@ public class Test
 
                 //"C:/Temp/jpa-generator/boyaca-mysql.yml",
 
-                "C:/Temp/jpa-generator/ss-mysql.yml",
+                //"C:/Temp/jpa-generator/ss-mysql.yml",
+                //"C:/Temp/jpa-generator/civify-mysql.yml",
 
                 //"C:/Temp/jpa-generator/manadas-access.yml",
-                //"C:/Temp/jpa-generator/manadas-mysql.yml",
+                "C:/Temp/jpa-generator/manadas-mysql.yml",
 
                 //"C:/Temp/jpa-generator/manadas-postgresql.yml",
 

@@ -2,11 +2,11 @@ package ${CrudRepositoriesTestPackage};
 
 import ${BaseRepositoriesTestPackage}.AbstractRepositoryTest;
 import ${BaseRepositoriesTestPackage}.DataTestFactory;
-import ${CrudRepositoriesPackage}.${ClassName}CrudNativeRepository;
+import ${CrudRepositoryPackage}.${ClassName}CrudNativeRepository;
 import ${ConfigPackage}.${JpaConfig};
-import ${EntitiesPackage}.${Entity};
+import ${EntityPackage}.${Entity};
 <#if isMultipleKey>
-import ${EntitiesPackage}.${Key};
+import ${EntityPackage}.${Key};
 </#if>
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

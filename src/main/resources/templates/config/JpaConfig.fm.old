@@ -93,7 +93,7 @@ public class Application
 (
     entityManagerFactoryRef = ${ClassName}JpaConfig.ENTITY_MANAGER_FACTORY,
     transactionManagerRef   = ${ClassName}JpaConfig.TRANSACTION_MANAGER,
-    basePackages = { ${ClassName}JpaConfig.REPOSITORIES_PACKAGE }
+    basePackages = { ${ClassName}JpaConfig.REPOSITORY_PACKAGE }
 )
 @PropertySources
 ({
@@ -110,8 +110,8 @@ public class ${ClassName}JpaConfig
     protected static final String ENTITY_MANAGER         = UNIT_NAME + "EntityManager";
     protected static final String ENTITY_MANAGER_FACTORY = UNIT_NAME + "EntityManagerFactory";
 
-    protected static final String ENTITIES_PACKAGE       = "${EntitiesPackage}";
-    protected static final String REPOSITORIES_PACKAGE   = "${RepositoriesPackage}";
+    protected static final String ENTITY_PACKAGE         = "${EntityPackage}";
+    protected static final String REPOSITORY_PACKAGE     = "${RepositoryPackage}";
 
 
     @Bean(UNIT_NAME + "HikariConfig")
@@ -157,7 +157,7 @@ public class ${ClassName}JpaConfig
         entityManagerFactoryBean.setPersistenceProvider( new HibernatePersistenceProvider() );
         entityManagerFactoryBean.setJpaDialect( new HibernateJpaDialect() );
         entityManagerFactoryBean.setJpaVendorAdapter( new HibernateJpaVendorAdapter() );
-        entityManagerFactoryBean.setPackagesToScan( ENTITIES_PACKAGE );
+        entityManagerFactoryBean.setPackagesToScan( ENTITY_PACKAGE );
 
         entityManagerFactoryBean.setJpaProperties( getJpaProperties() );
 

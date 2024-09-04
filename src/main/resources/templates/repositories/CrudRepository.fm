@@ -1,12 +1,12 @@
-package ${CrudRepositoriesPackage};
+package ${CrudRepositoryPackage};
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import ${EntitiesPackage}.${Entity};
+import ${EntityPackage}.${Entity};
 <#if isMultipleKey>
-import ${EntitiesPackage}.${Key};
+import ${EntityPackage}.${Key};
 </#if>
 <#list importList as import>
 import ${import};

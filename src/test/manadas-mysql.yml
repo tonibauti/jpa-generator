@@ -8,14 +8,14 @@ generator:
   generate-joins: true
   generate-crud-repositories: true
   generate-crud-repositories-test: true
-  
+
   datasource:
     provider: "hikari"
     name: "manadas"
     driver-jar-and-dependencies:
       - "./libs/mysql/mysql-connector-java-8.0.23.jar"
     driver-class-name: "com.mysql.cj.jdbc.Driver"
-    jdbc-url: "jdbc:mysql://localhost:3306/manadas"
+    jdbc-url: "jdbc:mysql://localhost:3307/manadas"
     username: "manadas"
     password: "manadas"
     properties:
@@ -52,8 +52,8 @@ generator:
     persistence-package: "com.hispanobretoncantabria.persistence"
     persistence-test-package: "com.hispanobretoncantabria.test.persistence"
 
-    entities-package: "com.hispanobretoncantabria.persistence.manadas.entities"
-    repositories-package: "com.hispanobretoncantabria.persistence.manadas.respository"
+    entity-package: "com.hispanobretoncantabria.persistence.manadas.entity"
+    repository-package: "com.hispanobretoncantabria.persistence.manadas.repository"
 
     #encoder: "com.hispanobretoncantabria.utils.encoder.XOREncoder"
     use-auditing: false  # (created_at, updated_at)

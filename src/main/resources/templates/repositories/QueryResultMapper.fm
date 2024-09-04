@@ -1,4 +1,4 @@
-package ${BaseCrudNativeRepositoriesPackage};
+package ${BaseCrudNativeRepositoryPackage};
 
 import org.apache.commons.lang3.ClassUtils;
 

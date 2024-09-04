@@ -238,12 +238,12 @@ public class CrudRepositoryTestTemplate extends AbstractTemplate
         map.put("CrudRepositoriesTestPackage", getWorkspace().getCrudRepositoriesTestPackage());
         map.put("BaseRepositoriesTestPackage", getWorkspace().getBaseRepositoriesTestPackage());
         map.put("BaseConstraintsRepositoriesTestPackage", getWorkspace().getBaseConstraintsRepositoriesTestPackage());
-        map.put("CrudRepositoriesPackage", getWorkspace().getCrudRepositoriesPackage());
+        map.put("CrudRepositoryPackage", getWorkspace().getCrudRepositoryPackage());
         map.put("PersistencePackage", getWorkspace().getPersistencePackage());
         map.put("DatabaseConstraints", getDatabaseConstraints());
         map.put("ConfigPackage", getWorkspace().getConfigPackage());
         map.put("JpaConfig", Strings.toClassName(getWorkspace().getDataSourceName())+"JpaConfig");
-        map.put("EntitiesPackage", getWorkspace().getEntityPackage());
+        map.put("EntityPackage", getWorkspace().getEntityPackage());
         map.put("ClassName", className);
         map.put("objectName", objectName);
         map.put("Entity", className+"Entity");

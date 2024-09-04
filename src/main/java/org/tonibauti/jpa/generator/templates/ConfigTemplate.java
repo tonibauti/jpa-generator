@@ -85,8 +85,8 @@ public class ConfigTemplate extends AbstractTemplate
 
         map.put("javaPackage", super.getJavaPackage());
         map.put("ConfigPackage", getWorkspace().getConfigPackage());
-        map.put("RepositoriesPackage", getWorkspace().getRepositoryPackage());
-        map.put("EntitiesPackage", getWorkspace().getEntityPackage());
+        map.put("RepositoryPackage", getWorkspace().getRepositoryPackage());
+        map.put("EntityPackage", getWorkspace().getEntityPackage());
         map.put("ClassName", className);
         map.put("objectName", objectName);
         map.put("DatabaseResourcesDir", getWorkspace().getDatabaseResourcesDir());

@@ -53,8 +53,8 @@ generator:
     persistence-test-package: "tech.supersapiens.backend.persistence"
 
     # register module
-    entities-package: "tech.supersapiens.backend.modules.register.entities"
-    repositories-package: "tech.supersapiens.backend.modules.register.respository"
+    entity-package: "tech.supersapiens.backend.modules.register.entity"
+    repository-package: "tech.supersapiens.backend.modules.register.repository"
 
     use-auditing: true  # (created_at, updated_at)
     use-builders: true

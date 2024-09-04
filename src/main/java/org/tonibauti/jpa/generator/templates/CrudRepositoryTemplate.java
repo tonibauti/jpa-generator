@@ -43,7 +43,7 @@ public class CrudRepositoryTemplate extends AbstractTemplate
     public String getTarget(int index, DBTable dbTable)
     {
         String className = Strings.toClassName( dbTable.getName() );
-        return getWorkspace().getCrudRepositoriesDir() + TARGET[index].replace("${ClassName}", className);
+        return getWorkspace().getCrudRepositoryDir() + TARGET[index].replace("${ClassName}", className);
     }
 
 
@@ -82,8 +82,8 @@ public class CrudRepositoryTemplate extends AbstractTemplate
                             : super.getSimpleKey(dbTable, importList);
 
         map.put("javaPackage", super.getJavaPackage());
-        map.put("CrudRepositoriesPackage", getWorkspace().getCrudRepositoriesPackage());
-        map.put("EntitiesPackage", getWorkspace().getEntityPackage());
+        map.put("CrudRepositoryPackage", getWorkspace().getCrudRepositoryPackage());
+        map.put("EntityPackage", getWorkspace().getEntityPackage());
         //map.put("CrudRepository", className+"CrudRepository");
         map.put("CrudRepository", className+"Repository");
         map.put("Entity", className+"Entity");

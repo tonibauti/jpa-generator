@@ -82,7 +82,7 @@ public class Application
 (
     entityManagerFactoryRef = ${ClassName}JpaConfig.ENTITY_MANAGER_FACTORY,
     transactionManagerRef   = ${ClassName}JpaConfig.TRANSACTION_MANAGER,
-    basePackages = { ${ClassName}JpaConfig.REPOSITORIES_PACKAGE }
+    basePackages = { ${ClassName}JpaConfig.REPOSITORY_PACKAGE }
 )
 @PropertySources
 ({
@@ -100,8 +100,8 @@ public class ${ClassName}JpaConfig
     protected static final String ENTITY_MANAGER         = UNIT_NAME + "EntityManager";
     protected static final String ENTITY_MANAGER_FACTORY = UNIT_NAME + "EntityManagerFactory";
 
-    protected static final String ENTITIES_PACKAGE       = "${EntitiesPackage}";
-    protected static final String REPOSITORIES_PACKAGE   = "${RepositoriesPackage}";
+    protected static final String ENTITY_PACKAGE         = "${EntityPackage}";
+    protected static final String REPOSITORY_PACKAGE     = "${RepositoryPackage}";
 
 
     @ConfigurationProperties("spring.datasource.${DataSourcePropertiesName}")
@@ -150,7 +150,7 @@ public class ${ClassName}JpaConfig
         LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactoryBean.setDataSource( dataSource() );
         entityManagerFactoryBean.setPersistenceUnitName( UNIT_NAME );
-        entityManagerFactoryBean.setPackagesToScan( ENTITIES_PACKAGE );
+        entityManagerFactoryBean.setPackagesToScan( ENTITY_PACKAGE );
         entityManagerFactoryBean.setJpaVendorAdapter( new HibernateJpaVendorAdapter() );
         entityManagerFactoryBean.setJpaProperties( getJaProperties() );
         entityManagerFactoryBean.afterPropertiesSet();

@@ -56,12 +56,12 @@ public class CrudNativeRepositoryTemplate extends AbstractTemplate
         if (TARGET[index].contains("${ClassName}"))
         {
             String className = Strings.toClassName( dbTable.getName() );
-            return getWorkspace().getCrudNativeRepositoriesDir() + TARGET[index].replace("${ClassName}", className);
+            return getWorkspace().getCrudNativeRepositoryDir() + TARGET[index].replace("${ClassName}", className);
         }
         else
         {
             // base
-            return getWorkspace().getBaseCrudNativeRepositoriesDir() + TARGET[index];
+            return getWorkspace().getBaseCrudNativeRepositoryDir() + TARGET[index];
         }
     }
 
@@ -89,12 +89,12 @@ public class CrudNativeRepositoryTemplate extends AbstractTemplate
                             : super.getSimpleKey(dbTable, importList);
 
         map.put("javaPackage", super.getJavaPackage());
-        map.put("CrudRepositoriesPackage", getWorkspace().getCrudRepositoriesPackage());
-        map.put("BaseCrudNativeRepositoriesPackage", getWorkspace().getBaseCrudNativeRepositoriesPackage());
+        map.put("CrudRepositoryPackage", getWorkspace().getCrudRepositoryPackage());
+        map.put("BaseCrudNativeRepositoryPackage", getWorkspace().getBaseCrudNativeRepositoryPackage());
         map.put("ConfigPackage", getWorkspace().getConfigPackage());
         map.put("PersistencePackage", getWorkspace().getPersistencePackage());
         map.put("JpaConfig", Strings.toClassName(getWorkspace().getDataSourceName())+"JpaConfig");
-        map.put("EntitiesPackage", getWorkspace().getEntityPackage());
+        map.put("EntityPackage", getWorkspace().getEntityPackage());
         map.put("CrudNativeRepository", className+"CrudNativeRepository");
         map.put("Entity", className+"Entity");
         map.put("Key", keyType);

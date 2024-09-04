@@ -1,4 +1,4 @@
-package ${BaseCrudNativeRepositoriesPackage};
+package ${BaseCrudNativeRepositoryPackage};
 
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;

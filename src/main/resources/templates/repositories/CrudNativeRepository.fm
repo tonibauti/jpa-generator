@@ -1,9 +1,9 @@
-package ${CrudRepositoriesPackage};
+package ${CrudRepositoryPackage};
 
-import ${BaseCrudNativeRepositoriesPackage}.AbstractCrudNativeRepository;
-import ${EntitiesPackage}.${Entity};
+import ${BaseCrudNativeRepositoryPackage}.AbstractCrudNativeRepository;
+import ${EntityPackage}.${Entity};
 <#if isMultipleKey>
-import ${EntitiesPackage}.${Key};
+import ${EntityPackage}.${Key};
 </#if>
 import org.springframework.stereotype.Repository;
 <#list importList as import>
