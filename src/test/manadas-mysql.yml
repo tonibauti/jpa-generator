@@ -3,7 +3,7 @@ version: "1.0"
 
 generator:
   generate-config: true
-  generate-mode: "spring-data"  # spring-data | native-sql
+  generate-mode: "native-sql"  # spring-data | native-sql
   generate-entities: true
   generate-joins: true
   generate-crud-repositories: true
@@ -38,9 +38,9 @@ generator:
       hibernate.show_sql: true
       hibernate.use_sql_comments: false
       hibernate.connection.charSet: "UTF-8"
-      hibernate.hbm2ddl.delimiter: ";"
       hibernate.hbm2ddl.auto: "none"
-      hibernate.dialect: "org.hibernate.dialect.MySQL57Dialect"
+      hibernate.hbm2ddl.delimiter: ";"
+      #hibernate.dialect: "org.hibernate.dialect.MySQL57Dialect"
       #javax.persistence.schema-generation.create-source: "metadata"
       #javax.persistence.schema-generation.scripts.action: "create"
       #javax.persistence.schema-generation.scripts.create-target: "example.sql"

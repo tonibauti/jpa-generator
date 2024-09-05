@@ -5,9 +5,9 @@ generator:
   generate-config: false
   generate-mode: "spring-data"  # spring-data | native-sql
   generate-entities: true
-  generate-joins: true
+  generate-joins: false
   generate-crud-repositories: true
-  generate-crud-repositories-test: true
+  generate-crud-repositories-test: false
 
   datasource:
     provider: "hikari"
@@ -34,13 +34,14 @@ generator:
     provider: "hibernate"
     properties:
       open-in-view: false
+      hibernate.jdbc.time_zone : "UTC"
       hibernate.format_sql: true
       hibernate.show_sql: true
       hibernate.use_sql_comments: false
       hibernate.connection.charSet: "UTF-8"
-      hibernate.hbm2ddl.delimiter: ";"
       hibernate.hbm2ddl.auto: "none"
-      hibernate.dialect: "org.hibernate.dialect.MySQL57Dialect"
+      hibernate.hbm2ddl.delimiter: ";"
+      #hibernate.dialect: "org.hibernate.dialect.MySQL57Dialect"
       #javax.persistence.schema-generation.create-source: "metadata"
       #javax.persistence.schema-generation.scripts.action: "create"
       #javax.persistence.schema-generation.scripts.create-target: "example.sql"
@@ -52,9 +53,8 @@ generator:
     persistence-package: "tech.supersapiens.backend.persistence" # native
     persistence-test-package: "tech.supersapiens.backend.persistence"
 
-    # register module
-    entity-package: "tech.supersapiens.backend.modules.register.entity"
-    repository-package: "tech.supersapiens.backend.modules.register.repository"
+    entity-package: "tech.supersapiens.backend.modules.master.entity"
+    repository-package: "tech.supersapiens.backend.modules.master.repository"
 
     use-auditing: true  # (created_at, updated_at)
     use-builders: true
@@ -77,4 +77,5 @@ generator:
         - ""
       invisible:  # not showing in logs
         - "*.password"
+        - "*.otp"
 
