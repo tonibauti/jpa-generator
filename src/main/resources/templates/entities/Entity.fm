@@ -70,7 +70,7 @@ public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>
     }
 
     <#if isPersistable>
-    private transient boolean isNew = false;
+    private transient boolean isNew;
 
     </#if>
     <#if isMultipleKey>
