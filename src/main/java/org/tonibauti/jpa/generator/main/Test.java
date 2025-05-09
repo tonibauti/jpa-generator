@@ -10,11 +10,11 @@ public class Test
                 //"-h",
                 "-f",
 
-                "C:/Temp/jpa-generator/peoplefinder-postgresql.yml",
+                //"C:/Temp/jpa-generator/peoplefinder-postgresql.yml",
 
                 //"C:/Temp/jpa-generator/boyaca-mysql.yml",
 
-                //"C:/Temp/jpa-generator/ss-mysql.yml",
+                "C:/Temp/jpa-generator/ss-mysql.yml",
                 //"C:/Temp/jpa-generator/civify-mysql.yml",
 
                 //"C:/Temp/jpa-generator/manadas-access.yml",
