@@ -61,4 +61,14 @@ public interface ${CrudRepository}
     Page<${Entity}> findByCreatedAtLessThanEqual(LocalDateTime endDate, Pageable pageable);
 
     </#if>
+
+    @Modifying
+    @Query(nativeQuery = true,
+           value = "delete from "
+                    + ${Entity}.TABLE_NAME
+                    + " where "
+                    + ${Entity}.Columns.ID
+                    + " IN :idList")
+    void deleteByIdList(Iterable<? extends ${Key}> idList);
+
 }
