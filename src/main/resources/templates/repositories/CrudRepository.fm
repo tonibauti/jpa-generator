@@ -61,14 +61,26 @@ public interface ${CrudRepository}
     Page<${Entity}> findByCreatedAtLessThanEqual(LocalDateTime endDate, Pageable pageable);
 
     </#if>
+    <#if !isMultipleKey>
 
+    @Override
     @Modifying
     @Query(nativeQuery = true,
            value = "delete from "
                     + ${Entity}.TABLE_NAME
                     + " where "
                     + ${Entity}.Columns.ID
-                    + " IN :idList")
-    void deleteByIdList(Iterable<? extends ${Key}> idList);
+                    + " = :id")
+    void deleteById(${Key} id);
 
+    @Override
+    @Modifying
+    @Query(nativeQuery = true,
+           value = "delete from "
+                    + ${Entity}.TABLE_NAME
+                    + " where "
+                    + ${Entity}.Columns.ID
+                    + " IN :ids")
+    void deleteAllById(Iterable<? extends ${Key}> ids);
+    </#if>
 }
