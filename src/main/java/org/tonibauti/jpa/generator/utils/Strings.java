@@ -55,7 +55,7 @@ public class Strings
     {
         String aux = getTrimNotNull(str);
 
-        if (aux.length() == 0)
+        if (aux.isEmpty())
             return str;
 
         if (aux.length() == 1)
@@ -69,7 +69,7 @@ public class Strings
     {
         String aux = getTrimNotNull(str);
 
-        if (aux.length() == 0)
+        if (aux.isEmpty())
             return str;
 
         if (aux.length() == 1)
@@ -83,7 +83,7 @@ public class Strings
     {
         String aux = getTrimNotNull(str);
 
-        if (aux.length() == 0)
+        if (aux.isEmpty())
             return str;
 
         if (toUpperCase)
@@ -132,7 +132,7 @@ public class Strings
     {
         String aux = getTrimNotNull(str);
 
-        if (aux.length() == 0)
+        if (aux.isEmpty())
             return str;
 
         aux = aux.toLowerCase();
