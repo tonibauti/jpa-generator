@@ -528,10 +528,10 @@ public abstract class AbstractTemplate extends AbstractComponent
 
                         if (oneToOne)
                             //annotations.add( "//@UuidGenerator // 1:1" );
-                            annotations.add( "//@UuidGenerator(style = UuidGenerator.Style.TIME) // 1:1" );
+                            annotations.add( "//@UuidGeneratorV7 // 1:1" );
                         else
                             //annotations.add( "@UuidGenerator" );
-                            annotations.add( "@UuidGenerator(style = UuidGenerator.Style.TIME)" );
+                            annotations.add( "@UuidGeneratorV7" );
                     }
                     else
                     {
