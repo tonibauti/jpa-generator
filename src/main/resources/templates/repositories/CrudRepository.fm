@@ -63,7 +63,6 @@ public interface ${CrudRepository}
     </#if>
     <#if !isMultipleKey>
 
-    @Override
     @Modifying
     @Query(nativeQuery = true,
            value = "delete from "
@@ -71,9 +70,9 @@ public interface ${CrudRepository}
                     + " where "
                     + ${Entity}.Columns.ID
                     + " = :id")
+    @Override
     void deleteById(${Key} id);
 
-    @Override
     @Modifying
     @Query(nativeQuery = true,
            value = "delete from "
@@ -81,6 +80,7 @@ public interface ${CrudRepository}
                     + " where "
                     + ${Entity}.Columns.ID
                     + " IN :ids")
+    @Override
     void deleteAllById(Iterable<? extends ${Key}> ids);
     </#if>
 }
