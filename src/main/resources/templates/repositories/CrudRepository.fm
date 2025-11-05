@@ -63,24 +63,24 @@ public interface ${CrudRepository}
     </#if>
     <#if !isMultipleKey>
 
-    @Modifying
+    @Override
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(nativeQuery = true,
            value = "delete from "
                     + ${Entity}.TABLE_NAME
                     + " where "
                     + ${Entity}.Columns.ID
                     + " = :id")
-    @Override
     void deleteById(${Key} id);
 
-    @Modifying
+    @Override
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(nativeQuery = true,
            value = "delete from "
                     + ${Entity}.TABLE_NAME
                     + " where "
                     + ${Entity}.Columns.ID
                     + " IN :ids")
-    @Override
     void deleteAllById(Iterable<? extends ${Key}> ids);
     </#if>
 }
