@@ -74,7 +74,7 @@ public interface ${CrudRepository}
     void deleteById(${Key} id);
 
     @Override
-    @Modifying(flushAutomatically = true, clearAutomatically = false)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(nativeQuery = true,
            value = "delete from "
                     + ${Entity}.TABLE_NAME
