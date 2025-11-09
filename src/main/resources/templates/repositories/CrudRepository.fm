@@ -64,7 +64,7 @@ public interface ${CrudRepository}
     <#if !isMultipleKey>
 
     @Override
-    @Modifying(flushAutomatically = true, clearAutomatically = false)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(nativeQuery = true,
            value = "delete from "
                     + ${Entity}.TABLE_NAME
