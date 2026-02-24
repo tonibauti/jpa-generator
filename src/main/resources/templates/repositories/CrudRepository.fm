@@ -21,8 +21,10 @@ public interface ${CrudRepository}
     </#if>
 
     <#list indexDataList as indexData>
+    <#if indexData.type??>
     interface ${indexData.property}Projection { ${indexData.type} ${indexData.getter}(); }
     ${indexData.property}Projection find${indexData.property}ById(${Key} id);
+    </#if>
     <#if indexData.unique>
     ${Entity} ${indexData.findBy}(${indexData.param});
     IdProjection ${indexData.findIdBy}(${indexData.param});
@@ -44,6 +46,7 @@ public interface ${CrudRepository}
     long ${indexData.countBy}(${indexData.param});
     boolean ${indexData.existsBy}(${indexData.param});
 
+    <#if indexData.type??>
     @Modifying
     @Query(nativeQuery = true,
            value = "delete from "
@@ -52,6 +55,7 @@ public interface ${CrudRepository}
                     + ${Entity}.Columns.${indexData.column}
                     + " = :${indexData.name}")
     void ${indexData.deleteBy}(${indexData.param});
+    </#if>
     </#if>
 
     </#list>

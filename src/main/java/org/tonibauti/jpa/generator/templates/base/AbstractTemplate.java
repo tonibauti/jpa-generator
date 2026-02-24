@@ -342,7 +342,6 @@ public abstract class AbstractTemplate extends AbstractComponent
             indexData.setUnique( unique );
 
             indexDataList.add( indexData );
-
         }
 
         return indexDataList;
