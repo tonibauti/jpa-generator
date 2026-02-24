@@ -31,6 +31,7 @@ public interface ${CrudRepository}
     long ${indexData.countBy}(${indexData.param});
     boolean ${indexData.existsBy}(${indexData.param});
 
+    <#if indexData.type??>
     @Modifying
     @Query(nativeQuery = true,
            value = "delete from "
@@ -39,6 +40,7 @@ public interface ${CrudRepository}
                     + ${Entity}.Columns.${indexData.column}
                     + " = :${indexData.name}")
     void ${indexData.deleteBy}(${indexData.param});
+    </#if>
     <#else>
     List<${Entity}> ${indexData.findBy}(${indexData.param});
     List<${Entity}> ${indexData.findBy}(${indexData.param}, Sort sort);
