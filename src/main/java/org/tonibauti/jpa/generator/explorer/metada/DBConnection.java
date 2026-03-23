@@ -171,21 +171,20 @@ public class DBConnection
                 className = Long.class.getName();
                 break;
 
-            /*
             case Types.NUMERIC:
             case Types.DECIMAL:
                 className = java.math.BigDecimal.class.getName();
                 break;
 
+            case Types.FLOAT:
             case Types.REAL:
                 className = Float.class.getName();
                 break;
-            */
 
-            case Types.NUMERIC:
-            case Types.DECIMAL:
-            case Types.REAL:
-            case Types.FLOAT:
+            //case Types.NUMERIC:
+            //case Types.DECIMAL:
+            //case Types.REAL:
+            //case Types.FLOAT:
             case Types.DOUBLE:
                 className = Double.class.getName();
                 break;
