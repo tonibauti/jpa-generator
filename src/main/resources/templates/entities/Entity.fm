@@ -17,6 +17,8 @@ import org.hibernate.annotations.UuidGenerator;
 </#if>
 <#if isPersistable>
 import org.springframework.data.domain.Persistable;
+import jakarta.persistence.PostPersist;
+import lombok.EqualsAndHashCode;
 </#if>
 <#if auditing>
 import org.springframework.data.annotation.CreatedDate;
@@ -70,7 +72,10 @@ public class ${Entity} implements <#if isPersistable>Persistable<${Key}>, </#if>
     }
 
     <#if isPersistable>
+    @EqualsAndHashCode.Exclude
     private transient boolean isNew;
+    @PostPersist
+    private void markNotNew() { this.isNew = false; }
 
     </#if>
     <#if isMultipleKey>
